@@ -1,0 +1,30 @@
+@model List<MovieWeb.Core.Models.Genre>
+@{
+    ViewData["Title"] = "Danh sách Thể Loại Phim - MovieOnline";
+    ViewData["ActivePage"] = "Genres";
+}
+
+<div class="main-wrapper">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="section-title mb-1" style="font-size:2rem;">
+                <i class="fas fa-th-large text-danger"></i> Danh Sách Thể Loại Phim
+            </h1>
+            <p class="text-muted" style="font-size:0.9rem">
+                Khám phá kho phim trực tuyến đa dạng đầy đủ các chủng loại phong phú
+            </p>
+        </div>
+    </div>
+
+    <div class="genre-cards-grid">
+        @foreach (var g in Model)
+        {
+            <a href="/phim?genre=@g.Id" class="genre-card" style="padding: 1.8rem 1rem;">
+                <i class="@g.IconClass genre-icon" style="font-size: 2.5rem;"></i>
+                <div class="genre-name" style="font-size: 1.1rem; margin-top: 0.4rem;">@g.Name</div>
+                <p class="text-muted mb-2" style="font-size:0.78rem; line-height: 1.3;">@g.Description</p>
+                <div class="badge-pill badge-primary">@g.MovieCount phim</div>
+            </a>
+        }
+    </div>
+</div>

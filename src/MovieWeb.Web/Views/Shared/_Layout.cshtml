@@ -1,0 +1,156 @@
+@using MovieWeb.Core.Services
+@inject IMovieService MovieService
+
+@{
+    var genres = await MovieService.GetAllGenresAsync();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] ?? "Xem phim trực tuyến") - MovieOnline</title>
+    <meta name="description" content="Xem phim trực tuyến chất lượng cao 4K, Vietsub, Thuyết minh miễn phí với kho phim đa dạng Thể loại: Tình cảm, Ngôn tình, Kinh dị, Trinh thám, Hành động, Siêu anh hùng, Phim Chiếu Rạp." />
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="/css/site.css?v=3" />
+</head>
+<body style="background-color: #181818; color: #ffffff;">
+
+    <!-- Header & Responsive Navbar (Black Header Bar #000000) -->
+    <header class="site-header" id="siteHeader" style="background-color: #000000; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+        <div class="nav-container">
+            <!-- Brand Logo -->
+            <a href="/" class="brand-logo" id="headerLogo">
+                <div class="logo-icon"><i class="fas fa-play"></i></div>
+                <div>Movie<span class="highlight">Online</span></div>
+            </a>
+
+            <!-- Navigation Buttons (Trang chủ, Phim, Phim Chiếu Rạp, Thể loại dropdown) -->
+            <ul class="nav-menu" id="mainNavMenu">
+                <li>
+                    <a href="/" class="nav-btn-link @(ViewData["ActivePage"]?.ToString() == "Home" ? "active" : "")" id="navHomeLink">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                </li>
+                <li>
+                    <a href="/phim" class="nav-btn-link @(ViewData["ActivePage"]?.ToString() == "Movies" ? "active" : "")" id="navMoviesLink">
+                        <i class="fas fa-film"></i> Phim
+                    </a>
+                </li>
+                <li>
+                    <a href="/phim-bo" class="nav-btn-link @(ViewData["ActivePage"]?.ToString() == "Series" ? "active" : "")" id="navSeriesLink">
+                        <i class="fas fa-tv"></i> Phim Bộ
+                    </a>
+                </li>
+                <li>
+                    <a href="/phim-chieu-rap" class="nav-btn-link @(ViewData["ActivePage"]?.ToString() == "Cinema" ? "active" : "")" id="navCinemaLink">
+                        <i class="fas fa-ticket-alt"></i> Phim Chiếu Rạp
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="/the-loai" class="nav-btn-link @(ViewData["ActivePage"]?.ToString() == "Genres" ? "active" : "")" id="navGenresDropdown">
+                        <i class="fas fa-th-large"></i> Thể loại <i class="fas fa-chevron-down" style="font-size:0.75rem; margin-left:2px"></i>
+                    </a>
+                    <div class="dropdown-menu-custom">
+                        <div class="dropdown-header-title">Danh sách Thể loại</div>
+                        @foreach (var g in genres)
+                        {
+                            <a href="/phim?genre=@g.Id" class="dropdown-genre-item">
+                                <i class="@g.IconClass" style="width:18px"></i>
+                                <span>@g.Name</span>
+                            </a>
+                        }
+                        <a href="/the-loai" class="dropdown-genre-item" style="grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,0.08); margin-top:0.3rem; padding-top:0.5rem; color:var(--primary); font-weight:700;">
+                            <i class="fas fa-arrow-right" style="width:18px"></i>
+                            <span>Xem tất cả thể loại</span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Header Right Search Bar -->
+            <div class="header-actions">
+                <div class="search-box-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="headerSearchInput" placeholder="Tìm tên phim, diễn viên..." autocomplete="off" />
+                    <div class="search-results-popup" id="headerSearchPopup"></div>
+                </div>
+
+                <button class="btn-mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Body (Layout #181818) -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- Trailer & Detail Video Modal -->
+    <div class="modal-backdrop-custom" id="videoTrailerModal">
+        <div class="modal-content-custom">
+            <button class="modal-close-btn" onclick="closeTrailerModal()"><i class="fas fa-times"></i></button>
+            <div class="video-responsive">
+                <iframe id="trailerIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <div class="modal-body-detail">
+                <h4 id="trailerMovieTitle" class="text-white mb-2" style="font-size:1.2rem; font-weight:700;">Trailer Phim</h4>
+                <p class="text-muted" style="font-size:0.85rem">Đang phát trailer trực tiếp từ MovieOnline Server 4K.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <a href="/" class="brand-logo mb-3">
+                    <div class="logo-icon"><i class="fas fa-play"></i></div>
+                    <div>Movie<span class="highlight">Online</span></div>
+                </a>
+                <p class="text-muted" style="font-size:0.88rem; max-width:320px;">
+                    Xem phim trực tuyến chất lượng cao, cập nhật phim chiếu rạp mới nhất hoàn toàn miễn phí. Đa dạng thể loại Hành động, Ngôn tình, Kinh dị, Phim Hoạt Hình và Siêu Anh Hùng.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h5>Thể loại Nổi Bật</h5>
+                <ul class="footer-links">
+                    <li><a href="/phim?genre=hanh-dong">Hành Động</a></li>
+                    <li><a href="/phim?genre=ngon-tinh">Ngôn Tình</a></li>
+                    <li><a href="/phim?genre=kinh-di">Kinh Dị</a></li>
+                    <li><a href="/phim?genre=sieu-anh-hung">Siêu Anh Hùng</a></li>
+                    <li><a href="/phim-chieu-rap">Phim Chiếu Rạp</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Khám Phá</h5>
+                <ul class="footer-links">
+                    <li><a href="/phim-chieu-rap">Phim Rạp Mới Nhất</a></li>
+                    <li><a href="/phim?sort=top">Phim Đánh Giá Cao</a></li>
+                    <li><a href="/phim?sort=popular">Phim Xem Nhiều</a></li>
+                    <li><a href="/phim?series=true">Phim Bộ Cập Nhật</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Thông Tin</h5>
+                <ul class="footer-links">
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Bản quyền & DMCA</a></li>
+                    <li><a href="#">Điều khoản sử dụng</a></li>
+                    <li><a href="#">Liên hệ quảng cáo</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MovieOnline - Xem phim trực tuyến. Powered by ASP.NET Orchard Core.</p>
+        </div>
+    </footer>
+
+    <script src="/js/site.js?v=3"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

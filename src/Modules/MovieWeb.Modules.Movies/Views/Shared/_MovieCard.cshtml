@@ -1,0 +1,34 @@
+@model MovieWeb.Core.Models.Movie
+
+<div class="movie-card">
+    <div class="movie-poster-wrap">
+        <img src="@Model.PosterUrl" class="movie-poster" alt="@Model.Title" loading="lazy" />
+        
+        <div class="movie-badge-group">
+            <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @Model.Rating</span>
+            <span class="badge-pill badge-primary">@Model.Quality</span>
+            @if (Model.IsSeries)
+            {
+                <span class="badge-pill badge-blue">Bộ</span>
+            }
+        </div>
+
+        <div class="movie-play-overlay">
+            <a href="/phim/@Model.Id" class="play-icon-btn" title="Xem ngay">
+                <i class="fas fa-play"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="movie-info">
+        <a href="/phim/@Model.Id">
+            <h3 class="movie-title" title="@Model.Title">@Model.Title</h3>
+        </a>
+        <div class="movie-orig-title">@Model.OriginalTitle</div>
+
+        <div class="movie-meta">
+            <span><i class="far fa-calendar-alt"></i> @Model.ReleaseYear</span>
+            <span class="movie-rating">@Model.EpisodeInfo</span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,133 @@
+@model MovieFilterViewModel
+@{
+    var title = Model.CurrentGenreInfo != null 
+        ? $"Phim {Model.CurrentGenreInfo.Name}" 
+        : (!string.IsNullOrEmpty(Model.SearchKeyword) ? $"Kết quả tìm kiếm '{Model.SearchKeyword}'" : "Danh sách Phim");
+    ViewData["Title"] = title;
+    ViewData["ActivePage"] = "Movies";
+}
+
+<div class="main-wrapper">
+
+    <!-- Page Header Title -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="section-title mb-1" style="font-size:2rem;">
+                @if (Model.CurrentGenreInfo != null)
+                {
+                    <i class="@Model.CurrentGenreInfo.IconClass text-danger"></i> @("Phim " + Model.CurrentGenreInfo.Name)
+                }
+                else if (!string.IsNullOrEmpty(Model.SearchKeyword))
+                {
+                    <i class="fas fa-search text-danger"></i> @("Kết quả tìm kiếm: \"" + Model.SearchKeyword + "\"")
+                }
+                else
+                {
+                    <i class="fas fa-film text-danger"></i> @("Kho Phim Trực Tuyến")
+                }
+            </h1>
+            <p class="text-muted" style="font-size:0.9rem">
+                Hiển thị @Model.Movies.Count trong số @Model.TotalItems phim phù hợp
+            </p>
+        </div>
+    </div>
+
+    <!-- Filter Bar Form -->
+    <div class="filter-container">
+        <form method="get" action="/phim" id="filterForm">
+            <div class="filter-grid">
+                <!-- Search Keyword with Autocomplete -->
+                <div class="form-group-custom" style="position:relative">
+                    <label class="form-label-custom">Từ khóa</label>
+                    <input type="text" name="q" id="moviesFilterSearch" value="@Model.SearchKeyword"
+                           class="form-input-custom"
+                           placeholder="Nhập tên phim..."
+                           autocomplete="off"
+                           data-autocomplete-search="moviesFilterPopup" />
+                    <div class="search-results-popup" id="moviesFilterPopup" style="top:calc(100% + 4px)"></div>
+                </div>
+
+                <!-- Genre Select -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Thể loại</label>
+                    <select name="genre" class="form-select-custom" onchange="this.form.submit()">
+                        <option value="all" selected="@(Model.SelectedGenre == "all")">-- Tất cả Thể loại --</option>
+                        @foreach (var g in Model.Genres)
+                        {
+                            <option value="@g.Id" selected="@(Model.SelectedGenre == g.Id)">@g.Name (@g.MovieCount)</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Country Select -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Quốc gia</label>
+                    <select name="country" class="form-select-custom" onchange="this.form.submit()">
+                        <option value="all" selected="@(Model.SelectedCountry == "all")">-- Tất cả Quốc gia --</option>
+                        <option value="Việt Nam" selected="@(Model.SelectedCountry == "Việt Nam")">Việt Nam</option>
+                        <option value="Âu Mỹ" selected="@(Model.SelectedCountry == "Âu Mỹ")">Âu Mỹ</option>
+                        <option value="Trung Quốc" selected="@(Model.SelectedCountry == "Trung Quốc")">Trung Quốc</option>
+                        <option value="Hàn Quốc" selected="@(Model.SelectedCountry == "Hàn Quốc")">Hàn Quốc</option>
+                        <option value="Nhật Bản" selected="@(Model.SelectedCountry == "Nhật Bản")">Nhật Bản</option>
+                    </select>
+                </div>
+
+                <!-- Series or Single -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Loại phim</label>
+                    <select name="series" class="form-select-custom" onchange="this.form.submit()">
+                        <option value="" selected="@(Model.SelectedIsSeries == null)">-- Tất cả --</option>
+                        <option value="false" selected="@(Model.SelectedIsSeries == false)">Phim Lẻ</option>
+                        <option value="true" selected="@(Model.SelectedIsSeries == true)">Phim Bộ</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Sắp xếp</label>
+                    <select name="sort" class="form-select-custom" onchange="this.form.submit()">
+                        <option value="newest" selected="@(Model.SortBy == "newest")">Mới nhất</option>
+                        <option value="popular" selected="@(Model.SortBy == "popular")">Xem nhiều nhất</option>
+                        <option value="rating" selected="@(Model.SortBy == "rating")">Đánh giá cao nhất</option>
+                        <option value="title" selected="@(Model.SortBy == "title")">Tên A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Movie Grid -->
+    @if (Model.Movies.Any())
+    {
+        <div class="movie-grid">
+            @foreach (var movie in Model.Movies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="pagination-wrapper">
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    <a href="/phim?q=@Model.SearchKeyword&genre=@Model.SelectedGenre&country=@Model.SelectedCountry&series=@Model.SelectedIsSeries&sort=@Model.SortBy&page=@p"
+                       class="page-link-custom @(p == Model.CurrentPage ? "active" : "")">
+                        @p
+                    </a>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-film text-muted" style="font-size:3.5rem; margin-bottom:1rem; opacity:0.4;"></i>
+            <h3 class="text-white">Không tìm thấy phim phù hợp</h3>
+            <p class="text-muted">Vui lòng thử thay đổi từ khóa tìm kiếm hoặc bỏ chọn các bộ lọc.</p>
+            <a href="/phim" class="btn-custom btn-primary-custom mt-3">Xóa bộ lọc</a>
+        </div>
+    }
+
+</div>

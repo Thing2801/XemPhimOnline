@@ -1,0 +1,167 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Trang chủ - Xem Phim Trực Tuyến";
+    ViewData["ActivePage"] = "Home";
+}
+
+<!-- Hero Banner Slider -->
+<section class="hero-slider-container">
+    @for (int i = 0; i < Model.HeroMovies.Count; i++)
+    {
+        var movie = Model.HeroMovies[i];
+        <div class="hero-slide @(i == 0 ? "active" : "")" data-index="@i">
+            <img src="@movie.BannerUrl" class="hero-bg" alt="@movie.Title" />
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="hero-text-side">
+                    <div class="hero-badges">
+                        <span class="badge-pill badge-primary">NỔI BẬT</span>
+                        <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @movie.Rating</span>
+                        <span class="badge-pill badge-glass">@movie.Quality</span>
+                        <span class="badge-pill badge-glass">@movie.AgeRating</span>
+                        <span class="badge-pill badge-glass">@movie.ReleaseYear</span>
+                    </div>
+
+                    <h1 class="hero-title">@movie.Title</h1>
+                    <div class="hero-orig-title">@movie.OriginalTitle</div>
+                    <p class="hero-description">@movie.Description</p>
+
+                    <div class="hero-actions">
+                        <a href="/phim/@movie.Id" class="btn-custom btn-primary-custom">
+                            <i class="fas fa-play"></i> Xem ngay
+                        </a>
+                        <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@movie.TrailerUrl', '@movie.Title')">
+                            <i class="fas fa-film"></i> Xem Trailer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="hero-poster-card">
+                    <img src="@movie.PosterUrl" class="hero-poster-img" alt="@movie.Title" />
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Hero Slider Controls -->
+    <div class="hero-slider-nav">
+        <button class="slider-arrow" id="heroPrevBtn" aria-label="Previous Slide"><i class="fas fa-chevron-left"></i></button>
+        <div class="slider-dots">
+            @for (int i = 0; i < Model.HeroMovies.Count; i++)
+            {
+                <span class="dot @(i == 0 ? "active" : "")" data-slide="@i"></span>
+            }
+        </div>
+        <button class="slider-arrow" id="heroNextBtn" aria-label="Next Slide"><i class="fas fa-chevron-right"></i></button>
+    </div>
+</section>
+
+<!-- Main Body Sections -->
+<div class="main-wrapper">
+
+    <!-- Quick Genre Cards Grid -->
+    <section class="mb-5">
+        <div class="section-header">
+            <h2 class="section-title">Khám Phá Theo Thể Loại</h2>
+            <a href="/the-loai" class="btn-view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="genre-cards-grid">
+            @foreach (var g in Model.Genres)
+            {
+                <a href="/phim?genre=@g.Id" class="genre-card">
+                    <i class="@g.IconClass genre-icon"></i>
+                    <div class="genre-name">@g.Name</div>
+                    <div class="genre-count">@g.MovieCount phim</div>
+                </a>
+            }
+        </div>
+    </section>
+
+    <!-- Carousel 1: Phim Thịnh Hành & Mới Cập Nhật -->
+    <section class="movie-carousel-wrapper">
+        <div class="section-header">
+            <h2 class="section-title">Phim Thịnh Hành & Đánh Giá Cao</h2>
+            <div class="d-flex gap-2">
+                <button class="slider-arrow" onclick="scrollCarousel('carouselTrending', 'left')"><i class="fas fa-chevron-left"></i></button>
+                <button class="slider-arrow" onclick="scrollCarousel('carouselTrending', 'right')"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        <div class="movie-carousel" id="carouselTrending">
+            @foreach (var movie in Model.TrendingMovies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+    </section>
+
+    <!-- Carousel 2: Phim Hành Động & Siêu Anh Hùng -->
+    <section class="movie-carousel-wrapper">
+        <div class="section-header">
+            <h2 class="section-title">Phim Hành Động & Siêu Anh Hùng</h2>
+            <a href="/phim?genre=hanh-dong" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="movie-carousel" id="carouselAction">
+            @foreach (var movie in Model.ActionMovies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+    </section>
+
+    <!-- Carousel 3: Phim Tình Cảm & Ngôn Tình -->
+    <section class="movie-carousel-wrapper">
+        <div class="section-header">
+            <h2 class="section-title">Phim Tình Cảm & Ngôn Tình</h2>
+            <a href="/phim?genre=tinh-cam" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="movie-carousel" id="carouselRomance">
+            @foreach (var movie in Model.RomanceMovies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+    </section>
+
+    <!-- Carousel 4: Phim Kinh Dị & Trinh Thám -->
+    <section class="movie-carousel-wrapper">
+        <div class="section-header">
+            <h2 class="section-title">Phim Kinh Dị & Trinh Thám</h2>
+            <a href="/phim?genre=kinh-di" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="movie-carousel" id="carouselHorror">
+            @foreach (var movie in Model.HorrorMovies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+    </section>
+
+    <!-- Carousel 5: Phim Hoạt Hình & Huyền Thoại / Truyền Thuyết -->
+    <section class="movie-carousel-wrapper">
+        <div class="section-header">
+            <h2 class="section-title">Phim Hoạt Hình & Huyền Thoại</h2>
+            <a href="/phim?genre=hoat-hinh" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="movie-carousel" id="carouselAnimation">
+            @foreach (var movie in Model.AnimationMovies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+    </section>
+
+    <!-- Carousel 6: Phim Cổ Trang & Khoa Học Viễn Tưởng -->
+    <section class="movie-carousel-wrapper">
+        <div class="section-header">
+            <h2 class="section-title">Phim Cổ Trang & Khoa Học Viễn Tưởng</h2>
+            <a href="/phim?genre=co-trang" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="movie-carousel" id="carouselAncient">
+            @foreach (var movie in Model.AncientMovies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+    </section>
+
+</div>

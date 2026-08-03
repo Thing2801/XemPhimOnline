@@ -1,0 +1,114 @@
+@model SeriesViewModel
+@{
+    ViewData["Title"] = "Kho Phim Bộ";
+    ViewData["ActivePage"] = "Series";
+}
+
+<div class="main-wrapper" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+
+    <!-- Banner / Page Header Title -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap" style="gap:1rem;">
+        <div>
+            <h1 class="section-title mb-1" style="font-size:2.2rem; font-weight:800;">
+                <i class="fas fa-tv text-danger" style="margin-right:8px"></i> Kho Phim Bộ Cập Nhật
+            </h1>
+            <p class="text-muted" style="font-size:0.92rem">
+                Danh sách những bộ phim truyền hình, phim bộ nhiều tập hấp dẫn nhất (Đã lọc theo <code style="color:var(--primary)">IsPartMovie</code>).
+            </p>
+        </div>
+        <div style="background: rgba(229,9,20,0.1); border: 1px solid rgba(229,9,20,0.3); padding: 0.5rem 1.2rem; border-radius: 99px; font-weight: 700; color: var(--primary);">
+            <i class="fas fa-layer-group"></i> Total: @Model.TotalItems Phim Bộ
+        </div>
+    </div>
+
+    <!-- Filter Bar Form -->
+    <div class="filter-container mb-4">
+        <form method="get" action="/phim-bo" id="seriesFilterForm">
+            <div class="filter-grid">
+                <!-- Search Keyword with Autocomplete -->
+                <div class="form-group-custom" style="position:relative">
+                    <label class="form-label-custom">Từ khóa phim bộ</label>
+                    <input type="text" name="q" id="seriesFilterSearch" value="@Model.SearchKeyword"
+                           class="form-input-custom"
+                           placeholder="Nhập tên phim bộ..."
+                           autocomplete="off"
+                           data-autocomplete-search="seriesFilterPopup" />
+                    <div class="search-results-popup" id="seriesFilterPopup" style="top:calc(100% + 4px)"></div>
+                </div>
+
+                <!-- Genre Select -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Thể loại</label>
+                    <select name="genre" class="form-select-custom" onchange="this.form.submit()">
+                        <option value="all" selected="@(Model.SelectedGenre == "all")">-- Tất cả Thể loại --</option>
+                        @foreach (var g in Model.Genres)
+                        {
+                            <option value="@g.Id" selected="@(Model.SelectedGenre == g.Id)">@g.Name (@g.MovieCount)</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Country Select -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Quốc gia</label>
+                    <select name="country" class="form-select-custom" onchange="this.form.submit()">
+                        <option value="all" selected="@(Model.SelectedCountry == "all")">-- Tất cả Quốc gia --</option>
+                        <option value="Việt Nam" selected="@(Model.SelectedCountry == "Việt Nam")">Việt Nam</option>
+                        <option value="Âu Mỹ" selected="@(Model.SelectedCountry == "Âu Mỹ")">Âu Mỹ</option>
+                        <option value="Trung Quốc" selected="@(Model.SelectedCountry == "Trung Quốc")">Trung Quốc</option>
+                        <option value="Hàn Quốc" selected="@(Model.SelectedCountry == "Hàn Quốc")">Hàn Quốc</option>
+                        <option value="Nhật Bản" selected="@(Model.SelectedCountry == "Nhật Bản")">Nhật Bản</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Sắp xếp</label>
+                    <select name="sort" class="form-select-custom" onchange="this.form.submit()">
+                        <option value="newest" selected="@(Model.SortBy == "newest")">Mới cập nhật</option>
+                        <option value="popular" selected="@(Model.SortBy == "popular")">Xem nhiều nhất</option>
+                        <option value="rating" selected="@(Model.SortBy == "rating")">Đánh giá cao nhất</option>
+                        <option value="title" selected="@(Model.SortBy == "title")">Tên A-Z</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Movies Grid -->
+    @if (Model.Movies.Any())
+    {
+        <div class="movie-grid">
+            @foreach (var movie in Model.Movies)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="pagination-wrapper mt-4">
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    <a href="/phim-bo?q=@Model.SearchKeyword&genre=@Model.SelectedGenre&country=@Model.SelectedCountry&sort=@Model.SortBy&page=@p"
+                       class="page-link-custom @(p == Model.CurrentPage ? "active" : "")">
+                        @p
+                    </a>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5" style="background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <i class="fas fa-tv text-muted" style="font-size:3.5rem; margin-bottom:1rem; opacity:0.4;"></i>
+            <h3 class="text-white mb-2">Chưa tìm thấy Phim Bộ phù hợp</h3>
+            <p class="text-muted" style="max-width:500px; margin: 0 auto 1.5rem auto;">
+                Chưa có phim bộ nào khớp với các tiêu chí lọc hiện tại hoặc chưa có phim nào được tick chọn <code style="color:var(--primary)">IsPartMovie</code> trong Orchard Core Admin.
+            </p>
+            <a href="/phim-bo" class="btn-custom btn-primary-custom">Xóa bộ lọc</a>
+        </div>
+    }
+
+</div>

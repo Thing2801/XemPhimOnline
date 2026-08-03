@@ -1,0 +1,266 @@
+@model MovieWeb.Modules.Cinema.Models.CinemaViewModel
+@{
+    ViewData["Title"] = "Phim Chiếu Rạp";
+    ViewData["ActivePage"] = "Cinema";
+}
+
+<div class="cinema-module-wrapper">
+    <!-- Spotlight Hero Section -->
+    @if (Model.SpotlightMovie != null)
+    {
+        <div class="cinema-hero-banner" style="background-image: linear-gradient(180deg, rgba(24,24,24,0.3) 0%, rgba(24,24,24,0.95) 100%), url('@Model.SpotlightMovie.BannerUrl');">
+            <div class="cinema-hero-content container">
+                <span class="badge-cinema-live"><i class="fas fa-film"></i> ĐANG HOT TẠI CÁC RẠP TOÀN QUỐC</span>
+                <h1 class="cinema-hero-title">@Model.SpotlightMovie.Title</h1>
+                <p class="cinema-hero-sub">@Model.SpotlightMovie.OriginalTitle (@Model.SpotlightMovie.ReleaseYear)</p>
+                <div class="cinema-hero-meta">
+                    <span class="meta-tag rating"><i class="fas fa-star text-warning"></i> @Model.SpotlightMovie.Rating / 10</span>
+                    <span class="meta-tag quality">@Model.SpotlightMovie.Quality</span>
+                    <span class="meta-tag duration"><i class="far fa-clock"></i> @Model.SpotlightMovie.Duration</span>
+                    <span class="meta-tag genre">@string.Join(" • ", Model.SpotlightMovie.GenreNames)</span>
+                </div>
+                <p class="cinema-hero-desc">@Model.SpotlightMovie.Description</p>
+                <div class="cinema-hero-buttons">
+                    <button class="btn btn-primary-lg" onclick="openTrailerModal('@Model.SpotlightMovie.TrailerUrl', '@Model.SpotlightMovie.Title')">
+                        <i class="fas fa-play"></i> Xem Trailer Chiếu Rạp
+                    </button>
+                    <a href="/phim/@Model.SpotlightMovie.Id" class="btn btn-secondary-lg">
+                        <i class="fas fa-info-circle"></i> Chi Tiết Phim
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Content Main Area -->
+    <div class="container py-5">
+        <!-- Header & Tabs -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 border-bottom-dark pb-3">
+            <div>
+                <h2 class="section-title mb-1"><i class="fas fa-ticket-alt text-danger me-2"></i> Danh Sách Phim Chiếu Rạp</h2>
+                <p class="text-muted mb-0">Cập nhật lịch chiếu, trailer và đánh giá các bộ phim bom tấn chiếu rạp mới nhất.</p>
+            </div>
+            
+            <div class="cinema-tabs mt-3 mt-md-0">
+                <a href="/phim-chieu-rap?tab=now-showing&genre=@Model.SelectedGenre" 
+                   class="tab-btn @(Model.SelectedTab == "now-showing" ? "active" : "")">
+                    <i class="fas fa-fire me-1"></i> Phim Đang Chiếu (@Model.NowShowingMovies.Count)
+                </a>
+                <a href="/phim-chieu-rap?tab=coming-soon&genre=@Model.SelectedGenre" 
+                   class="tab-btn @(Model.SelectedTab == "coming-soon" ? "active" : "")">
+                    <i class="fas fa-calendar-alt me-1"></i> Phim Sắp Chiếu (@Model.ComingSoonMovies.Count)
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Genres Bar -->
+        <div class="genre-filter-pills mb-4">
+            <a href="/phim-chieu-rap?tab=@Model.SelectedTab&genre=all" 
+               class="pill-item @(Model.SelectedGenre == "all" ? "active" : "")">Tất cả thể loại</a>
+            @foreach (var g in Model.Genres)
+            {
+                <a href="/phim-chieu-rap?tab=@Model.SelectedTab&genre=@g.Id" 
+                   class="pill-item @(Model.SelectedGenre == g.Id ? "active" : "")">
+                   <i class="@g.IconClass me-1" style="font-size:0.8rem"></i> @g.Name
+                </a>
+            }
+        </div>
+
+        <!-- Movies Display Grid -->
+        @{
+            var displayList = Model.SelectedTab == "coming-soon" ? Model.ComingSoonMovies : Model.NowShowingMovies;
+        }
+
+        @if (displayList.Any())
+        {
+            <div class="movie-grid">
+                @foreach (var movie in displayList)
+                {
+                    <div class="movie-card">
+                        <div class="poster-wrapper">
+                            <img src="@movie.PosterUrl" alt="@movie.Title" class="poster-img" loading="lazy" />
+                            <div class="poster-overlay">
+                                <button class="btn-play-circle" onclick="openTrailerModal('@movie.TrailerUrl', '@movie.Title')" title="Xem Trailer">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <a href="/phim/@movie.Id" class="btn-detail-link">Chi tiết</a>
+                            </div>
+                            <span class="badge-quality">@movie.Quality</span>
+                            <span class="badge-rating"><i class="fas fa-star text-warning me-1"></i>@movie.Rating</span>
+                            <span class="badge-cinema-tag"><i class="fas fa-ticket-alt"></i> TẠI RẠP</span>
+                        </div>
+                        <div class="movie-info">
+                            <h3 class="movie-title"><a href="/phim/@movie.Id">@movie.Title</a></h3>
+                            <div class="movie-meta">
+                                <span>@movie.ReleaseYear</span>
+                                <span>•</span>
+                                <span>@movie.Duration</span>
+                            </div>
+                            <div class="movie-genres text-truncate" title="@string.Join(", ", movie.GenreNames)">
+                                @string.Join(", ", movie.GenreNames)
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 my-4 bg-dark-card rounded-3">
+                <i class="fas fa-film text-muted mb-3" style="font-size:3rem"></i>
+                <h4 class="text-white mb-2">Chưa có phim chiếu rạp trong danh mục này</h4>
+                <p class="text-muted">Bạn hãy thêm các phim chiếu rạp mới từ trang Quản trị Orchard Core Admin nhé!</p>
+                <a href="/phim-chieu-rap" class="btn btn-outline-danger mt-2">Xem tất cả phim chiếu rạp</a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+.cinema-module-wrapper {
+    background-color: #181818;
+    min-height: 80vh;
+}
+
+.cinema-hero-banner {
+    position: relative;
+    background-size: cover;
+    background-position: center top;
+    padding: 100px 0 60px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.badge-cinema-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(229, 9, 20, 0.9);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 15px;
+}
+
+.cinema-hero-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 5px;
+    line-height: 1.2;
+}
+
+.cinema-hero-sub {
+    font-size: 1.1rem;
+    color: #aaaaaa;
+    margin-bottom: 15px;
+}
+
+.cinema-hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.meta-tag {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    color: #ffffff;
+}
+
+.meta-tag.rating {
+    background: rgba(245, 197, 24, 0.2);
+    color: #f5c518;
+    font-weight: 700;
+}
+
+.cinema-hero-desc {
+    font-size: 1rem;
+    color: #cccccc;
+    max-width: 750px;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.cinema-hero-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-primary-lg {
+    background: #e50914;
+    color: #fff;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.25s ease;
+}
+.btn-primary-lg:hover {
+    background: #ff0f1a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(229,9,20,0.4);
+}
+
+.btn-secondary-lg {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+.btn-secondary-lg:hover {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+}
+
+.border-bottom-dark {
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.cinema-tabs {
+    display: inline-flex;
+    background: #222222;
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+.tab-btn {
+    color: #aaa;
+    padding: 8px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active, .tab-btn:hover {
+    background: #e50914;
+    color: #fff;
+}
+
+.badge-cinema-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(229, 9, 20, 0.9);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+</style>

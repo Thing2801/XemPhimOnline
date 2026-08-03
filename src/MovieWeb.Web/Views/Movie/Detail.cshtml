@@ -1,0 +1,117 @@
+@model MovieWeb.Core.Models.Movie
+@{
+    ViewData["Title"] = $"{Model.Title} ({Model.ReleaseYear}) - MovieOnline";
+    ViewData["ActivePage"] = "Movies";
+    var relatedMovies = ViewBag.RelatedMovies as List<MovieWeb.Core.Models.Movie> ?? new List<MovieWeb.Core.Models.Movie>();
+}
+
+<!-- Movie Banner Detail Header -->
+<section class="hero-slider-container" style="min-height: 55vh;">
+    <img src="@Model.BannerUrl" class="hero-bg" alt="@Model.Title" />
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content" style="padding-top: 5rem;">
+        <div class="hero-text-side">
+            <div class="hero-badges">
+                <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @Model.Rating</span>
+                <span class="badge-pill badge-primary">@Model.Quality</span>
+                <span class="badge-pill badge-glass">@Model.AgeRating</span>
+                <span class="badge-pill badge-glass">@Model.Country</span>
+                <span class="badge-pill badge-glass">@Model.Duration</span>
+            </div>
+
+            <h1 class="hero-title" style="font-size: 2.8rem;">@Model.Title</h1>
+            <div class="hero-orig-title">@Model.OriginalTitle (@Model.ReleaseYear)</div>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                @foreach (var gName in Model.GenreNames)
+                {
+                    <span class="badge-pill badge-glass"><i class="fas fa-tag"></i> @gName</span>
+                }
+            </div>
+
+            <p class="hero-description">@Model.Description</p>
+
+            <div class="hero-actions mt-4">
+                <button class="btn-custom btn-primary-custom" onclick="document.getElementById('playerSection').scrollIntoView({behavior: 'smooth'})">
+                    <i class="fas fa-play"></i> Xem Phim Ngay
+                </button>
+                <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@Model.TrailerUrl', '@Model.Title')">
+                    <i class="fas fa-film"></i> Xem Trailer
+                </button>
+            </div>
+        </div>
+
+        <div class="hero-poster-card" style="width:280px; justify-self:center;">
+            <img src="@Model.PosterUrl" class="hero-poster-img" style="height:390px;" alt="@Model.Title" />
+        </div>
+    </div>
+</section>
+
+<!-- Player Section & Details -->
+<div class="main-wrapper">
+    <div class="row g-4" id="playerSection">
+        <!-- Video Player Block -->
+        <div class="col-lg-8">
+            <div class="card bg-card border-secondary-custom mb-4 style-card-player" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:hidden;">
+                <div class="card-header p-3 d-flex align-items-center justify-content-between" style="border-bottom:1px solid var(--border-color)">
+                    <div class="d-flex align-items-center gap-2 text-white font-weight-bold">
+                        <i class="fas fa-play-circle text-danger"></i> Đang phát: <span class="text-white">@Model.Title</span>
+                    </div>
+                    <span class="badge-pill badge-primary">Server 4K High-Speed</span>
+                </div>
+                <div class="video-responsive">
+                    <iframe src="@Model.TrailerUrl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <!-- Cast & Info -->
+            <div class="p-4" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
+                <h3 class="text-white mb-3" style="font-size:1.3rem; font-weight:700;">Thông tin chi tiết</h3>
+                <div class="row g-3" style="font-size:0.9rem;">
+                    <div class="col-md-6">
+                        <p class="text-muted mb-2"><strong class="text-white">Đạo diễn:</strong> @Model.Director</p>
+                        <p class="text-muted mb-2"><strong class="text-white">Quốc gia:</strong> @Model.Country</p>
+                        <p class="text-muted mb-2"><strong class="text-white">Ngôn ngữ:</strong> @Model.LanguageMode</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted mb-2"><strong class="text-white">Thời lượng:</strong> @Model.Duration</p>
+                        <p class="text-muted mb-2"><strong class="text-white">Lượt xem:</strong> @Model.ViewsCount.ToString("N0") lượt</p>
+                        <p class="text-muted mb-2"><strong class="text-white">Phân loại:</strong> @Model.AgeRating</p>
+                    </div>
+                </div>
+
+                <hr style="border-color:var(--border-color); margin:1.5rem 0;" />
+
+                <h4 class="text-white mb-2" style="font-size:1.1rem; font-weight:600;">Diễn viên chính</h4>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var actor in Model.Cast)
+                    {
+                        <span class="badge-pill badge-glass" style="padding:0.4rem 0.9rem; font-size:0.85rem;"><i class="fas fa-user font-size-xs"></i> @actor</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Related Movies -->
+        <div class="col-lg-4">
+            <h3 class="section-title mb-3" style="font-size:1.3rem;">Phim Cùng Thể Loại</h3>
+            <div class="d-flex flex-column gap-3">
+                @foreach (var rel in relatedMovies)
+                {
+                    <a href="/phim/@rel.Id" class="search-result-item p-2" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
+                        <img src="@rel.PosterUrl" class="search-result-img" style="width:65px; height:90px; border-radius:var(--radius-sm);" alt="@rel.Title" />
+                        <div class="search-result-info">
+                            <div class="search-result-title" style="font-size:0.95rem;">@rel.Title</div>
+                            <div class="search-result-meta mb-1">@rel.OriginalTitle</div>
+                            <div class="d-flex align-items-center gap-2" style="font-size:0.78rem;">
+                                <span class="text-warning"><i class="fas fa-star"></i> @rel.Rating</span>
+                                <span class="text-muted">• @rel.ReleaseYear</span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
