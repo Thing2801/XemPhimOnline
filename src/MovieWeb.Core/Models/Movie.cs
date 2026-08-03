@@ -33,5 +33,6 @@ public class Movie
     public string EpisodeInfo { get; set; } = "Full Movie";
     
     public int ViewsCount { get; set; }
+    public string ViewsText { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

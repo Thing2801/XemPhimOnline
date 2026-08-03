@@ -40,7 +40,7 @@ function initHeroSlider() {
 
     function startAutoSlide() {
         stopAutoSlide();
-        autoSlideInterval = setInterval(nextSlide, 5000);
+        autoSlideInterval = setInterval(nextSlide, 3000);
     }
 
     function stopAutoSlide() {
@@ -54,11 +54,7 @@ function initHeroSlider() {
         dot.addEventListener('click', () => { showSlide(i); startAutoSlide(); });
     });
 
-    const heroContainer = document.querySelector('.hero-slider-container');
-    if (heroContainer) {
-        heroContainer.addEventListener('mouseenter', stopAutoSlide);
-        heroContainer.addEventListener('mouseleave', startAutoSlide);
-    }
+    // Slider luôn chạy liên tục, không dừng khi hover
 
     startAutoSlide();
 }

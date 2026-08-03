@@ -43,16 +43,14 @@
         </div>
     }
 
-    <!-- Hero Slider Controls -->
-    <div class="hero-slider-nav">
-        <button class="slider-arrow" id="heroPrevBtn" aria-label="Previous Slide"><i class="fas fa-chevron-left"></i></button>
+    <!-- Hero Slider Dots -->
+    <div class="hero-dots-container">
         <div class="slider-dots">
             @for (int i = 0; i < Model.HeroMovies.Count; i++)
             {
                 <span class="dot @(i == 0 ? "active" : "")" data-slide="@i"></span>
             }
         </div>
-        <button class="slider-arrow" id="heroNextBtn" aria-label="Next Slide"><i class="fas fa-chevron-right"></i></button>
     </div>
 </section>
 
@@ -63,15 +61,14 @@
     <section class="mb-5">
         <div class="section-header">
             <h2 class="section-title">Khám Phá Theo Thể Loại</h2>
-            <a href="/the-loai" class="btn-view-all">Xem tất cả <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="genre-cards-grid">
+        <div class="genre-grid">
             @foreach (var g in Model.Genres)
             {
                 <a href="/phim?genre=@g.Id" class="genre-card">
                     <i class="@g.IconClass genre-icon"></i>
-                    <div class="genre-name">@g.Name</div>
-                    <div class="genre-count">@g.MovieCount phim</div>
+                    <span class="genre-name">@g.Name</span>
+                    <span class="genre-count">(@g.MovieCount)</span>
                 </a>
             }
         </div>
@@ -81,16 +78,20 @@
     <section class="movie-carousel-wrapper">
         <div class="section-header">
             <h2 class="section-title">Phim Thịnh Hành & Đánh Giá Cao</h2>
-            <div class="d-flex gap-2">
-                <button class="slider-arrow" onclick="scrollCarousel('carouselTrending', 'left')"><i class="fas fa-chevron-left"></i></button>
-                <button class="slider-arrow" onclick="scrollCarousel('carouselTrending', 'right')"><i class="fas fa-chevron-right"></i></button>
-            </div>
         </div>
-        <div class="movie-carousel" id="carouselTrending">
-            @foreach (var movie in Model.TrendingMovies)
-            {
-                @await Html.PartialAsync("_MovieCard", movie)
-            }
+        <div class="movie-carousel-container">
+            <button class="carousel-btn carousel-btn-prev" onclick="scrollCarousel('carouselTrending', 'left')" aria-label="Lùi">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="movie-carousel" id="carouselTrending">
+                @foreach (var movie in Model.TrendingMovies)
+                {
+                    @await Html.PartialAsync("_MovieCard", movie)
+                }
+            </div>
+            <button class="carousel-btn carousel-btn-next" onclick="scrollCarousel('carouselTrending', 'right')" aria-label="Tới">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </section>
 
@@ -100,11 +101,19 @@
             <h2 class="section-title">Phim Hành Động & Siêu Anh Hùng</h2>
             <a href="/phim?genre=hanh-dong" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="movie-carousel" id="carouselAction">
-            @foreach (var movie in Model.ActionMovies)
-            {
-                @await Html.PartialAsync("_MovieCard", movie)
-            }
+        <div class="movie-carousel-container">
+            <button class="carousel-btn carousel-btn-prev" onclick="scrollCarousel('carouselAction', 'left')" aria-label="Lùi">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="movie-carousel" id="carouselAction">
+                @foreach (var movie in Model.ActionMovies)
+                {
+                    @await Html.PartialAsync("_MovieCard", movie)
+                }
+            </div>
+            <button class="carousel-btn carousel-btn-next" onclick="scrollCarousel('carouselAction', 'right')" aria-label="Tới">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </section>
 
@@ -114,11 +123,19 @@
             <h2 class="section-title">Phim Tình Cảm & Ngôn Tình</h2>
             <a href="/phim?genre=tinh-cam" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="movie-carousel" id="carouselRomance">
-            @foreach (var movie in Model.RomanceMovies)
-            {
-                @await Html.PartialAsync("_MovieCard", movie)
-            }
+        <div class="movie-carousel-container">
+            <button class="carousel-btn carousel-btn-prev" onclick="scrollCarousel('carouselRomance', 'left')" aria-label="Lùi">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="movie-carousel" id="carouselRomance">
+                @foreach (var movie in Model.RomanceMovies)
+                {
+                    @await Html.PartialAsync("_MovieCard", movie)
+                }
+            </div>
+            <button class="carousel-btn carousel-btn-next" onclick="scrollCarousel('carouselRomance', 'right')" aria-label="Tới">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </section>
 
@@ -128,11 +145,19 @@
             <h2 class="section-title">Phim Kinh Dị & Trinh Thám</h2>
             <a href="/phim?genre=kinh-di" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="movie-carousel" id="carouselHorror">
-            @foreach (var movie in Model.HorrorMovies)
-            {
-                @await Html.PartialAsync("_MovieCard", movie)
-            }
+        <div class="movie-carousel-container">
+            <button class="carousel-btn carousel-btn-prev" onclick="scrollCarousel('carouselHorror', 'left')" aria-label="Lùi">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="movie-carousel" id="carouselHorror">
+                @foreach (var movie in Model.HorrorMovies)
+                {
+                    @await Html.PartialAsync("_MovieCard", movie)
+                }
+            </div>
+            <button class="carousel-btn carousel-btn-next" onclick="scrollCarousel('carouselHorror', 'right')" aria-label="Tới">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </section>
 
@@ -142,11 +167,19 @@
             <h2 class="section-title">Phim Hoạt Hình & Huyền Thoại</h2>
             <a href="/phim?genre=hoat-hinh" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="movie-carousel" id="carouselAnimation">
-            @foreach (var movie in Model.AnimationMovies)
-            {
-                @await Html.PartialAsync("_MovieCard", movie)
-            }
+        <div class="movie-carousel-container">
+            <button class="carousel-btn carousel-btn-prev" onclick="scrollCarousel('carouselAnimation', 'left')" aria-label="Lùi">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="movie-carousel" id="carouselAnimation">
+                @foreach (var movie in Model.AnimationMovies)
+                {
+                    @await Html.PartialAsync("_MovieCard", movie)
+                }
+            </div>
+            <button class="carousel-btn carousel-btn-next" onclick="scrollCarousel('carouselAnimation', 'right')" aria-label="Tới">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </section>
 
@@ -156,11 +189,19 @@
             <h2 class="section-title">Phim Cổ Trang & Khoa Học Viễn Tưởng</h2>
             <a href="/phim?genre=co-trang" class="btn-view-all">Xem thêm <i class="fas fa-arrow-right"></i></a>
         </div>
-        <div class="movie-carousel" id="carouselAncient">
-            @foreach (var movie in Model.AncientMovies)
-            {
-                @await Html.PartialAsync("_MovieCard", movie)
-            }
+        <div class="movie-carousel-container">
+            <button class="carousel-btn carousel-btn-prev" onclick="scrollCarousel('carouselAncient', 'left')" aria-label="Lùi">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="movie-carousel" id="carouselAncient">
+                @foreach (var movie in Model.AncientMovies)
+                {
+                    @await Html.PartialAsync("_MovieCard", movie)
+                }
+            </div>
+            <button class="carousel-btn carousel-btn-next" onclick="scrollCarousel('carouselAncient', 'right')" aria-label="Tới">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
     </section>
 

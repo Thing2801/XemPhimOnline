@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using MovieWeb.Core.Models;
 using MovieWeb.Core.Services;
 using MovieWeb.Modules.Series.Models;
+using System.Globalization;
+using System.Text;
 
 namespace MovieWeb.Modules.Series.Controllers;
 
@@ -32,13 +34,14 @@ public class SeriesController : Controller
 
         if (!string.IsNullOrWhiteSpace(q))
         {
-            var kw = q.Trim().ToLowerInvariant();
-            seriesQuery = seriesQuery.Where(m => m.Title.ToLowerInvariant().Contains(kw) || m.Description.ToLowerInvariant().Contains(kw));
+            var kw = NormalizeSlug(q.Trim().ToLowerInvariant());
+            seriesQuery = seriesQuery.Where(m => NormalizeSlug(m.Title.ToLowerInvariant()).Contains(kw) || NormalizeSlug(m.Description.ToLowerInvariant()).Contains(kw));
         }
 
         if (!string.IsNullOrWhiteSpace(genre) && genre != "all")
         {
-            seriesQuery = seriesQuery.Where(m => m.GenreIds.Contains(genre, StringComparer.OrdinalIgnoreCase));
+            string normalizedGenre = NormalizeSlug(genre.Trim().ToLowerInvariant());
+            seriesQuery = seriesQuery.Where(m => m.GenreIds.Any(gid => NormalizeSlug(gid.ToLowerInvariant()) == normalizedGenre));
         }
 
         if (!string.IsNullOrWhiteSpace(country) && country != "all")
@@ -76,5 +79,18 @@ public class SeriesController : Controller
         };
 
         return View(model);
+    }
+    private static string NormalizeSlug(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        var sb1 = new StringBuilder(text.Length);
+        foreach (var c in text)
+            sb1.Append(c == 'đ' ? 'd' : c == 'Đ' ? 'D' : c);
+        var normalized = sb1.ToString().Normalize(NormalizationForm.FormD);
+        var sb2 = new StringBuilder();
+        foreach (var c in normalized)
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                sb2.Append(c);
+        return sb2.ToString().Normalize(NormalizationForm.FormC);
     }
 }

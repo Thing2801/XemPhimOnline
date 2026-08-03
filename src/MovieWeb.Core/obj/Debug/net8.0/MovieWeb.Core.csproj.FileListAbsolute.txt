@@ -10,3 +10,4 @@ E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Core\obj\Debug\net8.0\refint\Movi
 E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Core\obj\Debug\net8.0\MovieWeb.Core.pdb
 E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Core\obj\Debug\net8.0\ref\MovieWeb.Core.dll
 E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Core\obj\Debug\net8.0\MovieWeb.Core.csproj.AssemblyReference.cache
+E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Core\obj\Debug\net8.0\MovieWeb.Core.sourcelink.json

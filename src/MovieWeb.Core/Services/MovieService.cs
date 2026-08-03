@@ -177,11 +177,15 @@ public class MovieService : IMovieService
         bool? isSeries = null,
         string? sortBy = null,
         int page = 1,
-        int pageSize = 12)
+        int pageSize = 12,
+        bool isRegularOnly = false)
     {
         lock (_lockObj)
         {
             var query = FilterMoviesQuery(searchKeyword, genreId, country, year, isSeries);
+
+            if (isRegularOnly)
+                query = query.Where(m => !m.IsCinema && !m.IsSeries);
 
             query = sortBy?.ToLowerInvariant() switch
             {
@@ -206,12 +210,15 @@ public class MovieService : IMovieService
         string? genreId = null,
         string? country = null,
         int? year = null,
-        bool? isSeries = null)
+        bool? isSeries = null,
+        bool isRegularOnly = false)
     {
         lock (_lockObj)
         {
-            var count = FilterMoviesQuery(searchKeyword, genreId, country, year, isSeries).Count();
-            return Task.FromResult(count);
+            var query = FilterMoviesQuery(searchKeyword, genreId, country, year, isSeries);
+            if (isRegularOnly)
+                query = query.Where(m => !m.IsCinema && !m.IsSeries);
+            return Task.FromResult(query.Count());
         }
     }
 

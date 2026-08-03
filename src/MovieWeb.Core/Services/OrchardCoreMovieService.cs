@@ -22,7 +22,7 @@ public class OrchardCoreMovieService : IMovieService
     {
         try
         {
-            var contentItems = await _session.Query<ContentItem, ContentItemIndex>(x => x.ContentType == "Category" && (x.Published || x.Latest)).ListAsync();
+            var contentItems = await _session.Query<ContentItem, ContentItemIndex>(x => (x.ContentType == "Category" || x.ContentType == "Genre" || x.ContentType == "TheLoai") && (x.Published || x.Latest)).ListAsync();
             var list = new List<Genre>();
 
             foreach (var item in contentItems)
@@ -35,13 +35,13 @@ public class OrchardCoreMovieService : IMovieService
                               ?? item.DisplayText 
                               ?? "Thể loại";
                 
-                string slug = item.DisplayText?.ToLowerInvariant().Replace(" ", "-") ?? item.ContentItemId;
+                string cleanSlug = RemoveDiacritics(name).ToLowerInvariant().Replace(" ", "-");
 
                 list.Add(new Genre
                 {
-                    Id = slug,
+                    Id = cleanSlug,
                     Name = name,
-                    Slug = slug,
+                    Slug = cleanSlug,
                     Description = $"Phim thể loại {name}",
                     IconClass = GetGenreIcon(name),
                     BadgeColor = "badge-primary"
@@ -65,7 +65,35 @@ public class OrchardCoreMovieService : IMovieService
     {
         try
         {
+            // Pre-fetch categories/genres for Taxonomy/ContentPicker ID mapping
+            var categoryItems = await _session.Query<ContentItem, ContentItemIndex>(x => (x.ContentType == "Category" || x.ContentType == "Genre" || x.ContentType == "TheLoai") && (x.Published || x.Latest)).ListAsync();
+            var categoryMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var cat in categoryItems)
+            {
+                dynamic catContent = cat.Content;
+                dynamic categoryData = catContent.Category ?? catContent.MovieInfo ?? catContent;
+                string catName = GetFieldText(categoryData?.NameCatedory) 
+                              ?? GetFieldText(categoryData?.NameCategory) 
+                              ?? cat.DisplayText 
+                              ?? "Thể loại";
+                categoryMap[cat.ContentItemId] = catName;
+                if (!string.IsNullOrWhiteSpace(cat.DisplayText))
+                {
+                    categoryMap[cat.DisplayText] = catName;
+                }
+            }
+
             var rawItems = await _session.Query<ContentItem, ContentItemIndex>(x => x.Published || x.Latest).ListAsync();
+
+            // Build dictionary lookup of all content items by ContentItemId
+            var allItemsById = rawItems
+                .GroupBy(x => x.ContentItemId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.OrderByDescending(x => x.Latest).ThenByDescending(x => x.Published).First(),
+                    StringComparer.OrdinalIgnoreCase
+                );
+
             var movieItems = rawItems.Where(x => string.Equals(x.ContentType, "Movie", StringComparison.OrdinalIgnoreCase)).ToList();
 
             // Deduplicate by ContentItemId: Always pick the Latest / Published version
@@ -79,46 +107,134 @@ public class OrchardCoreMovieService : IMovieService
             foreach (var item in contentItems)
             {
                 dynamic content = item.Content;
-                dynamic movieData = content.Movie ?? content;
+                dynamic movieData = content.Movie ?? content.MovieInfo ?? content;
 
-                string title = GetFieldText(movieData?.NameOfMovie) ?? item.DisplayText ?? "Phim mới";
-                string detail = GetHtmlFieldText(movieData?.Detail) ?? GetFieldText(movieData?.Detail) ?? "";
-                string trailer = GetFieldText(movieData?.Trailer) ?? "https://www.youtube.com/embed/dQw4w9WgXcQ";
-                string watchUrl = GetFieldText(movieData?.Watch) ?? trailer;
-                string categoryText = GetFieldText(movieData?.Category) ?? "Hành động";
-                string country = GetFieldText(movieData?.Country) ?? "Âu Mỹ";
-                string numbericPart = GetFieldText(movieData?.NumbericPart) ?? GetNumberFieldText(movieData?.NumbericPart) ?? "Full HD";
+                // Resolve picked MovieInfo ContentItem if linked via ContentPickerField
+                dynamic? pickedMovieInfoData = null;
+                dynamic? pickedMovieInfoContent = null;
+                try
+                {
+                    dynamic? pickerField = movieData?.MovieInfo ?? content?.MovieInfo;
+                    dynamic? pickedIds = pickerField?.ContentItemIds;
+                    if (pickedIds != null)
+                    {
+                        foreach (var pid in pickedIds)
+                        {
+                            string idStr = pid.ToString();
+                            if (allItemsById.TryGetValue(idStr, out var pickedItem))
+                            {
+                                pickedMovieInfoContent = pickedItem.Content;
+                                pickedMovieInfoData = pickedMovieInfoContent.MovieInfo ?? pickedMovieInfoContent.Movie ?? pickedMovieInfoContent;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                string title = GetFieldText(movieData?.NameOfMovie) 
+                            ?? GetFieldText(pickedMovieInfoData?.NameOfMovie) 
+                            ?? item.DisplayText 
+                            ?? "Phim mới";
+
+                string detail = GetHtmlFieldText(movieData?.Detail) ?? GetFieldText(movieData?.Detail)
+                             ?? GetHtmlFieldText(pickedMovieInfoData?.Detail) ?? GetFieldText(pickedMovieInfoData?.Detail) ?? "";
+
+                string trailer = GetFieldText(movieData?.Trailer) 
+                              ?? GetFieldText(pickedMovieInfoData?.Trailer) 
+                              ?? "https://www.youtube.com/embed/dQw4w9WgXcQ";
+
+                string watchUrl = GetFieldText(movieData?.Watch) 
+                               ?? GetFieldText(pickedMovieInfoData?.Watch) 
+                               ?? trailer;
+
+                string director = GetFlexibleFieldText(pickedMovieInfoData, "DaoDien", "Đạo diễn", "Director")
+                               ?? GetFlexibleFieldText(pickedMovieInfoContent, "DaoDien", "Đạo diễn", "Director")
+                               ?? GetFlexibleFieldText(movieData, "DaoDien", "Đạo diễn", "Director")
+                               ?? GetFlexibleFieldText(item.Content, "DaoDien", "Đạo diễn", "Director")
+                               ?? "Đang cập nhật";
+
+                string language = GetFlexibleFieldText(pickedMovieInfoData, "NgonNgu", "Ngôn ngữ", "Language", "LanguageMode")
+                               ?? GetFlexibleFieldText(pickedMovieInfoContent, "NgonNgu", "Ngôn ngữ", "Language", "LanguageMode")
+                               ?? GetFlexibleFieldText(movieData, "NgonNgu", "Ngôn ngữ", "Language", "LanguageMode")
+                               ?? GetFlexibleFieldText(item.Content, "NgonNgu", "Ngôn ngữ", "Language", "LanguageMode")
+                               ?? "Vietsub";
+
+                string duration = GetFlexibleFieldText(pickedMovieInfoData, "ThoiLuong", "Thời lượng", "Duration", "NumbericPart")
+                               ?? GetFlexibleFieldText(pickedMovieInfoContent, "ThoiLuong", "Thời lượng", "Duration", "NumbericPart")
+                               ?? GetFlexibleFieldText(movieData, "ThoiLuong", "Thời lượng", "Duration", "NumbericPart")
+                               ?? GetFlexibleFieldText(item.Content, "ThoiLuong", "Thời lượng", "Duration", "NumbericPart")
+                               ?? "Full HD";
+
+                string viewsText = GetFlexibleFieldText(pickedMovieInfoData, "View", "Views", "ViewField", "LuotXem", "Lượt xem", "ViewsCount")
+                                ?? GetFlexibleFieldText(pickedMovieInfoContent, "View", "Views", "ViewField", "LuotXem", "Lượt xem", "ViewsCount")
+                                ?? GetFlexibleFieldText(movieData, "View", "Views", "ViewField", "LuotXem", "Lượt xem", "ViewsCount")
+                                ?? GetFlexibleFieldText(item.Content, "View", "Views", "ViewField", "LuotXem", "Lượt xem", "ViewsCount")
+                                ?? "";
                 
+                int viewsCount = 0;
+                if (!string.IsNullOrWhiteSpace(viewsText))
+                {
+                    string digitsOnly = System.Text.RegularExpressions.Regex.Replace(viewsText, @"[^\d]", "");
+                    if (int.TryParse(digitsOnly, out int pViews)) viewsCount = pViews;
+                }
+
+                string ageRating = GetFlexibleFieldText(pickedMovieInfoData, "PhanLoai", "Phân loại", "AgeRating", "Classification")
+                                ?? GetFlexibleFieldText(pickedMovieInfoContent, "PhanLoai", "Phân loại", "AgeRating", "Classification")
+                                ?? GetFlexibleFieldText(movieData, "PhanLoai", "Phân loại", "AgeRating", "Classification")
+                                ?? GetFlexibleFieldText(item.Content, "PhanLoai", "Phân loại", "AgeRating", "Classification")
+                                ?? "16+";
+
+                string country = GetFieldText(movieData?.Country) 
+                              ?? GetFieldText(pickedMovieInfoData?.Country) 
+                              ?? "Âu Mỹ";
+
                 string avatar = GetMediaOrText(movieData?.AvatarOfMovie) 
                              ?? GetMediaOrText(movieData?.AvatarMovie) 
                              ?? GetMediaOrText(movieData?.Avatar) 
                              ?? GetMediaOrText(movieData?.Poster) 
                              ?? GetMediaOrText(movieData?.AnhDaiDien)
+                             ?? GetMediaOrText(pickedMovieInfoData?.AvatarOfMovie)
+                             ?? GetMediaOrText(pickedMovieInfoData?.AvatarMovie)
+                             ?? GetMediaOrText(pickedMovieInfoData?.Avatar)
+                             ?? GetMediaOrText(pickedMovieInfoData?.Poster)
                              ?? "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80";
 
                 string background = GetMediaOrText(movieData?.Background) 
                                  ?? GetMediaOrText(movieData?.HinhNen) 
                                  ?? GetMediaOrText(movieData?.Banner)
+                                 ?? GetMediaOrText(pickedMovieInfoData?.Background)
+                                 ?? GetMediaOrText(pickedMovieInfoData?.HinhNen)
+                                 ?? GetMediaOrText(pickedMovieInfoData?.Banner)
                                  ?? "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1600&q=80";
-                
-                bool isFeatured = GetBoolFieldValue(item.Content, "Remarkable", "IsFeatured", "NoiBat");
-                double rating = GetDoubleField(movieData?.Evaluate, 9.0);
-                string resolution = GetFieldText(movieData?.Resolution) ?? "4K Ultra HD";
-                int year = GetIntField(movieData?.YearOfProduction, 2026);
 
-                var genresList = categoryText.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(g => g.Trim())
-                    .ToList();
+                bool isFeatured = GetBoolFieldValue(item.Content, "Remarkable", "IsFeatured", "NoiBat")
+                               || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "Remarkable", "IsFeatured", "NoiBat"));
 
-                var genreIds = genresList.Select(g => g.ToLowerInvariant().Replace(" ", "-")).ToList();
+                double rating = GetDoubleField(movieData?.Evaluate ?? pickedMovieInfoData?.Evaluate, 9.0);
+                string resolution = GetFieldText(movieData?.Resolution ?? pickedMovieInfoData?.Resolution) ?? "4K Ultra HD";
+                int year = GetIntField(movieData?.YearOfProduction ?? pickedMovieInfoData?.YearOfProduction, 2026);
+
+                var extracted = ExtractCategoryNamesAndIds((object)movieData, (object)item.Content, categoryMap);
+                var genresList = new List<string>(extracted.Names);
+                var genreIds = new List<string>(extracted.Ids);
+
+                if (pickedMovieInfoData != null && pickedMovieInfoContent != null)
+                {
+                    var extractedPicked = ExtractCategoryNamesAndIds((object)pickedMovieInfoData, (object)pickedMovieInfoContent, categoryMap);
+                    foreach (var n in extractedPicked.Names) if (!genresList.Contains(n, StringComparer.OrdinalIgnoreCase)) genresList.Add(n);
+                    foreach (var id in extractedPicked.Ids) if (!genreIds.Contains(id, StringComparer.OrdinalIgnoreCase)) genreIds.Add(id);
+                }
 
                 // Read IsInCinema field (BooleanField for Phim Chiếu Rạp)
-                bool isCinema = GetBoolFieldValue(item.Content, "IsInCinema", "IsCinema", "ChieuRap");
+                bool isCinema = GetBoolFieldValue(item.Content, "IsInCinema", "IsCinema", "ChieuRap")
+                             || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "IsInCinema", "IsCinema", "ChieuRap"));
 
                 // Read IsPartMovie field (BooleanField for Phim Bộ)
                 bool isPartMovie = GetBoolFieldValue(item.Content, "IsPartMovie", "IsPart", "IsSeries", "PhimBo", "PhimBoField", "PartMovie", "IsMoviePart", "MoviePart")
-                                || numbericPart.ToLowerInvariant().Contains("tập")
-                                || numbericPart.ToLowerInvariant().Contains("tap");
+                                || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "IsPartMovie", "IsPart", "IsSeries", "PhimBo", "PhimBoField", "PartMovie", "IsMoviePart", "MoviePart"))
+                                || duration.ToLowerInvariant().Contains("tập")
+                                || duration.ToLowerInvariant().Contains("tap");
 
                 list.Add(new Movie
                 {
@@ -132,13 +248,13 @@ public class OrchardCoreMovieService : IMovieService
                     BannerUrl = background,
                     TrailerUrl = trailer,
                     ReleaseYear = year,
-                    Duration = numbericPart,
+                    Duration = duration,
                     Rating = rating,
-                    AgeRating = "16+",
+                    AgeRating = ageRating,
                     Quality = resolution,
-                    LanguageMode = "Vietsub + Thuyết Minh",
+                    LanguageMode = language,
                     Country = country,
-                    Director = "Orchard Core Admin",
+                    Director = director,
                     Cast = new List<string> { "Diễn viên" },
                     GenreIds = genreIds,
                     GenreNames = genresList,
@@ -146,8 +262,9 @@ public class OrchardCoreMovieService : IMovieService
                     FeaturedOrder = 1,
                     IsCinema = isCinema,
                     IsSeries = isPartMovie,
-                    EpisodeInfo = numbericPart,
-                    ViewsCount = 10000,
+                    EpisodeInfo = duration,
+                    ViewsCount = viewsCount > 0 ? viewsCount : 1000,
+                    ViewsText = viewsText,
                     CreatedAt = item.CreatedUtc ?? DateTime.UtcNow
                 });
             }
@@ -165,15 +282,113 @@ public class OrchardCoreMovieService : IMovieService
         }
     }
 
+    private static (List<string> Names, List<string> Ids) ExtractCategoryNamesAndIds(dynamic movieData, dynamic fullContent, Dictionary<string, string> categoryMap)
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        string[] fieldNames = new[] { "Category", "Categories", "Genre", "Genres", "TheLoai", "TheLoaiField", "CategoryField", "MovieInfo", "MovieInfoField", "MovieInfoPicker" };
+
+        foreach (var fname in fieldNames)
+        {
+            dynamic? field = null;
+            try { field = movieData?[fname] ?? fullContent?[fname]; } catch { }
+            if (field == null) continue;
+
+            // 1. Text / Html / Value field
+            string? textVal = GetFieldText(field);
+            if (!string.IsNullOrWhiteSpace(textVal))
+            {
+                var parts = textVal.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var p in parts)
+                {
+                    string trimmed = p.Trim();
+                    if (!string.IsNullOrWhiteSpace(trimmed))
+                    {
+                        names.Add(trimmed);
+                    }
+                }
+            }
+
+            // 2. TaxonomyField / ContentPickerField (TermContentItemIds / ContentItemIds)
+            try
+            {
+                dynamic? termIds = field.TermContentItemIds ?? field.ContentItemIds;
+                if (termIds != null)
+                {
+                    foreach (var tid in termIds)
+                    {
+                        string idStr = tid.ToString();
+                        ids.Add(idStr);
+                        if (categoryMap.TryGetValue(idStr, out var mappedName))
+                        {
+                            names.Add(mappedName);
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            // 3. Json string inspection fallback
+            try
+            {
+                string json = field.ToString();
+                if (!string.IsNullOrWhiteSpace(json) && (json.Contains("TermContentItemIds") || json.Contains("ContentItemIds")))
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(json);
+                    foreach (var prop in doc.RootElement.EnumerateObject())
+                    {
+                        if (prop.Name.Equals("TermContentItemIds", StringComparison.OrdinalIgnoreCase) ||
+                            prop.Name.Equals("ContentItemIds", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Array)
+                            {
+                                foreach (var elem in prop.Value.EnumerateArray())
+                                {
+                                    string idStr = elem.GetString() ?? "";
+                                    if (!string.IsNullOrWhiteSpace(idStr))
+                                    {
+                                        ids.Add(idStr);
+                                        if (categoryMap.TryGetValue(idStr, out var mappedName))
+                                        {
+                                            names.Add(mappedName);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        if (!names.Any())
+        {
+            names.Add("Hành động");
+        }
+
+        var namesList = names.ToList();
+
+        // Build robust IDs list for matching: unaccented slug, accented slug, raw lower
+        foreach (var n in namesList)
+        {
+            string cleanSlug = RemoveDiacritics(n).ToLowerInvariant().Replace(" ", "-");
+            string rawSlug = n.ToLowerInvariant().Replace(" ", "-");
+            string rawLower = n.ToLowerInvariant();
+            ids.Add(cleanSlug);
+            ids.Add(rawSlug);
+            ids.Add(rawLower);
+        }
+
+        return (namesList, ids.ToList());
+    }
+
     public async Task<List<Movie>> GetFeaturedMoviesAsync(int count = 5)
     {
         var movies = await GetOrchardMoviesInternalAsync();
+        // CHỈ lấy phim đã tick "Nổi bật" (IsFeatured = true)
         var featured = movies.Where(m => m.IsFeatured).Take(count).ToList();
-        if (featured.Count < count)
-        {
-            var remaining = movies.Where(m => !featured.Contains(m)).Take(count - featured.Count);
-            featured.AddRange(remaining);
-        }
         return featured;
     }
 
@@ -219,13 +434,17 @@ public class OrchardCoreMovieService : IMovieService
         bool? isSeries = null,
         string? sortBy = null,
         int page = 1,
-        int pageSize = 12)
+        int pageSize = 12,
+        bool isRegularOnly = false)
     {
         var movies = await GetOrchardMoviesInternalAsync();
         IEnumerable<Movie> query = movies;
 
-        // Phim trên trang /phim chỉ là Phim Lẻ (không thuộc Phim Chiếu Rạp và không thuộc Phim Bộ)
-        query = query.Where(m => !m.IsCinema && !m.IsSeries);
+        // Trang /phim: chỉ hiện phim lẻ thông thường (không phải chiếu rạp, không phải phim bộ)
+        if (isRegularOnly)
+        {
+            query = query.Where(m => !m.IsCinema && !m.IsSeries);
+        }
 
         if (!string.IsNullOrWhiteSpace(searchKeyword))
         {
@@ -237,7 +456,9 @@ public class OrchardCoreMovieService : IMovieService
 
         if (!string.IsNullOrWhiteSpace(genreId) && genreId != "all")
         {
-            query = query.Where(m => m.GenreIds.Contains(genreId, StringComparer.OrdinalIgnoreCase));
+            string normalizedGenreId = RemoveDiacritics(genreId.Trim().ToLowerInvariant());
+            query = query.Where(m => m.GenreIds.Any(gid =>
+                RemoveDiacritics(gid.ToLowerInvariant()) == normalizedGenreId));
         }
 
         if (!string.IsNullOrWhiteSpace(country) && country != "all")
@@ -263,9 +484,10 @@ public class OrchardCoreMovieService : IMovieService
         string? genreId = null,
         string? country = null,
         int? year = null,
-        bool? isSeries = null)
+        bool? isSeries = null,
+        bool isRegularOnly = false)
     {
-        var movies = await GetMoviesAsync(searchKeyword, genreId, country, year, isSeries, pageSize: 1000);
+        var movies = await GetMoviesAsync(searchKeyword, genreId, country, year, isSeries, pageSize: 1000, isRegularOnly: isRegularOnly);
         return movies.Count;
     }
 
@@ -303,7 +525,78 @@ public class OrchardCoreMovieService : IMovieService
     public Task DeleteMovieAsync(string movieId) => Task.CompletedTask;
     public Task AddGenreAsync(Genre genre) => Task.CompletedTask;
 
-    // Field Helpers
+    // Flexible Field Helpers
+    private static string? GetFlexibleFieldText(dynamic? data, params string[] fieldNames)
+    {
+        if (data == null) return null;
+        try
+        {
+            string jsonStr = "";
+            try { jsonStr = data.ToJsonString(); }
+            catch
+            {
+                try { jsonStr = System.Text.Json.JsonSerializer.Serialize((object)data); }
+                catch { return null; }
+            }
+
+            if (string.IsNullOrWhiteSpace(jsonStr) || jsonStr.StartsWith("System.")) return null;
+
+            using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
+            var root = doc.RootElement;
+
+            if (root.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
+
+            foreach (var targetName in fieldNames)
+            {
+                string targetNorm = RemoveDiacritics(targetName).ToLowerInvariant().Replace(" ", "").Replace("-", "").Replace("_", "");
+
+                foreach (var prop in root.EnumerateObject())
+                {
+                    string propNorm = RemoveDiacritics(prop.Name).ToLowerInvariant().Replace(" ", "").Replace("-", "").Replace("_", "");
+                    
+                    bool isMatch = propNorm.Equals(targetNorm, StringComparison.OrdinalIgnoreCase) || 
+                                   propNorm.Equals(targetNorm + "field", StringComparison.OrdinalIgnoreCase) ||
+                                   targetNorm.Equals(propNorm + "field", StringComparison.OrdinalIgnoreCase) ||
+                                   propNorm.Contains(targetNorm, StringComparison.OrdinalIgnoreCase);
+
+                    if (isMatch)
+                    {
+                        var val = prop.Value;
+                        if (val.ValueKind == System.Text.Json.JsonValueKind.Object)
+                        {
+                            if (val.TryGetProperty("Text", out var textProp) && textProp.ValueKind != System.Text.Json.JsonValueKind.Null && textProp.ValueKind != System.Text.Json.JsonValueKind.Undefined)
+                            {
+                                string t = textProp.ToString();
+                                if (!string.IsNullOrWhiteSpace(t) && t != "null") return CleanHtmlOrPath(t);
+                            }
+                            if (val.TryGetProperty("Value", out var valProp) && valProp.ValueKind != System.Text.Json.JsonValueKind.Null && valProp.ValueKind != System.Text.Json.JsonValueKind.Undefined)
+                            {
+                                string v = valProp.ToString();
+                                if (!string.IsNullOrWhiteSpace(v) && v != "null") return CleanHtmlOrPath(v);
+                            }
+                            if (val.TryGetProperty("Html", out var htmlProp) && htmlProp.ValueKind != System.Text.Json.JsonValueKind.Null && htmlProp.ValueKind != System.Text.Json.JsonValueKind.Undefined)
+                            {
+                                string h = htmlProp.ToString();
+                                if (!string.IsNullOrWhiteSpace(h) && h != "null") return CleanHtmlOrPath(h);
+                            }
+                        }
+                        else if (val.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
+                            string s = val.GetString() ?? "";
+                            if (!string.IsNullOrWhiteSpace(s)) return CleanHtmlOrPath(s);
+                        }
+                        else if (val.ValueKind == System.Text.Json.JsonValueKind.Number)
+                        {
+                            return val.ToString();
+                        }
+                    }
+                }
+            }
+        }
+        catch { }
+        return null;
+    }
+
     private static string? GetFieldText(dynamic field)
     {
         try
@@ -395,19 +688,35 @@ public class OrchardCoreMovieService : IMovieService
     private static string RemoveDiacritics(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
-        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
-        var sb = new System.Text.StringBuilder();
+
+        // Bước 1: Thay thế trực tiếp các ký tự tiếng Việt độc lập không phải combining mark
+        // (FormD normalization không xử lý được những ký tự này)
+        var sb1 = new System.Text.StringBuilder(text.Length);
+        foreach (var c in text)
+        {
+            sb1.Append(c switch
+            {
+                'đ' => 'd',
+                'Đ' => 'D',
+                _ => c
+            });
+        }
+
+        // Bước 2: Xóa combining diacritical marks (à, á, â, ã, ä, ả, ạ, ắ, ặ, v.v.)
+        var normalized = sb1.ToString().Normalize(System.Text.NormalizationForm.FormD);
+        var sb2 = new System.Text.StringBuilder();
         foreach (var c in normalized)
         {
             var cat = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
             if (cat != System.Globalization.UnicodeCategory.NonSpacingMark)
-                sb.Append(c);
+                sb2.Append(c);
         }
-        return sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+        return sb2.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
 
     /// <summary>
-    /// Đọc boolean field từ Orchard Core ContentItem dynamic object (JObject/JsonObject).
+    /// Đọc boolean field từ Orchard Core ContentItem.
+    /// CHỈ tìm trong phần "Movie" (cấp 1) để tránh false positive từ các phần metadata khác.
     /// </summary>
     private static bool GetBoolFieldValue(dynamic content, params string[] fieldNames)
     {
@@ -415,49 +724,37 @@ public class OrchardCoreMovieService : IMovieService
         {
             if (content == null) return false;
 
-            string jsonStr = "";
-            try
-            {
-                jsonStr = content.ToJsonString();
-            }
+            string jsonStr;
+            try { jsonStr = content.ToJsonString(); }
             catch
             {
-                try
-                {
-                    jsonStr = System.Text.Json.JsonSerializer.Serialize((object)content);
-                }
-                catch
-                {
-                    jsonStr = content.ToString();
-                }
+                try { jsonStr = System.Text.Json.JsonSerializer.Serialize((object)content); }
+                catch { return false; }
             }
 
-            if (string.IsNullOrWhiteSpace(jsonStr) || jsonStr == "System.Text.Json.Dynamic.JsonDynamicObject")
-            {
-                // Fallback to property iteration
-                try
-                {
-                    dynamic moviePart = content.Movie ?? content;
-                    foreach (var name in fieldNames)
-                    {
-                        dynamic field = moviePart[name] ?? content[name];
-                        if (field != null)
-                        {
-                            dynamic val = field["Value"] ?? field["value"];
-                            bool parsedBool = false;
-                            if (val != null && bool.TryParse(val.ToString(), out parsedBool))
-                            {
-                                return parsedBool;
-                            }
-                        }
-                    }
-                }
-                catch { }
-                return false;
-            }
+            if (string.IsNullOrWhiteSpace(jsonStr) || jsonStr.StartsWith("System.")) return false;
 
             using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
-            return SearchJsonForBoolField(doc.RootElement, fieldNames);
+            var root = doc.RootElement;
+
+            // Chỉ tìm trong phần "Movie" hoặc "MovieInfo" của ContentItem (không đệ quy sâu)
+            System.Text.Json.JsonElement moviePart;
+            bool hasMoviePart = root.TryGetProperty("Movie", out moviePart) || root.TryGetProperty("MovieInfo", out moviePart);
+
+            // Tìm field trong Movie part trước (ưu tiên)
+            if (hasMoviePart && moviePart.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                bool? result = CheckBoolFieldShallow(moviePart, fieldNames);
+                if (result.HasValue) return result.Value;
+            }
+
+            // Fallback: tìm ở cấp root (cho trường hợp không wrap trong Movie part)
+            {
+                bool? result = CheckBoolFieldShallow(root, fieldNames);
+                if (result.HasValue) return result.Value;
+            }
+
+            return false;
         }
         catch
         {
@@ -465,42 +762,37 @@ public class OrchardCoreMovieService : IMovieService
         }
     }
 
-    private static bool SearchJsonForBoolField(System.Text.Json.JsonElement element, string[] fieldNames)
+    /// <summary>
+    /// Tìm boolean field ở cấp NÔNG (1 cấp), không đệ quy.
+    /// Trả về true/false nếu tìm thấy field, null nếu không thấy.
+    /// </summary>
+    private static bool? CheckBoolFieldShallow(System.Text.Json.JsonElement element, string[] fieldNames)
     {
-        if (element.ValueKind == System.Text.Json.JsonValueKind.Object)
-        {
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (fieldNames.Any(f => f.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)))
-                {
-                    if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object)
-                    {
-                        foreach (var inner in prop.Value.EnumerateObject())
-                        {
-                            if (inner.Name.Equals("Value", StringComparison.OrdinalIgnoreCase))
-                            {
-                                if (inner.Value.ValueKind == System.Text.Json.JsonValueKind.True) return true;
-                                if (inner.Value.ValueKind == System.Text.Json.JsonValueKind.False) return false;
-                                if (inner.Value.ValueKind == System.Text.Json.JsonValueKind.String && bool.TryParse(inner.Value.GetString(), out bool bResult)) return bResult;
-                            }
-                        }
-                    }
-                    else if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.True)
-                    {
-                        return true;
-                    }
-                }
+        if (element.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
 
-                if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object)
+        foreach (var prop in element.EnumerateObject())
+        {
+            if (!fieldNames.Any(f => f.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            // Trường hợp field trực tiếp là bool: "FieldName": true
+            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.True) return true;
+            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.False) return false;
+
+            // Trường hợp BooleanField Orchard Core: "FieldName": { "Value": true }
+            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                if (prop.Value.TryGetProperty("Value", out var valProp) ||
+                    prop.Value.TryGetProperty("value", out valProp))
                 {
-                    if (SearchJsonForBoolField(prop.Value, fieldNames))
-                    {
-                        return true;
-                    }
+                    if (valProp.ValueKind == System.Text.Json.JsonValueKind.True) return true;
+                    if (valProp.ValueKind == System.Text.Json.JsonValueKind.False) return false;
+                    if (valProp.ValueKind == System.Text.Json.JsonValueKind.String &&
+                        bool.TryParse(valProp.GetString(), out bool bParsed)) return bParsed;
                 }
             }
         }
-        return false;
+        return null;
     }
 
     private static double GetDoubleField(dynamic field, double fallback = 8.5)

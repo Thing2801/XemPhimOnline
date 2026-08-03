@@ -17,13 +17,15 @@ public interface IMovieService
         bool? isSeries = null, 
         string? sortBy = null, 
         int page = 1, 
-        int pageSize = 12);
+        int pageSize = 12,
+        bool isRegularOnly = false);
     Task<int> GetMoviesCountAsync(
         string? searchKeyword = null, 
         string? genreId = null, 
         string? country = null, 
         int? year = null, 
-        bool? isSeries = null);
+        bool? isSeries = null,
+        bool isRegularOnly = false);
     Task<Movie?> GetMovieByIdOrSlugAsync(string identifier);
     Task<List<Movie>> GetRelatedMoviesAsync(string movieId, int count = 6);
     /// <summary>Lấy toàn bộ phim không phân biệt loại (dùng cho QuickSearch, Admin)</summary>

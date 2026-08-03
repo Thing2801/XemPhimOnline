@@ -1,0 +1,12 @@
+[
+  {
+    "Id": "405e175b1afb4c2584fcb6549b507213",
+    "Username": "admin",
+    "Email": "phant@gmail.com",
+    "FullName": "Phan Ph\u01B0\u1EDBc Th\u1ECBnh",
+    "PasswordHash": "AQAAAAIAAYagAAAAEIYeQDBTl5EDE0m2EZirONXpBwN2M8bjuou99poCx049j7kuVJBWePdoM4Gi/shu5g==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+    "Role": "User",
+    "CreatedAt": "2026-08-03T04:31:56.7485347Z"
+  }
+]

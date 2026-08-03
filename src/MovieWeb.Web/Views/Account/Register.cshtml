@@ -1,0 +1,269 @@
+@model MovieWeb.Core.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng Ký - MovieOnline";
+}
+
+<div class="cinema-auth-wrapper">
+    <div class="container relative-z">
+        <div class="row justify-content-center align-items-center min-vh-80 py-5">
+            <div class="col-md-6 col-lg-5 col-xl-4">
+                <div class="cinema-auth-card">
+                    <div class="cinema-auth-main">
+                        <div class="auth-header text-center mb-4">
+                            <div class="auth-cinema-logo mb-2">
+                                <span class="brand-text"><i class="fas fa-play me-2 text-danger"></i>Movie<span class="text-danger">Online</span></span>
+                            </div>
+                            <h4 class="auth-form-title">Tạo Tài Khoản Mới</h4>
+                            <p class="auth-form-subtitle">Điền thông tin để tạo tài khoản thành viên!</p>
+                        </div>
+
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                        {
+                            <div class="auth-error-alert mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>@Html.ValidationSummary(true, "", new { @class = "mb-0" })</div>
+                            </div>
+                        }
+
+                        <form asp-action="Register" method="post" class="cinema-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+                            <div class="form-group-cinema mb-2.5">
+                                <label asp-for="FullName" class="cinema-label">Họ và tên</label>
+                                <div class="cinema-input-wrapper">
+                                    <i class="fas fa-id-card input-icon-left"></i>
+                                    <input asp-for="FullName" class="cinema-input" placeholder="Nhập họ và tên của bạn..." autofocus />
+                                </div>
+                                <span asp-validation-for="FullName" class="cinema-field-error"></span>
+                            </div>
+
+                            <div class="form-group-cinema mb-2.5">
+                                <label asp-for="Username" class="cinema-label">Tên đăng nhập</label>
+                                <div class="cinema-input-wrapper">
+                                    <i class="fas fa-user input-icon-left"></i>
+                                    <input asp-for="Username" class="cinema-input" placeholder="Ví dụ: myusername123" />
+                                </div>
+                                <span asp-validation-for="Username" class="cinema-field-error"></span>
+                            </div>
+
+                            <div class="form-group-cinema mb-2.5">
+                                <label asp-for="Email" class="cinema-label">Email</label>
+                                <div class="cinema-input-wrapper">
+                                    <i class="fas fa-envelope input-icon-left"></i>
+                                    <input asp-for="Email" class="cinema-input" placeholder="example@email.com" />
+                                </div>
+                                <span asp-validation-for="Email" class="cinema-field-error"></span>
+                            </div>
+
+                            <div class="form-group-cinema mb-2.5">
+                                <label asp-for="Password" class="cinema-label">Mật khẩu</label>
+                                <div class="cinema-input-wrapper">
+                                    <i class="fas fa-lock input-icon-left"></i>
+                                    <input asp-for="Password" id="regPassword" class="cinema-input" placeholder="Tối thiểu 6 ký tự..." />
+                                    <button type="button" class="btn-eye-toggle" onclick="togglePasswordVisibility('regPassword', this)" tabindex="-1">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="cinema-field-error"></span>
+                            </div>
+
+                            <div class="form-group-cinema mb-4">
+                                <label asp-for="ConfirmPassword" class="cinema-label">Xác nhận mật khẩu</label>
+                                <div class="cinema-input-wrapper">
+                                    <i class="fas fa-check-double input-icon-left"></i>
+                                    <input asp-for="ConfirmPassword" id="regConfirmPassword" class="cinema-input" placeholder="Nhập lại mật khẩu..." />
+                                    <button type="button" class="btn-eye-toggle" onclick="togglePasswordVisibility('regConfirmPassword', this)" tabindex="-1">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="cinema-field-error"></span>
+                            </div>
+
+                            <button type="submit" class="btn-cinema-submit w-100 mb-3">
+                                <span>Hoàn Tất Đăng Ký</span>
+                            </button>
+
+                            <div class="auth-footer-link text-center pt-3 border-top border-secondary-subtle">
+                                <span class="text-muted small">Đã có tài khoản? </span>
+                                <a href="/Account/Login?returnUrl=@Uri.EscapeDataString((string)ViewData["ReturnUrl"]! ?? "")" class="link-register">
+                                    Đăng nhập ngay
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cinema-auth-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #121214;
+}
+
+.relative-z {
+    position: relative;
+    z-index: 5;
+}
+
+.min-vh-80 {
+    min-height: 75vh;
+}
+
+.cinema-auth-card {
+    background: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+}
+
+.cinema-auth-main {
+    padding: 2.5rem 2.2rem;
+}
+
+.brand-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.auth-form-title {
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+
+.auth-form-subtitle {
+    color: #888890;
+    font-size: 0.86rem;
+    margin: 0;
+}
+
+.auth-error-alert {
+    background: rgba(229, 9, 20, 0.12);
+    border: 1px solid rgba(229, 9, 20, 0.4);
+    color: #ff4d55;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.86rem;
+    display: flex;
+    align-items: center;
+}
+
+.form-group-cinema {
+    display: flex;
+    flex-direction: column;
+}
+
+.cinema-label {
+    color: #d0d0d5;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.cinema-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 14px;
+    color: #666670;
+    font-size: 0.9rem;
+    z-index: 2;
+}
+
+.cinema-input {
+    width: 100%;
+    background: #121215 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
+    padding: 11px 40px 11px 40px !important;
+    border-radius: 10px !important;
+    font-size: 0.9rem !important;
+    outline: none !important;
+    transition: all 0.25s ease !important;
+}
+
+.cinema-input:focus {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1) !important;
+    background: #16161a !important;
+}
+
+.btn-eye-toggle {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #666670;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.btn-eye-toggle:hover {
+    color: #ffffff;
+}
+
+.cinema-field-error {
+    color: #ff4d55;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+}
+
+.btn-cinema-submit {
+    background: #ffffff;
+    color: #000000;
+    font-weight: 700;
+    border: none;
+    padding: 11px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.btn-cinema-submit:hover {
+    background: #e0e0e0;
+    color: #000000;
+}
+
+.link-register {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.link-register:hover {
+    color: #cccccc;
+}
+</style>
+
+<script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'far fa-eye-slash text-danger';
+    } else {
+        input.type = 'password';
+        icon.className = 'far fa-eye';
+    }
+}
+</script>

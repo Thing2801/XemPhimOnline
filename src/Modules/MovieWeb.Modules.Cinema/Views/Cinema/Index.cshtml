@@ -4,29 +4,55 @@
     ViewData["ActivePage"] = "Cinema";
 }
 
-<div class="cinema-module-wrapper">
+<div class="cinema-page-wrapper">
     <!-- Spotlight Hero Section -->
     @if (Model.SpotlightMovie != null)
     {
-        <div class="cinema-hero-banner" style="background-image: linear-gradient(180deg, rgba(24,24,24,0.3) 0%, rgba(24,24,24,0.95) 100%), url('@Model.SpotlightMovie.BannerUrl');">
-            <div class="cinema-hero-content container">
-                <span class="badge-cinema-live"><i class="fas fa-film"></i> ĐANG HOT TẠI CÁC RẠP TOÀN QUỐC</span>
-                <h1 class="cinema-hero-title">@Model.SpotlightMovie.Title</h1>
-                <p class="cinema-hero-sub">@Model.SpotlightMovie.OriginalTitle (@Model.SpotlightMovie.ReleaseYear)</p>
-                <div class="cinema-hero-meta">
-                    <span class="meta-tag rating"><i class="fas fa-star text-warning"></i> @Model.SpotlightMovie.Rating / 10</span>
-                    <span class="meta-tag quality">@Model.SpotlightMovie.Quality</span>
-                    <span class="meta-tag duration"><i class="far fa-clock"></i> @Model.SpotlightMovie.Duration</span>
-                    <span class="meta-tag genre">@string.Join(" • ", Model.SpotlightMovie.GenreNames)</span>
-                </div>
-                <p class="cinema-hero-desc">@Model.SpotlightMovie.Description</p>
-                <div class="cinema-hero-buttons">
-                    <button class="btn btn-primary-lg" onclick="openTrailerModal('@Model.SpotlightMovie.TrailerUrl', '@Model.SpotlightMovie.Title')">
-                        <i class="fas fa-play"></i> Xem Trailer Chiếu Rạp
-                    </button>
-                    <a href="/phim/@Model.SpotlightMovie.Id" class="btn btn-secondary-lg">
-                        <i class="fas fa-info-circle"></i> Chi Tiết Phim
-                    </a>
+        <div class="cinema-spotlight-banner">
+            <div class="cinema-spotlight-bg" style="background-image: url('@Model.SpotlightMovie.BannerUrl');"></div>
+            <div class="cinema-spotlight-overlay"></div>
+            
+            <div class="container position-relative z-index-2 py-5">
+                <div class="row align-items-center g-4">
+                    <!-- Left Content -->
+                    <div class="col-lg-8 text-start">
+                        <div class="cinema-live-badge mb-3">
+                            <span class="pulse-dot me-2"></span>
+                            <i class="fas fa-ticket-alt text-warning me-1"></i> BOM TẤN CHIẾU RẠP HOT NHẤT
+                        </div>
+                        <h1 class="cinema-spotlight-title">@Model.SpotlightMovie.Title</h1>
+                        <h4 class="cinema-spotlight-orig">@Model.SpotlightMovie.OriginalTitle (@Model.SpotlightMovie.ReleaseYear)</h4>
+                        
+                        <div class="cinema-spotlight-meta d-flex flex-wrap align-items-center gap-2 my-3">
+                            <span class="meta-pill rating"><i class="fas fa-star me-1 text-warning"></i>@Model.SpotlightMovie.Rating</span>
+                            <span class="meta-pill quality"><i class="fas fa-film me-1"></i>@Model.SpotlightMovie.Quality</span>
+                            <span class="meta-pill duration"><i class="far fa-clock me-1"></i>@Model.SpotlightMovie.Duration</span>
+                            <span class="meta-pill country"><i class="fas fa-globe me-1"></i>@Model.SpotlightMovie.Country</span>
+                            @foreach (var gName in Model.SpotlightMovie.GenreNames.Take(3))
+                            {
+                                <span class="meta-pill genre">@gName</span>
+                            }
+                        </div>
+
+                        <p class="cinema-spotlight-desc text-muted mb-4">@Model.SpotlightMovie.Description</p>
+
+                        <div class="cinema-spotlight-actions d-flex flex-wrap gap-3">
+                            <button class="btn-cinema-primary" onclick="playTrailerModal('@Model.SpotlightMovie.TrailerUrl', '@Model.SpotlightMovie.Title')">
+                                <i class="fas fa-play me-2"></i> Xem Trailer Chiếu Rạp
+                            </button>
+                            <a href="/phim/@Model.SpotlightMovie.Id" class="btn-cinema-glass">
+                                <i class="fas fa-info-circle me-2"></i> Thông Tin Phim
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Right Poster Card -->
+                    <div class="col-lg-4 text-center d-none d-lg-block">
+                        <div class="cinema-spotlight-card">
+                            <img src="@Model.SpotlightMovie.PosterUrl" alt="@Model.SpotlightMovie.Title" class="cinema-poster-img" />
+                            <div class="cinema-card-glow"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -34,34 +60,38 @@
 
     <!-- Content Main Area -->
     <div class="container py-5">
-        <!-- Header & Tabs -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 border-bottom-dark pb-3">
+        <!-- Header & Navigation Tabs -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom-cinema">
             <div>
-                <h2 class="section-title mb-1"><i class="fas fa-ticket-alt text-danger me-2"></i> Danh Sách Phim Chiếu Rạp</h2>
-                <p class="text-muted mb-0">Cập nhật lịch chiếu, trailer và đánh giá các bộ phim bom tấn chiếu rạp mới nhất.</p>
+                <h2 class="cinema-section-heading mb-1">
+                    <i class="fas fa-video text-danger me-2"></i> Danh Sách Phim Chiếu Rạp
+                </h2>
+                <p class="text-muted small mb-0">Cập nhật đầy đủ lịch chiếu, trailer và thông tin rạp phim trên toàn quốc.</p>
             </div>
             
-            <div class="cinema-tabs mt-3 mt-md-0">
+            <div class="cinema-tabs-nav">
                 <a href="/phim-chieu-rap?tab=now-showing&genre=@Model.SelectedGenre" 
-                   class="tab-btn @(Model.SelectedTab == "now-showing" ? "active" : "")">
-                    <i class="fas fa-fire me-1"></i> Phim Đang Chiếu (@Model.NowShowingMovies.Count)
+                   class="cinema-tab-link @(Model.SelectedTab == "now-showing" ? "active" : "")">
+                    <i class="fas fa-fire me-1.5 text-danger"></i> Đang Chiếu Rạp (@Model.NowShowingMovies.Count)
                 </a>
                 <a href="/phim-chieu-rap?tab=coming-soon&genre=@Model.SelectedGenre" 
-                   class="tab-btn @(Model.SelectedTab == "coming-soon" ? "active" : "")">
-                    <i class="fas fa-calendar-alt me-1"></i> Phim Sắp Chiếu (@Model.ComingSoonMovies.Count)
+                   class="cinema-tab-link @(Model.SelectedTab == "coming-soon" ? "active" : "")">
+                    <i class="fas fa-calendar-alt me-1.5 text-warning"></i> Sắp Chiếu Rạp (@Model.ComingSoonMovies.Count)
                 </a>
             </div>
         </div>
 
         <!-- Filter Genres Bar -->
-        <div class="genre-filter-pills mb-4">
+        <div class="cinema-genre-bar mb-4">
             <a href="/phim-chieu-rap?tab=@Model.SelectedTab&genre=all" 
-               class="pill-item @(Model.SelectedGenre == "all" ? "active" : "")">Tất cả thể loại</a>
+               class="cinema-genre-pill @(Model.SelectedGenre == "all" ? "active" : "")">
+               <i class="fas fa-th-large me-1.5"></i> Tất cả thể loại
+            </a>
             @foreach (var g in Model.Genres)
             {
                 <a href="/phim-chieu-rap?tab=@Model.SelectedTab&genre=@g.Id" 
-                   class="pill-item @(Model.SelectedGenre == g.Id ? "active" : "")">
-                   <i class="@g.IconClass me-1" style="font-size:0.8rem"></i> @g.Name
+                   class="cinema-genre-pill @(Model.SelectedGenre == g.Id ? "active" : "")">
+                   <i class="@g.IconClass me-1.5"></i> @g.Name
                 </a>
             }
         </div>
@@ -73,31 +103,33 @@
 
         @if (displayList.Any())
         {
-            <div class="movie-grid">
+            <div class="cinema-grid">
                 @foreach (var movie in displayList)
                 {
-                    <div class="movie-card">
-                        <div class="poster-wrapper">
-                            <img src="@movie.PosterUrl" alt="@movie.Title" class="poster-img" loading="lazy" />
-                            <div class="poster-overlay">
-                                <button class="btn-play-circle" onclick="openTrailerModal('@movie.TrailerUrl', '@movie.Title')" title="Xem Trailer">
+                    <div class="cinema-movie-card">
+                        <div class="cinema-poster-box">
+                            <img src="@movie.PosterUrl" alt="@movie.Title" class="cinema-poster" loading="lazy" />
+                            <div class="cinema-poster-overlay">
+                                <button class="btn-play-trigger" onclick="playTrailerModal('@movie.TrailerUrl', '@movie.Title')" title="Xem Trailer">
                                     <i class="fas fa-play"></i>
                                 </button>
-                                <a href="/phim/@movie.Id" class="btn-detail-link">Chi tiết</a>
+                                <a href="/phim/@movie.Id" class="btn-detail-trigger">Xem Chi Tiết</a>
                             </div>
-                            <span class="badge-quality">@movie.Quality</span>
-                            <span class="badge-rating"><i class="fas fa-star text-warning me-1"></i>@movie.Rating</span>
-                            <span class="badge-cinema-tag"><i class="fas fa-ticket-alt"></i> TẠI RẠP</span>
+                            <span class="cinema-tag-badge"><i class="fas fa-ticket-alt me-1"></i> CHIẾU RẠP</span>
+                            <span class="cinema-rating-badge"><i class="fas fa-star me-1 text-warning"></i>@movie.Rating</span>
+                            <span class="cinema-quality-badge">@movie.Quality</span>
                         </div>
-                        <div class="movie-info">
-                            <h3 class="movie-title"><a href="/phim/@movie.Id">@movie.Title</a></h3>
-                            <div class="movie-meta">
-                                <span>@movie.ReleaseYear</span>
+                        <div class="cinema-info-box">
+                            <h3 class="cinema-movie-title" title="@movie.Title">
+                                <a href="/phim/@movie.Id">@movie.Title</a>
+                            </h3>
+                            <div class="cinema-movie-meta">
+                                <span><i class="far fa-calendar-alt me-1"></i>@movie.ReleaseYear</span>
                                 <span>•</span>
-                                <span>@movie.Duration</span>
+                                <span><i class="far fa-clock me-1"></i>@movie.Duration</span>
                             </div>
-                            <div class="movie-genres text-truncate" title="@string.Join(", ", movie.GenreNames)">
-                                @string.Join(", ", movie.GenreNames)
+                            <div class="cinema-movie-genres text-truncate" title="@string.Join(", ", movie.GenreNames)">
+                                @string.Join(" • ", movie.GenreNames)
                             </div>
                         </div>
                     </div>
@@ -106,161 +138,435 @@
         }
         else
         {
-            <div class="text-center py-5 my-4 bg-dark-card rounded-3">
-                <i class="fas fa-film text-muted mb-3" style="font-size:3rem"></i>
-                <h4 class="text-white mb-2">Chưa có phim chiếu rạp trong danh mục này</h4>
-                <p class="text-muted">Bạn hãy thêm các phim chiếu rạp mới từ trang Quản trị Orchard Core Admin nhé!</p>
-                <a href="/phim-chieu-rap" class="btn btn-outline-danger mt-2">Xem tất cả phim chiếu rạp</a>
+            <div class="cinema-empty-card text-center py-5 my-4">
+                <div class="cinema-empty-icon mb-3">
+                    <i class="fas fa-film text-danger" style="font-size: 3.5rem;"></i>
+                </div>
+                <h4 class="text-white mb-2 fw-bold">Chưa có phim chiếu rạp trong thể loại này</h4>
+                <p class="text-muted mb-3">Vui lòng chọn thể loại khác hoặc thêm phim chiếu rạp mới trong Admin.</p>
+                <a href="/phim-chieu-rap" class="btn-cinema-primary">Xem Tất Cả Phim Chiếu Rạp</a>
             </div>
         }
     </div>
 </div>
 
 <style>
-.cinema-module-wrapper {
-    background-color: #181818;
-    min-height: 80vh;
+/* Modern Cinema Page Layout Styling */
+.cinema-page-wrapper {
+    background-color: #121212;
+    min-height: 90vh;
+    color: #e0e0e0;
 }
 
-.cinema-hero-banner {
+/* Spotlight Hero Banner */
+.cinema-spotlight-banner {
     position: relative;
+    padding: 90px 0 60px 0;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cinema-spotlight-bg {
+    position: absolute;
+    inset: 0;
     background-size: cover;
     background-position: center top;
-    padding: 100px 0 60px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    filter: brightness(0.4) blur(3px);
+    transform: scale(1.05);
 }
 
-.badge-cinema-live {
+.cinema-spotlight-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(18, 18, 18, 0.4) 0%, rgba(18, 18, 18, 0.95) 85%, #121212 100%),
+                linear-gradient(90deg, rgba(18, 18, 18, 0.9) 0%, rgba(18, 18, 18, 0.5) 60%, rgba(18, 18, 18, 0.2) 100%);
+}
+
+.z-index-2 {
+    z-index: 2;
+}
+
+.cinema-live-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(229, 9, 20, 0.9);
-    color: #fff;
-    padding: 6px 14px;
+    background: rgba(229, 9, 20, 0.2);
+    border: 1px solid rgba(229, 9, 20, 0.5);
+    color: #ff333d;
+    padding: 6px 16px;
     border-radius: 20px;
     font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    margin-bottom: 15px;
+    letter-spacing: 0.8px;
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.2);
 }
 
-.cinema-hero-title {
-    font-size: 2.8rem;
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #ff0f1a;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 8px #ff0f1a;
+    animation: pulseGlow 1.5s infinite;
+}
+
+@@keyframes pulseGlow {
+    0% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.4; transform: scale(0.9); }
+}
+
+.cinema-spotlight-title {
+    font-size: 3rem;
     font-weight: 800;
     color: #ffffff;
-    margin-bottom: 5px;
-    line-height: 1.2;
+    line-height: 1.15;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    background: linear-gradient(135deg, #ffffff 0%, #d1d1d1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.cinema-hero-sub {
-    font-size: 1.1rem;
-    color: #aaaaaa;
-    margin-bottom: 15px;
+.cinema-spotlight-orig {
+    font-size: 1.15rem;
+    color: #a0a0a0;
+    font-weight: 500;
 }
 
-.cinema-hero-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.meta-tag {
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(8px);
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 0.88rem;
+.meta-pill {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
     color: #ffffff;
+    font-weight: 600;
 }
 
-.meta-tag.rating {
+.meta-pill.rating {
     background: rgba(245, 197, 24, 0.2);
+    border-color: rgba(245, 197, 24, 0.4);
     color: #f5c518;
     font-weight: 700;
 }
 
-.cinema-hero-desc {
+.meta-pill.quality {
+    background: rgba(229, 9, 20, 0.25);
+    border-color: rgba(229, 9, 20, 0.4);
+    color: #ff4d55;
+}
+
+.cinema-spotlight-desc {
     font-size: 1rem;
-    color: #cccccc;
-    max-width: 750px;
-    margin-bottom: 25px;
-    line-height: 1.6;
+    line-height: 1.65;
+    max-width: 720px;
+    color: #b0b0b0 !important;
 }
 
-.cinema-hero-buttons {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.btn-primary-lg {
-    background: #e50914;
-    color: #fff;
+.btn-cinema-primary {
+    background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    color: #ffffff;
     font-weight: 700;
     padding: 12px 28px;
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
-    transition: all 0.25s ease;
-}
-.btn-primary-lg:hover {
-    background: #ff0f1a;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(229,9,20,0.4);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4);
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
 }
 
-.btn-secondary-lg {
-    background: rgba(255,255,255,0.15);
-    color: #fff;
+.btn-cinema-primary:hover {
+    background: linear-gradient(135deg, #ff0f1a 0%, #d80712 100%);
+    color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(229, 9, 20, 0.6);
+}
+
+.btn-cinema-glass {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
     font-weight: 600;
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.btn-cinema-glass:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Spotlight Poster Card */
+.cinema-spotlight-card {
+    position: relative;
+    display: inline-block;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    transition: transform 0.4s ease;
+}
+
+.cinema-spotlight-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(229, 9, 20, 0.6);
+}
+
+.cinema-poster-img {
+    width: 270px;
+    height: 380px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Content Main Section */
+.border-bottom-cinema {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cinema-section-heading {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.cinema-tabs-nav {
+    display: inline-flex;
+    background: #1e1e1e;
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cinema-tab-link {
+    color: #888888;
+    padding: 9px 20px;
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
+}
+
+.cinema-tab-link.active, .cinema-tab-link:hover {
+    background: #e50914;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+}
+
+/* Genre Filter Pills */
+.cinema-genre-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.cinema-genre-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #aaaaaa;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 0.86rem;
+    font-weight: 600;
     text-decoration: none;
     transition: all 0.25s ease;
 }
-.btn-secondary-lg:hover {
-    background: rgba(255,255,255,0.25);
-    color: #fff;
+
+.cinema-genre-pill.active, .cinema-genre-pill:hover {
+    background: rgba(229, 9, 20, 0.2);
+    border-color: rgba(229, 9, 20, 0.6);
+    color: #ff333d;
 }
 
-.border-bottom-dark {
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+/* Movie Grid Section */
+.cinema-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1.5rem;
 }
 
-.cinema-tabs {
-    display: inline-flex;
-    background: #222222;
-    padding: 4px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.08);
+.cinema-movie-card {
+    background: #1a1a1a;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
 }
 
-.tab-btn {
-    color: #aaa;
-    padding: 8px 18px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+.cinema-movie-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(229, 9, 20, 0.5);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
 }
 
-.tab-btn.active, .tab-btn:hover {
+.cinema-poster-box {
+    position: relative;
+    padding-top: 145%;
+    overflow: hidden;
+}
+
+.cinema-poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.cinema-movie-card:hover .cinema-poster {
+    transform: scale(1.08);
+}
+
+.cinema-poster-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.cinema-movie-card:hover .cinema-poster-overlay {
+    opacity: 1;
+}
+
+.btn-play-trigger {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
     background: #e50914;
-    color: #fff;
+    color: #ffffff;
+    border: none;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+    transition: transform 0.25s ease;
 }
 
-.badge-cinema-tag {
+.btn-play-trigger:hover {
+    transform: scale(1.15);
+}
+
+.btn-detail-trigger {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.btn-detail-trigger:hover {
+    background: #ffffff;
+    color: #121212;
+}
+
+.cinema-tag-badge {
     position: absolute;
     top: 10px;
     left: 10px;
-    background: rgba(229, 9, 20, 0.9);
-    color: #fff;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
+    background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 6px;
     letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.cinema-rating-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(6px);
+    color: #ffffff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+}
+
+.cinema-quality-badge {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(229, 9, 20, 0.85);
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.cinema-info-box {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.cinema-movie-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.cinema-movie-title a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.cinema-movie-title a:hover {
+    color: #ff333d;
+}
+
+.cinema-movie-meta {
+    font-size: 0.82rem;
+    color: #888888;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.cinema-movie-genres {
+    font-size: 0.78rem;
+    color: #e50914;
+    font-weight: 600;
+}
+
+/* Empty State Card */
+.cinema-empty-card {
+    background: #1a1a1a;
+    border-radius: 16px;
+    border: 1px dashed rgba(255, 255, 255, 0.15);
 }
 </style>

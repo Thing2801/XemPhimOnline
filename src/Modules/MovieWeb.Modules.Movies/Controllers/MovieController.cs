@@ -8,10 +8,12 @@ namespace MovieWeb.Modules.Movies.Controllers;
 public class MovieController : Controller
 {
     private readonly IMovieService _movieService;
+    private readonly ICommentService _commentService;
 
-    public MovieController(IMovieService movieService)
+    public MovieController(IMovieService movieService, ICommentService commentService)
     {
         _movieService = movieService;
+        _commentService = commentService;
     }
 
     [HttpGet]
@@ -33,14 +35,16 @@ public class MovieController : Controller
             isSeries: series,
             sortBy: sort,
             page: page,
-            pageSize: 12);
+            pageSize: 12,
+            isRegularOnly: true);
 
         var totalItems = await _movieService.GetMoviesCountAsync(
             searchKeyword: q,
             genreId: genre,
             country: country,
             year: year,
-            isSeries: series);
+            isSeries: series,
+            isRegularOnly: true);
 
         var genres = await _movieService.GetAllGenresAsync();
         Genre? currentGenre = null;
@@ -81,6 +85,14 @@ public class MovieController : Controller
         var related = await _movieService.GetRelatedMoviesAsync(movie.Id, 6);
         ViewBag.RelatedMovies = related;
 
+        if (_commentService != null)
+        {
+            ViewBag.Comments = await _commentService.GetCommentsByMovieIdAsync(movie.Id);
+            ViewBag.CommentsCount = await _commentService.GetCommentsCountAsync(movie.Id);
+            ViewBag.RatingBreakdown = await _commentService.GetRatingBreakdownAsync(movie.Id);
+            ViewBag.AverageRating = await _commentService.GetAverageRatingAsync(movie.Id, movie.Rating);
+        }
+
         return View(movie);
     }
 
@@ -93,9 +105,7 @@ public class MovieController : Controller
             return Json(new { success = true, data = new object[] { } });
         }
 
-        // Lấy toàn bộ phim không phân biệt loại (Phim Lẻ, Phim Bộ, Phim Chiếu Rạp) để gợi ý
         var allMovies = await _movieService.GetAllMoviesAsync();
-
         var kw = RemoveDiacritics(q.Trim().ToLowerInvariant());
 
         var filtered = allMovies
@@ -118,18 +128,42 @@ public class MovieController : Controller
         return Json(new { success = true, data = results });
     }
 
-    /// <summary>Bỏ dấu tiếng Việt để so sánh không phân biệt dấu</summary>
+    [HttpGet]
+    [Route("api/debug/movies")]
+    public async Task<IActionResult> DebugMovies()
+    {
+        var allMovies = await _movieService.GetAllMoviesAsync();
+        var result = allMovies.Select(m => new
+        {
+            id = m.Id,
+            title = m.Title,
+            director = m.Director,
+            language = m.LanguageMode,
+            duration = m.Duration,
+            viewsCount = m.ViewsCount,
+            ageRating = m.AgeRating,
+            isCinema = m.IsCinema,
+            isSeries = m.IsSeries,
+            isFeatured = m.IsFeatured,
+            genreNames = m.GenreNames,
+            genreIds = m.GenreIds,
+            country = m.Country,
+            year = m.ReleaseYear
+        });
+        return Json(result);
+    }
+
     private static string RemoveDiacritics(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
-        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
-        var sb = new System.Text.StringBuilder();
+        var sb1 = new System.Text.StringBuilder(text.Length);
+        foreach (var c in text)
+            sb1.Append(c == 'đ' ? 'd' : c == 'Đ' ? 'D' : c);
+        var normalized = sb1.ToString().Normalize(System.Text.NormalizationForm.FormD);
+        var sb2 = new System.Text.StringBuilder();
         foreach (var c in normalized)
-        {
-            var cat = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
-            if (cat != System.Globalization.UnicodeCategory.NonSpacingMark)
-                sb.Append(c);
-        }
-        return sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+            if (System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark)
+                sb2.Append(c);
+        return sb2.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
 }

@@ -1,0 +1,303 @@
+@model MovieWeb.Core.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng Nhập - MovieOnline";
+}
+
+<div class="cinema-auth-wrapper">
+    <div class="container relative-z">
+        <div class="row justify-content-center align-items-center min-vh-80 py-5">
+            <div class="col-md-6 col-lg-5 col-xl-4">
+                <div class="cinema-auth-card">
+                    <div class="cinema-auth-main">
+                        <div class="auth-header text-center mb-4">
+                            <div class="auth-cinema-logo mb-2">
+                                <span class="brand-text"><i class="fas fa-play me-2 text-danger"></i>Movie<span class="text-danger">Online</span></span>
+                            </div>
+                            <h4 class="auth-form-title">Đăng Nhập Tài Khoản</h4>
+                            <p class="auth-form-subtitle">Chào mừng bạn quay trở lại với MovieOnline!</p>
+                        </div>
+
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                        {
+                            <div class="auth-error-alert mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>@Html.ValidationSummary(true, "", new { @class = "mb-0" })</div>
+                            </div>
+                        }
+
+                        <form asp-action="Login" method="post" class="cinema-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="ReturnUrl" />
+
+                            <div class="form-group-cinema mb-3">
+                                <label asp-for="UsernameOrEmail" class="cinema-label">Tên tài khoản hoặc Email</label>
+                                <div class="cinema-input-wrapper">
+                                    <i class="fas fa-user input-icon-left"></i>
+                                    <input asp-for="UsernameOrEmail" class="cinema-input" placeholder="Nhập tên đăng nhập hoặc email..." autofocus autocomplete="username" />
+                                </div>
+                                <span asp-validation-for="UsernameOrEmail" class="cinema-field-error"></span>
+                            </div>
+
+                            <div class="form-group-cinema mb-3">
+                                <label asp-for="Password" class="cinema-label">Mật khẩu</label>
+                                <div class="cinema-input-wrapper">
+                                    <i class="fas fa-lock input-icon-left"></i>
+                                    <input asp-for="Password" id="passwordInput" class="cinema-input" placeholder="Nhập mật khẩu của bạn..." autocomplete="current-password" />
+                                    <button type="button" class="btn-eye-toggle" onclick="togglePasswordVisibility('passwordInput', this)" tabindex="-1">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="cinema-field-error"></span>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <label class="cinema-checkbox-container">
+                                    <input asp-for="RememberMe" type="checkbox">
+                                    <span class="checkmark"></span>
+                                    <span class="checkbox-text">Ghi nhớ phiên đăng nhập</span>
+                                </label>
+                            </div>
+
+                            <button type="submit" class="btn-cinema-submit w-100 mb-3">
+                                <span>Đăng Nhập</span>
+                            </button>
+
+                            <div class="auth-footer-link text-center pt-3 border-top border-secondary-subtle">
+                                <span class="text-muted small">Bạn chưa có tài khoản? </span>
+                                <a href="/Account/Register?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")" class="link-register">
+                                    Đăng ký ngay
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.cinema-auth-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #121214;
+}
+
+.relative-z {
+    position: relative;
+    z-index: 5;
+}
+
+.min-vh-80 {
+    min-height: 75vh;
+}
+
+.cinema-auth-card {
+    background: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+}
+
+.cinema-auth-main {
+    padding: 2.5rem 2.2rem;
+}
+
+.brand-text {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.auth-form-title {
+    color: #ffffff;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+
+.auth-form-subtitle {
+    color: #888890;
+    font-size: 0.86rem;
+    margin: 0;
+}
+
+.auth-error-alert {
+    background: rgba(229, 9, 20, 0.12);
+    border: 1px solid rgba(229, 9, 20, 0.4);
+    color: #ff4d55;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.86rem;
+    display: flex;
+    align-items: center;
+}
+
+.form-group-cinema {
+    display: flex;
+    flex-direction: column;
+}
+
+.cinema-label {
+    color: #d0d0d5;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+.cinema-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 14px;
+    color: #666670;
+    font-size: 0.9rem;
+    z-index: 2;
+}
+
+.cinema-input {
+    width: 100%;
+    background: #121215 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
+    padding: 11px 40px 11px 40px !important;
+    border-radius: 10px !important;
+    font-size: 0.9rem !important;
+    outline: none !important;
+    transition: all 0.25s ease !important;
+}
+
+.cinema-input:focus {
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1) !important;
+    background: #16161a !important;
+}
+
+.btn-eye-toggle {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #666670;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.btn-eye-toggle:hover {
+    color: #ffffff;
+}
+
+.cinema-field-error {
+    color: #ff4d55;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.cinema-checkbox-container {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    padding-left: 26px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cinema-checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 17px;
+    width: 17px;
+    background-color: #121215;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+}
+
+.cinema-checkbox-container input:checked ~ .checkmark {
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: solid #121215;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.cinema-checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-text {
+    color: #99999f;
+    font-size: 0.85rem;
+}
+
+.btn-cinema-submit {
+    background: #ffffff;
+    color: #000000;
+    font-weight: 700;
+    border: none;
+    padding: 11px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+}
+
+.btn-cinema-submit:hover {
+    background: #e0e0e0;
+    color: #000000;
+}
+
+.link-register {
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.link-register:hover {
+    color: #cccccc;
+}
+</style>
+
+<script>
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'far fa-eye-slash text-danger';
+    } else {
+        input.type = 'password';
+        icon.className = 'far fa-eye';
+    }
+}
+</script>

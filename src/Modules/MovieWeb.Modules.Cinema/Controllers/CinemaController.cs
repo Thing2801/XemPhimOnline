@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieWeb.Core.Services;
 using MovieWeb.Modules.Cinema.Models;
+using System.Globalization;
+using System.Text;
 
 namespace MovieWeb.Modules.Cinema.Controllers;
 
@@ -37,8 +39,9 @@ public class CinemaController : Controller
 
         if (genre != "all")
         {
-            nowShowing = nowShowing.Where(m => m.GenreIds.Contains(genre, StringComparer.OrdinalIgnoreCase)).ToList();
-            comingSoon = comingSoon.Where(m => m.GenreIds.Contains(genre, StringComparer.OrdinalIgnoreCase)).ToList();
+            string normalizedGenre = NormalizeSlug(genre.Trim().ToLowerInvariant());
+            nowShowing = nowShowing.Where(m => m.GenreIds.Any(gid => NormalizeSlug(gid.ToLowerInvariant()) == normalizedGenre)).ToList();
+            comingSoon = comingSoon.Where(m => m.GenreIds.Any(gid => NormalizeSlug(gid.ToLowerInvariant()) == normalizedGenre)).ToList();
         }
 
         var spotlight = nowShowing.FirstOrDefault(m => m.IsFeatured) ?? nowShowing.FirstOrDefault();
@@ -54,5 +57,19 @@ public class CinemaController : Controller
         };
 
         return View(model);
+    }
+
+    private static string NormalizeSlug(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return text;
+        var sb1 = new StringBuilder(text.Length);
+        foreach (var c in text)
+            sb1.Append(c == 'đ' ? 'd' : c == 'Đ' ? 'D' : c);
+        var normalized = sb1.ToString().Normalize(NormalizationForm.FormD);
+        var sb2 = new StringBuilder();
+        foreach (var c in normalized)
+            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                sb2.Append(c);
+        return sb2.ToString().Normalize(NormalizationForm.FormC);
     }
 }

@@ -31,3 +31,4 @@ E:\Work\Project\Project3\MovieWeb\src\Modules\MovieWeb.Modules.Series\obj\Debug\
 E:\Work\Project\Project3\MovieWeb\src\Modules\MovieWeb.Modules.Series\obj\Debug\net8.0\refint\MovieWeb.Modules.Series.dll
 E:\Work\Project\Project3\MovieWeb\src\Modules\MovieWeb.Modules.Series\obj\Debug\net8.0\MovieWeb.Modules.Series.pdb
 E:\Work\Project\Project3\MovieWeb\src\Modules\MovieWeb.Modules.Series\obj\Debug\net8.0\ref\MovieWeb.Modules.Series.dll
+E:\Work\Project\Project3\MovieWeb\src\Modules\MovieWeb.Modules.Series\obj\Debug\net8.0\MovieWeb.Modules.Series.sourcelink.json
