@@ -17,32 +17,61 @@ public class CinemaController : Controller
 
     [HttpGet]
     [Route("phim-chieu-rap")]
-    public async Task<IActionResult> Index(string tab = "now-showing", string genre = "all")
+    public async Task<IActionResult> Index(
+        string? q = null,
+        string? genre = "all",
+        string? country = "all",
+        string? sort = "newest",
+        string tab = "now-showing")
     {
         ViewData["Title"] = "Phim Chiếu Rạp";
         ViewData["ActivePage"] = "Cinema";
 
         // Chỉ lấy phim có IsCinema = true (đánh dấu Chiếu Rạp trong Orchard Core admin)
-        var cinemaMovies = await _movieService.GetCinemaMoviesAsync(pageSize: 50);
+        var cinemaMovies = await _movieService.GetCinemaMoviesAsync(pageSize: 100);
         var genres = await _movieService.GetAllGenresAsync();
 
-        // Filter movies: Phim chiếu rạp - đang chiếu vs sắp chiếu
-        var nowShowing = cinemaMovies
-            .OrderByDescending(m => m.Rating)
-            .ThenByDescending(m => m.CreatedAt)
-            .ToList();
+        IEnumerable<MovieWeb.Core.Models.Movie> query = cinemaMovies;
 
-        var comingSoon = cinemaMovies
-            .Where(m => m.ReleaseYear >= DateTime.Now.Year)
-            .OrderBy(m => m.ReleaseYear)
-            .ToList();
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            string kw = OrchardCoreMovieService.RemoveDiacritics(q.Trim().ToLowerInvariant());
+            query = query.Where(m =>
+                OrchardCoreMovieService.RemoveDiacritics(m.Title.ToLowerInvariant()).Contains(kw) ||
+                OrchardCoreMovieService.RemoveDiacritics(m.Description.ToLowerInvariant()).Contains(kw));
+        }
 
-        if (genre != "all")
+        if (!string.IsNullOrWhiteSpace(genre) && genre != "all")
         {
             string normalizedGenre = NormalizeSlug(genre.Trim().ToLowerInvariant());
-            nowShowing = nowShowing.Where(m => m.GenreIds.Any(gid => NormalizeSlug(gid.ToLowerInvariant()) == normalizedGenre)).ToList();
-            comingSoon = comingSoon.Where(m => m.GenreIds.Any(gid => NormalizeSlug(gid.ToLowerInvariant()) == normalizedGenre)).ToList();
+            query = query.Where(m => m.GenreIds.Any(gid => NormalizeSlug(gid.ToLowerInvariant()) == normalizedGenre));
         }
+
+        if (!string.IsNullOrWhiteSpace(country) && country != "all")
+        {
+            string cNorm = OrchardCoreMovieService.RemoveDiacritics(country.Trim().ToLowerInvariant());
+            query = query.Where(m => {
+                if (string.IsNullOrWhiteSpace(m.Country)) return false;
+                string mNorm = OrchardCoreMovieService.RemoveDiacritics(m.Country.Trim().ToLowerInvariant());
+                if (mNorm == cNorm || mNorm.Contains(cNorm) || cNorm.Contains(mNorm)) return true;
+                if (cNorm.Contains("au my") && (mNorm.Contains("my") || mNorm.Contains("hoa ky") || mNorm.Contains("anh") || mNorm.Contains("phap") || mNorm.Contains("au my"))) return true;
+                return false;
+            });
+        }
+
+        query = (sort?.ToLowerInvariant()) switch
+        {
+            "popular" or "views" => query.OrderByDescending(m => m.ViewsCount),
+            "rating" or "top" => query.OrderByDescending(m => m.Rating).ThenByDescending(m => m.ViewsCount),
+            "title" => query.OrderBy(m => m.Title),
+            "newest" => query.OrderByDescending(m => m.ReleaseYear).ThenByDescending(m => m.CreatedAt),
+            _ => query.OrderByDescending(m => m.ReleaseYear).ThenByDescending(m => m.CreatedAt)
+        };
+
+        var filteredList = query.ToList();
+
+        var nowShowing = filteredList.Where(m => m.IsNowShowing || (!m.IsNowShowing && !m.IsComingSoon)).ToList();
+        var comingSoon = filteredList.Where(m => m.IsComingSoon).ToList();
 
         var spotlight = nowShowing.FirstOrDefault(m => m.IsFeatured) ?? nowShowing.FirstOrDefault();
 
@@ -52,7 +81,10 @@ public class CinemaController : Controller
             ComingSoonMovies = comingSoon,
             Genres = genres,
             SelectedTab = tab,
-            SelectedGenre = genre,
+            SelectedGenre = genre ?? "all",
+            SelectedCountry = country ?? "all",
+            SearchKeyword = q ?? string.Empty,
+            SortBy = sort ?? "newest",
             SpotlightMovie = spotlight
         };
 

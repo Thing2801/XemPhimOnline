@@ -66,16 +66,16 @@ public class CommentService : ICommentService
         }
     }
 
-    public Task<double> GetAverageRatingAsync(string movieId, double defaultRating)
+    public Task<double> GetAverageRatingAsync(string movieId, double defaultRating = 0.0)
     {
         lock (_fileLock)
         {
-            var movieComments = _comments.Where(c => c.MovieId == movieId && c.Rating > 0).ToList();
-            if (!movieComments.Any())
+            var movieRatings = _comments.Where(c => c.MovieId == movieId && string.IsNullOrEmpty(c.ParentId) && c.Rating > 0).ToList();
+            if (!movieRatings.Any())
             {
-                return Task.FromResult(defaultRating);
+                return Task.FromResult(0.0);
             }
-            double avg = movieComments.Average(c => c.Rating) * 2.0; // scale 5-star to 10-scale
+            double avg = movieRatings.Average(c => c.Rating);
             return Task.FromResult(Math.Round(avg, 1));
         }
     }
@@ -84,15 +84,15 @@ public class CommentService : ICommentService
     {
         lock (_fileLock)
         {
-            var movieComments = _comments.Where(c => c.MovieId == movieId).ToList();
-            int total = movieComments.Count;
+            var movieRatings = _comments.Where(c => c.MovieId == movieId && string.IsNullOrEmpty(c.ParentId) && c.Rating > 0).ToList();
+            int total = movieRatings.Count;
             var result = new Dictionary<int, int> { { 5, 0 }, { 4, 0 }, { 3, 0 }, { 2, 0 }, { 1, 0 } };
 
             if (total == 0) return Task.FromResult(result);
 
             for (int r = 1; r <= 5; r++)
             {
-                int count = movieComments.Count(c => c.Rating == r);
+                int count = movieRatings.Count(c => c.Rating == r);
                 result[r] = (int)Math.Round((double)count / total * 100);
             }
 
@@ -100,10 +100,13 @@ public class CommentService : ICommentService
         }
     }
 
-    public Task<MovieComment> AddCommentAsync(string movieId, string userId, string userName, string userAvatar, int rating, string content)
+    public Task<MovieComment> AddCommentAsync(string movieId, string userId, string userName, string userAvatar, int rating, string content, string? parentId = null, string? replyToUserId = null, string? replyToUserName = null)
     {
         lock (_fileLock)
         {
+            // If it's a child reply, rating is 0 (does not count as a movie star rating vote)
+            int finalRating = !string.IsNullOrEmpty(parentId) ? 0 : Math.Clamp(rating, 1, 5);
+
             var comment = new MovieComment
             {
                 Id = Guid.NewGuid().ToString("N"),
@@ -111,10 +114,13 @@ public class CommentService : ICommentService
                 UserId = userId,
                 UserName = userName,
                 UserAvatar = string.IsNullOrWhiteSpace(userAvatar) ? $"https://api.dicebear.com/7.x/avataaars/svg?seed={Uri.EscapeDataString(userName)}" : userAvatar,
-                Rating = Math.Clamp(rating, 1, 5),
+                Rating = finalRating,
                 Content = content.Trim(),
                 LikesCount = 0,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ParentId = parentId,
+                ReplyToUserId = replyToUserId,
+                ReplyToUserName = replyToUserName
             };
 
             _comments.Add(comment);
@@ -140,6 +146,39 @@ public class CommentService : ICommentService
                 return Task.FromResult(comment.LikesCount);
             }
             return Task.FromResult(0);
+        }
+    }
+
+    public Task<(bool Success, string Message)> DeleteCommentAsync(string commentId, string userId)
+    {
+        lock (_fileLock)
+        {
+            var comment = _comments.FirstOrDefault(c => c.Id == commentId);
+            if (comment == null)
+                return Task.FromResult((false, "Bình luận không tồn tại."));
+            if (comment.UserId != userId)
+                return Task.FromResult((false, "Bạn không có quyền xóa bình luận này."));
+
+            _comments.RemoveAll(c => c.Id == commentId || c.ParentId == commentId);
+            SaveCommentsInternal();
+            return Task.FromResult((true, "Đã xóa bình luận."));
+        }
+    }
+
+    public Task<(bool Success, string Message, MovieComment? Comment)> UpdateCommentAsync(string commentId, string userId, string newContent, int newRating)
+    {
+        lock (_fileLock)
+        {
+            var comment = _comments.FirstOrDefault(c => c.Id == commentId);
+            if (comment == null)
+                return Task.FromResult((false, "Bình luận không tồn tại.", (MovieComment?)null));
+            if (comment.UserId != userId)
+                return Task.FromResult((false, "Bạn không có quyền chỉnh sửa bình luận này.", (MovieComment?)null));
+
+            comment.Content = newContent.Trim();
+            comment.Rating = Math.Clamp(newRating, 1, 5);
+            SaveCommentsInternal();
+            return Task.FromResult((true, "Đã cập nhật bình luận.", (MovieComment?)comment));
         }
     }
 }

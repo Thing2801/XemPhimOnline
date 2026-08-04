@@ -16,7 +16,19 @@
                 <div class="hero-text-side">
                     <div class="hero-badges">
                         <span class="badge-pill badge-primary">NỔI BẬT</span>
-                        <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @movie.Rating</span>
+                        @{
+                            double heroRating = movie.Rating;
+                            while (heroRating > 5.0) { heroRating /= 2.0; }
+                            heroRating = Math.Clamp(Math.Round(heroRating, 1), 1.0, 5.0);
+                        }
+                        @if (movie.IsComingSoon)
+                        {
+                            <span class="badge-pill badge-gold"><i class="fas fa-calendar-alt"></i> Sắp khởi chiếu</span>
+                        }
+                        else
+                        {
+                            <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @heroRating.ToString("0.0")</span>
+                        }
                         <span class="badge-pill badge-glass">@movie.Quality</span>
                         <span class="badge-pill badge-glass">@movie.AgeRating</span>
                         <span class="badge-pill badge-glass">@movie.ReleaseYear</span>

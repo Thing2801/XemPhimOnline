@@ -4,62 +4,7 @@
     ViewData["ActivePage"] = "Cinema";
 }
 
-<div class="cinema-page-wrapper">
-    <!-- Spotlight Hero Section -->
-    @if (Model.SpotlightMovie != null)
-    {
-        <div class="cinema-spotlight-banner">
-            <div class="cinema-spotlight-bg" style="background-image: url('@Model.SpotlightMovie.BannerUrl');"></div>
-            <div class="cinema-spotlight-overlay"></div>
-            
-            <div class="container position-relative z-index-2 py-5">
-                <div class="row align-items-center g-4">
-                    <!-- Left Content -->
-                    <div class="col-lg-8 text-start">
-                        <div class="cinema-live-badge mb-3">
-                            <span class="pulse-dot me-2"></span>
-                            <i class="fas fa-ticket-alt text-warning me-1"></i> BOM TẤN CHIẾU RẠP HOT NHẤT
-                        </div>
-                        <h1 class="cinema-spotlight-title">@Model.SpotlightMovie.Title</h1>
-                        <h4 class="cinema-spotlight-orig">@Model.SpotlightMovie.OriginalTitle (@Model.SpotlightMovie.ReleaseYear)</h4>
-                        
-                        <div class="cinema-spotlight-meta d-flex flex-wrap align-items-center gap-2 my-3">
-                            <span class="meta-pill rating"><i class="fas fa-star me-1 text-warning"></i>@Model.SpotlightMovie.Rating</span>
-                            <span class="meta-pill quality"><i class="fas fa-film me-1"></i>@Model.SpotlightMovie.Quality</span>
-                            <span class="meta-pill duration"><i class="far fa-clock me-1"></i>@Model.SpotlightMovie.Duration</span>
-                            <span class="meta-pill country"><i class="fas fa-globe me-1"></i>@Model.SpotlightMovie.Country</span>
-                            @foreach (var gName in Model.SpotlightMovie.GenreNames.Take(3))
-                            {
-                                <span class="meta-pill genre">@gName</span>
-                            }
-                        </div>
-
-                        <p class="cinema-spotlight-desc text-muted mb-4">@Model.SpotlightMovie.Description</p>
-
-                        <div class="cinema-spotlight-actions d-flex flex-wrap gap-3">
-                            <button class="btn-cinema-primary" onclick="playTrailerModal('@Model.SpotlightMovie.TrailerUrl', '@Model.SpotlightMovie.Title')">
-                                <i class="fas fa-play me-2"></i> Xem Trailer Chiếu Rạp
-                            </button>
-                            <a href="/phim/@Model.SpotlightMovie.Id" class="btn-cinema-glass">
-                                <i class="fas fa-info-circle me-2"></i> Thông Tin Phim
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Right Poster Card -->
-                    <div class="col-lg-4 text-center d-none d-lg-block">
-                        <div class="cinema-spotlight-card">
-                            <img src="@Model.SpotlightMovie.PosterUrl" alt="@Model.SpotlightMovie.Title" class="cinema-poster-img" />
-                            <div class="cinema-card-glow"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-
-    <!-- Content Main Area -->
-    <div class="container py-5">
+<div class="main-wrapper" style="padding-top: 1.5rem; padding-bottom: 3rem;">
         <!-- Header & Navigation Tabs -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom-cinema">
             <div>
@@ -70,30 +15,68 @@
             </div>
             
             <div class="cinema-tabs-nav">
-                <a href="/phim-chieu-rap?tab=now-showing&genre=@Model.SelectedGenre" 
+                <a href="/phim-chieu-rap?tab=now-showing&q=@Model.SearchKeyword&genre=@Model.SelectedGenre&country=@Model.SelectedCountry&sort=@Model.SortBy" 
                    class="cinema-tab-link @(Model.SelectedTab == "now-showing" ? "active" : "")">
                     <i class="fas fa-fire me-1.5 text-danger"></i> Đang Chiếu Rạp (@Model.NowShowingMovies.Count)
                 </a>
-                <a href="/phim-chieu-rap?tab=coming-soon&genre=@Model.SelectedGenre" 
+                <a href="/phim-chieu-rap?tab=coming-soon&q=@Model.SearchKeyword&genre=@Model.SelectedGenre&country=@Model.SelectedCountry&sort=@Model.SortBy" 
                    class="cinema-tab-link @(Model.SelectedTab == "coming-soon" ? "active" : "")">
                     <i class="fas fa-calendar-alt me-1.5 text-warning"></i> Sắp Chiếu Rạp (@Model.ComingSoonMovies.Count)
                 </a>
             </div>
         </div>
 
-        <!-- Filter Genres Bar -->
-        <div class="cinema-genre-bar mb-4">
-            <a href="/phim-chieu-rap?tab=@Model.SelectedTab&genre=all" 
-               class="cinema-genre-pill @(Model.SelectedGenre == "all" ? "active" : "")">
-               <i class="fas fa-th-large me-1.5"></i> Tất cả thể loại
-            </a>
-            @foreach (var g in Model.Genres)
-            {
-                <a href="/phim-chieu-rap?tab=@Model.SelectedTab&genre=@g.Id" 
-                   class="cinema-genre-pill @(Model.SelectedGenre == g.Id ? "active" : "")">
-                   <i class="@g.IconClass me-1.5"></i> @g.Name
-                </a>
-            }
+        <!-- Filter Bar Form -->
+        <div class="filter-container mb-4">
+            <form method="get" action="/phim-chieu-rap" id="cinemaFilterForm">
+                <input type="hidden" name="tab" value="@Model.SelectedTab" />
+                <div class="filter-grid">
+                    <!-- Search Keyword -->
+                    <div class="form-group-custom" style="position:relative">
+                        <label class="form-label-custom">Từ khóa tìm kiếm</label>
+                        <input type="text" name="q" id="cinemaFilterSearch" value="@Model.SearchKeyword"
+                               class="form-input-custom"
+                               placeholder="Nhập tên phim chiếu rạp..."
+                               autocomplete="off" />
+                    </div>
+
+                    <!-- Genre Select -->
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">Thể loại</label>
+                        <select name="genre" class="form-select-custom" onchange="this.form.submit()">
+                            <option value="all" selected="@(Model.SelectedGenre == "all")">-- Tất cả Thể loại --</option>
+                            @foreach (var g in Model.Genres)
+                            {
+                                <option value="@g.Id" selected="@(Model.SelectedGenre == g.Id)">@g.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Country Select -->
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">Quốc gia</label>
+                        <select name="country" class="form-select-custom" onchange="this.form.submit()">
+                            <option value="all" selected="@(Model.SelectedCountry == "all")">-- Tất cả Quốc gia --</option>
+                            <option value="Việt Nam" selected="@(Model.SelectedCountry == "Việt Nam")">Việt Nam</option>
+                            <option value="Âu Mỹ" selected="@(Model.SelectedCountry == "Âu Mỹ")">Âu Mỹ</option>
+                            <option value="Trung Quốc" selected="@(Model.SelectedCountry == "Trung Quốc")">Trung Quốc</option>
+                            <option value="Hàn Quốc" selected="@(Model.SelectedCountry == "Hàn Quốc")">Hàn Quốc</option>
+                            <option value="Nhật Bản" selected="@(Model.SelectedCountry == "Nhật Bản")">Nhật Bản</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort By -->
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">Sắp xếp</label>
+                        <select name="sort" class="form-select-custom" onchange="this.form.submit()">
+                            <option value="newest" selected="@(Model.SortBy == "newest")">Mới nhất</option>
+                            <option value="popular" selected="@(Model.SortBy == "popular")">Xem nhiều nhất</option>
+                            <option value="rating" selected="@(Model.SortBy == "rating")">Đánh giá cao nhất</option>
+                            <option value="title" selected="@(Model.SortBy == "title")">Tên A-Z</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <!-- Movies Display Grid -->
@@ -109,14 +92,36 @@
                     <div class="cinema-movie-card">
                         <div class="cinema-poster-box">
                             <img src="@movie.PosterUrl" alt="@movie.Title" class="cinema-poster" loading="lazy" />
+                            @if (movie.Price > 0)
+                            {
+                                <div class="position-absolute top-0 start-0 m-2 px-2.5 py-1 rounded-pill text-dark fw-bold shadow-sm d-flex align-items-center gap-1"
+                                     style="background: linear-gradient(135deg, #f59e0b, #fbbf24); font-size: 0.78rem; z-index: 4; border: 1px solid rgba(255,255,255,0.6);">
+                                    <i class="fas fa-ticket-alt"></i> @movie.FormattedPrice
+                                </div>
+                            }
                             <div class="cinema-poster-overlay">
                                 <button class="btn-play-trigger" onclick="playTrailerModal('@movie.TrailerUrl', '@movie.Title')" title="Xem Trailer">
                                     <i class="fas fa-play"></i>
                                 </button>
                                 <a href="/phim/@movie.Id" class="btn-detail-trigger">Xem Chi Tiết</a>
                             </div>
-                            <span class="cinema-tag-badge"><i class="fas fa-ticket-alt me-1"></i> CHIẾU RẠP</span>
-                            <span class="cinema-rating-badge"><i class="fas fa-star me-1 text-warning"></i>@movie.Rating</span>
+                             <span class="cinema-tag-badge"><i class="fas fa-ticket-alt me-1"></i> @(movie.IsComingSoon ? "SẮP CHIẾU" : "ĐANG CHIẾU")</span>
+                             @{
+                                 double cinemaRating = movie.Rating;
+                                 if (cinemaRating > 5.0)
+                                 {
+                                     while (cinemaRating > 5.0) { cinemaRating /= 2.0; }
+                                     cinemaRating = Math.Clamp(Math.Round(cinemaRating, 1), 1.0, 5.0);
+                                 }
+                             }
+                             @if (cinemaRating > 0)
+                             {
+                                 <span class="cinema-rating-badge"><i class="fas fa-star me-1 text-warning"></i>@cinemaRating.ToString("0.0")</span>
+                             }
+                             else
+                             {
+                                 <span class="cinema-rating-badge text-muted" style="background:rgba(0,0,0,0.6); font-size:0.75rem;"><i class="far fa-star me-1"></i>Chưa đánh giá</span>
+                             }
                             <span class="cinema-quality-badge">@movie.Quality</span>
                         </div>
                         <div class="cinema-info-box">
@@ -124,9 +129,16 @@
                                 <a href="/phim/@movie.Id">@movie.Title</a>
                             </h3>
                             <div class="cinema-movie-meta">
-                                <span><i class="far fa-calendar-alt me-1"></i>@movie.ReleaseYear</span>
-                                <span>•</span>
-                                <span><i class="far fa-clock me-1"></i>@movie.Duration</span>
+                                @if (movie.IsComingSoon && !string.IsNullOrWhiteSpace(movie.ComingShowDate))
+                                {
+                                    <span class="text-warning fw-semibold" title="Ngày khởi chiếu"><i class="far fa-calendar-alt me-1"></i>Khởi chiếu: @movie.ComingShowDate</span>
+                                }
+                                else
+                                {
+                                    <span><i class="far fa-calendar-alt me-1"></i>@movie.ReleaseYear</span>
+                                    <span>•</span>
+                                    <span><i class="far fa-clock me-1"></i>@movie.Duration</span>
+                                }
                             </div>
                             <div class="cinema-movie-genres text-truncate" title="@string.Join(", ", movie.GenreNames)">
                                 @string.Join(" • ", movie.GenreNames)
@@ -148,7 +160,6 @@
             </div>
         }
     </div>
-</div>
 
 <style>
 /* Modern Cinema Page Layout Styling */

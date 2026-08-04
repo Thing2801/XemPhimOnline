@@ -54,7 +54,7 @@
                         <option value="all" selected="@(Model.SelectedGenre == "all")">-- Tất cả Thể loại --</option>
                         @foreach (var g in Model.Genres)
                         {
-                            <option value="@g.Id" selected="@(Model.SelectedGenre == g.Id)">@g.Name (@g.MovieCount)</option>
+                            <option value="@g.Id" selected="@(Model.SelectedGenre == g.Id)">@g.Name</option>
                         }
                     </select>
                 </div>

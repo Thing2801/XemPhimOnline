@@ -10938,6 +10938,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
+          "MailKit": "4.8.0",
           "MovieWeb.Core": "1.0.0",
           "OrchardCore.Module.Targets": "2.1.0"
         },
@@ -26968,6 +26969,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "Microsoft.AspNetCore.Authentication.Google >= 8.0.10",
       "MovieWeb.Core >= 1.0.0",
       "MovieWeb.Modules.Cinema >= 1.0.0",
       "MovieWeb.Modules.Genres >= 1.0.0",
@@ -27051,6 +27053,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "Microsoft.AspNetCore.Authentication.Google": {
+            "target": "Package",
+            "version": "[8.0.10, )"
+          },
           "OrchardCore.Application.Cms.Targets": {
             "target": "Package",
             "version": "[2.1.0, )"

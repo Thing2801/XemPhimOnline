@@ -1,1 +1,96 @@
-[]
+[
+  {
+    "Id": "f296e4d74be14cb6a927472d74a98637",
+    "MovieId": "492att815km6nyq0wgpkvdjqnw",
+    "UserId": "cb7c9f3bbf814afa9a01556f0420b9aa",
+    "UserName": "Ph\u01B0\u1EDBc Th\u1ECBnh Phan",
+    "UserAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=thingshark28%40gmail.com",
+    "Rating": 5,
+    "Content": "h\u00E0i vl",
+    "LikesCount": 0,
+    "LikedUserIds": [],
+    "CreatedAt": "2026-08-04T01:09:11.6593594Z",
+    "ParentId": null,
+    "ReplyToUserId": null,
+    "ReplyToUserName": null
+  },
+  {
+    "Id": "9885a07b85ec4bcaa866d34d02ae1bf0",
+    "MovieId": "4zncavzabhznd1be4z3srstqmr",
+    "UserId": "4zrzg53sewazv0qnbcrrmas04e",
+    "UserName": "admin",
+    "UserAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+    "Rating": 5,
+    "Content": "kh\u00E1 hay",
+    "LikesCount": 1,
+    "LikedUserIds": [
+      "523ca99ec0154af2b56f50257c5fe3bf"
+    ],
+    "CreatedAt": "2026-08-04T01:09:24.2399525Z",
+    "ParentId": null,
+    "ReplyToUserId": null,
+    "ReplyToUserName": null
+  },
+  {
+    "Id": "121e8d38436f407d8a2c169534f11b27",
+    "MovieId": "492att815km6nyq0wgpkvdjqnw",
+    "UserId": "cb7c9f3bbf814afa9a01556f0420b9aa",
+    "UserName": "Ph\u01B0\u1EDBc Th\u1ECBnh Phan",
+    "UserAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=thingshark28%40gmail.com",
+    "Rating": 5,
+    "Content": "sdfsfd",
+    "LikesCount": 0,
+    "LikedUserIds": [],
+    "CreatedAt": "2026-08-04T01:14:56.2639675Z",
+    "ParentId": "f296e4d74be14cb6a927472d74a98637",
+    "ReplyToUserId": "cb7c9f3bbf814afa9a01556f0420b9aa",
+    "ReplyToUserName": "Ph\u01B0\u1EDBc Th\u1ECBnh Phan"
+  },
+  {
+    "Id": "0b819dfe05ec4363a46e28161fe3912d",
+    "MovieId": "492att815km6nyq0wgpkvdjqnw",
+    "UserId": "4zrzg53sewazv0qnbcrrmas04e",
+    "UserName": "admin",
+    "UserAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+    "Rating": 5,
+    "Content": "sdads",
+    "LikesCount": 0,
+    "LikedUserIds": [],
+    "CreatedAt": "2026-08-04T01:15:15.452264Z",
+    "ParentId": "f296e4d74be14cb6a927472d74a98637",
+    "ReplyToUserId": "cb7c9f3bbf814afa9a01556f0420b9aa",
+    "ReplyToUserName": "Ph\u01B0\u1EDBc Th\u1ECBnh Phan"
+  },
+  {
+    "Id": "a97f4f7debdd4965a7605eb9b39b593b",
+    "MovieId": "492att815km6nyq0wgpkvdjqnw",
+    "UserId": "cb7c9f3bbf814afa9a01556f0420b9aa",
+    "UserName": "Ph\u01B0\u1EDBc Th\u1ECBnh Phan",
+    "UserAvatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=thingshark28%40gmail.com",
+    "Rating": 3,
+    "Content": "cho con n\u00EDt coi",
+    "LikesCount": 0,
+    "LikedUserIds": [],
+    "CreatedAt": "2026-08-04T01:16:11.0625208Z",
+    "ParentId": null,
+    "ReplyToUserId": null,
+    "ReplyToUserName": null
+  },
+  {
+    "Id": "0fd85e66825c489aa75e8023eb7acda4",
+    "MovieId": "4zncavzabhznd1be4z3srstqmr",
+    "UserId": "523ca99ec0154af2b56f50257c5fe3bf",
+    "UserName": "user1",
+    "UserAvatar": "/uploads/avatars/avatar_523ca99ec0154af2b56f50257c5fe3bf.jpg?v=639214115412167721",
+    "Rating": 5,
+    "Content": "ok hay",
+    "LikesCount": 1,
+    "LikedUserIds": [
+      "4zrzg53sewazv0qnbcrrmas04e"
+    ],
+    "CreatedAt": "2026-08-04T03:39:24.6819119Z",
+    "ParentId": null,
+    "ReplyToUserId": null,
+    "ReplyToUserName": null
+  }
+]

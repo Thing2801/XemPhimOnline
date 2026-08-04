@@ -11,11 +11,13 @@ public class OrchardCoreMovieService : IMovieService
 {
     private readonly ISession _session;
     private readonly IContentManager _contentManager;
+    private readonly ICommentService? _commentService;
 
-    public OrchardCoreMovieService(ISession session, IContentManager contentManager)
+    public OrchardCoreMovieService(ISession session, IContentManager contentManager, ICommentService? commentService = null)
     {
         _session = session;
         _contentManager = contentManager;
+        _commentService = commentService;
     }
 
     private async Task<List<Genre>> GetOrchardGenresInternalAsync()
@@ -211,7 +213,29 @@ public class OrchardCoreMovieService : IMovieService
                 bool isFeatured = GetBoolFieldValue(item.Content, "Remarkable", "IsFeatured", "NoiBat")
                                || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "Remarkable", "IsFeatured", "NoiBat"));
 
-                double rating = GetDoubleField(movieData?.Evaluate ?? pickedMovieInfoData?.Evaluate, 9.0);
+                double rawRating = GetDoubleField(movieData?.Evaluate ?? pickedMovieInfoData?.Evaluate, 0.0);
+                double rating = rawRating;
+                if (rating > 0.0)
+                {
+                    while (rating > 5.0)
+                    {
+                        rating /= 2.0;
+                    }
+                    rating = Math.Clamp(Math.Round(rating, 1), 1.0, 5.0);
+                }
+                else
+                {
+                    rating = 0.0;
+                }
+
+                if (_commentService != null)
+                {
+                    double userAvg = await _commentService.GetAverageRatingAsync(item.ContentItemId, 0.0);
+                    if (userAvg > 0.0)
+                    {
+                        rating = userAvg;
+                    }
+                }
                 string resolution = GetFieldText(movieData?.Resolution ?? pickedMovieInfoData?.Resolution) ?? "4K Ultra HD";
                 int year = GetIntField(movieData?.YearOfProduction ?? pickedMovieInfoData?.YearOfProduction, 2026);
 
@@ -230,11 +254,45 @@ public class OrchardCoreMovieService : IMovieService
                 bool isCinema = GetBoolFieldValue(item.Content, "IsInCinema", "IsCinema", "ChieuRap")
                              || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "IsInCinema", "IsCinema", "ChieuRap"));
 
+                // Read NowShowing field (BooleanField for Phim Đang Chiếu)
+                bool isNowShowing = GetBoolFieldValue(item.Content, "NowShowing", "IsNowShowing", "DangChieu", "DangChieuRap", "NowShowingMovie")
+                                 || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "NowShowing", "IsNowShowing", "DangChieu", "DangChieuRap", "NowShowingMovie"));
+
+                // Read ComingShowMovie field (BooleanField for Phim Sắp Chiếu)
+                bool isComingSoon = GetBoolFieldValue(item.Content, "ComingShowMovie", "ComingShow", "IsComingSoon", "SapChieu", "SapChieuRap", "ComingSoon", "ComingSoonMovie")
+                                 || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "ComingShowMovie", "ComingShow", "IsComingSoon", "SapChieu", "SapChieuRap", "ComingSoon", "ComingSoonMovie"));
+
+                // Read ComingShowDate field (TextField for ngày khởi chiếu)
+                string comingShowDate = GetFieldText(movieData?.ComingShowDate ?? pickedMovieInfoData?.ComingShowDate)
+                                     ?? GetFieldText(movieData?.ComingShowDateText ?? pickedMovieInfoData?.ComingShowDateText)
+                                     ?? GetFieldText(movieData?.ComingDate ?? pickedMovieInfoData?.ComingDate)
+                                     ?? GetFieldText(movieData?.NgayChieu ?? pickedMovieInfoData?.NgayChieu)
+                                     ?? string.Empty;
+
+                if (isComingSoon)
+                {
+                    isNowShowing = false;
+                }
+
                 // Read IsPartMovie field (BooleanField for Phim Bộ)
                 bool isPartMovie = GetBoolFieldValue(item.Content, "IsPartMovie", "IsPart", "IsSeries", "PhimBo", "PhimBoField", "PartMovie", "IsMoviePart", "MoviePart")
                                 || (pickedMovieInfoContent != null && GetBoolFieldValue(pickedMovieInfoContent, "IsPartMovie", "IsPart", "IsSeries", "PhimBo", "PhimBoField", "PartMovie", "IsMoviePart", "MoviePart"))
                                 || duration.ToLowerInvariant().Contains("tập")
                                 || duration.ToLowerInvariant().Contains("tap");
+
+                // Read Price field (TextField or NumericField for Giá phim)
+                string? priceRaw = GetStringFieldValue(item.Content, "Price", "Gia", "GiaVe", "GiaPhim", "MoviePrice", "TicketPrice")
+                                ?? (pickedMovieInfoContent != null ? GetStringFieldValue(pickedMovieInfoContent, "Price", "Gia", "GiaVe", "GiaPhim", "MoviePrice", "TicketPrice") : null);
+
+                decimal price = 0;
+                if (!string.IsNullOrWhiteSpace(priceRaw))
+                {
+                    string digitsOnly = System.Text.RegularExpressions.Regex.Replace(priceRaw, @"[^\d]", "");
+                    if (decimal.TryParse(digitsOnly, out decimal pVal))
+                    {
+                        price = pVal;
+                    }
+                }
 
                 list.Add(new Movie
                 {
@@ -261,6 +319,10 @@ public class OrchardCoreMovieService : IMovieService
                     IsFeatured = isFeatured,
                     FeaturedOrder = 1,
                     IsCinema = isCinema,
+                    IsNowShowing = isNowShowing,
+                    IsComingSoon = isComingSoon,
+                    ComingShowDate = comingShowDate,
+                    Price = price,
                     IsSeries = isPartMovie,
                     EpisodeInfo = duration,
                     ViewsCount = viewsCount > 0 ? viewsCount : 1000,
@@ -426,24 +488,29 @@ public class OrchardCoreMovieService : IMovieService
             g.Slug.Equals(identifier, StringComparison.OrdinalIgnoreCase));
     }
 
-    public async Task<List<Movie>> GetMoviesAsync(
-        string? searchKeyword = null,
-        string? genreId = null,
-        string? country = null,
-        int? year = null,
-        bool? isSeries = null,
-        string? sortBy = null,
-        int page = 1,
-        int pageSize = 12,
-        bool isRegularOnly = false)
+    private IEnumerable<Movie> FilterMoviesQueryInternal(
+        IEnumerable<Movie> movies,
+        string? searchKeyword,
+        string? genreId,
+        string? country,
+        int? year,
+        bool? isSeries,
+        bool isRegularOnly)
     {
-        var movies = await GetOrchardMoviesInternalAsync();
         IEnumerable<Movie> query = movies;
 
-        // Trang /phim: chỉ hiện phim lẻ thông thường (không phải chiếu rạp, không phải phim bộ)
         if (isRegularOnly)
         {
-            query = query.Where(m => !m.IsCinema && !m.IsSeries);
+            query = query.Where(m => !m.IsCinema);
+            if (!isSeries.HasValue)
+            {
+                query = query.Where(m => !m.IsSeries);
+            }
+        }
+
+        if (isSeries.HasValue)
+        {
+            query = query.Where(m => m.IsSeries == isSeries.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(searchKeyword))
@@ -463,7 +530,14 @@ public class OrchardCoreMovieService : IMovieService
 
         if (!string.IsNullOrWhiteSpace(country) && country != "all")
         {
-            query = query.Where(m => m.Country.Equals(country, StringComparison.OrdinalIgnoreCase));
+            string cNorm = RemoveDiacritics(country.Trim().ToLowerInvariant());
+            query = query.Where(m => {
+                if (string.IsNullOrWhiteSpace(m.Country)) return false;
+                string mNorm = RemoveDiacritics(m.Country.Trim().ToLowerInvariant());
+                if (mNorm == cNorm || mNorm.Contains(cNorm) || cNorm.Contains(mNorm)) return true;
+                if (cNorm.Contains("au my") && (mNorm.Contains("my") || mNorm.Contains("hoa ky") || mNorm.Contains("anh") || mNorm.Contains("phap") || mNorm.Contains("au my"))) return true;
+                return false;
+            });
         }
 
         if (year.HasValue && year.Value > 0)
@@ -471,10 +545,31 @@ public class OrchardCoreMovieService : IMovieService
             query = query.Where(m => m.ReleaseYear == year.Value);
         }
 
-        if (isSeries.HasValue)
+        return query;
+    }
+
+    public async Task<List<Movie>> GetMoviesAsync(
+        string? searchKeyword = null,
+        string? genreId = null,
+        string? country = null,
+        int? year = null,
+        bool? isSeries = null,
+        string? sortBy = null,
+        int page = 1,
+        int pageSize = 12,
+        bool isRegularOnly = false)
+    {
+        var movies = await GetOrchardMoviesInternalAsync();
+        var query = FilterMoviesQueryInternal(movies, searchKeyword, genreId, country, year, isSeries, isRegularOnly);
+
+        query = (sortBy?.ToLowerInvariant()) switch
         {
-            query = query.Where(m => m.IsSeries == isSeries.Value);
-        }
+            "popular" or "views" => query.OrderByDescending(m => m.ViewsCount),
+            "rating" or "top" => query.OrderByDescending(m => m.Rating).ThenByDescending(m => m.ViewsCount),
+            "title" => query.OrderBy(m => m.Title),
+            "newest" => query.OrderByDescending(m => m.ReleaseYear).ThenByDescending(m => m.CreatedAt),
+            _ => query.OrderByDescending(m => m.ReleaseYear).ThenByDescending(m => m.CreatedAt)
+        };
 
         return query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
     }
@@ -487,8 +582,9 @@ public class OrchardCoreMovieService : IMovieService
         bool? isSeries = null,
         bool isRegularOnly = false)
     {
-        var movies = await GetMoviesAsync(searchKeyword, genreId, country, year, isSeries, pageSize: 1000, isRegularOnly: isRegularOnly);
-        return movies.Count;
+        var movies = await GetOrchardMoviesInternalAsync();
+        var query = FilterMoviesQueryInternal(movies, searchKeyword, genreId, country, year, isSeries, isRegularOnly);
+        return query.Count();
     }
 
     public async Task<Movie?> GetMovieByIdOrSlugAsync(string identifier)
@@ -685,7 +781,7 @@ public class OrchardCoreMovieService : IMovieService
     }
 
     /// <summary>Bỏ dấu tiếng Việt để tìm kiếm không phân biệt dấu</summary>
-    private static string RemoveDiacritics(string text)
+    public static string RemoveDiacritics(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
 
@@ -789,6 +885,78 @@ public class OrchardCoreMovieService : IMovieService
                     if (valProp.ValueKind == System.Text.Json.JsonValueKind.False) return false;
                     if (valProp.ValueKind == System.Text.Json.JsonValueKind.String &&
                         bool.TryParse(valProp.GetString(), out bool bParsed)) return bParsed;
+                }
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Đọc string/numeric field từ Orchard Core ContentItem.
+    /// Tìm linh hoạt trong phần "Movie", "MovieInfo" và root element.
+    /// </summary>
+    private static string? GetStringFieldValue(dynamic content, params string[] fieldNames)
+    {
+        try
+        {
+            if (content == null) return null;
+
+            string jsonStr;
+            try { jsonStr = content.ToJsonString(); }
+            catch
+            {
+                try { jsonStr = System.Text.Json.JsonSerializer.Serialize((object)content); }
+                catch { return null; }
+            }
+
+            if (string.IsNullOrWhiteSpace(jsonStr) || jsonStr.StartsWith("System.")) return null;
+
+            using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
+            var root = doc.RootElement;
+
+            System.Text.Json.JsonElement moviePart;
+            bool hasMoviePart = root.TryGetProperty("Movie", out moviePart) || root.TryGetProperty("MovieInfo", out moviePart);
+
+            if (hasMoviePart && moviePart.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                string? val = CheckStringFieldShallow(moviePart, fieldNames);
+                if (!string.IsNullOrWhiteSpace(val)) return val;
+            }
+
+            return CheckStringFieldShallow(root, fieldNames);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? CheckStringFieldShallow(System.Text.Json.JsonElement element, string[] fieldNames)
+    {
+        if (element.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
+
+        foreach (var prop in element.EnumerateObject())
+        {
+            if (!fieldNames.Any(f => f.Equals(prop.Name, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                return prop.Value.GetString();
+
+            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Number)
+                return prop.Value.GetRawText();
+
+            if (prop.Value.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                if (prop.Value.TryGetProperty("Text", out var textProp) ||
+                    prop.Value.TryGetProperty("text", out textProp) ||
+                    prop.Value.TryGetProperty("Value", out textProp) ||
+                    prop.Value.TryGetProperty("value", out textProp))
+                {
+                    if (textProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                        return textProp.GetString();
+                    if (textProp.ValueKind == System.Text.Json.JsonValueKind.Number)
+                        return textProp.GetRawText();
                 }
             }
         }

@@ -1,0 +1,1138 @@
+@model MovieWeb.Core.Models.User
+@{
+    ViewData["Title"] = "Trang Cá Nhân - " + Model.FullName;
+    int savedCount = ViewBag.SavedMoviesCount as int? ?? 0;
+    int purchasedCount = ViewBag.PurchasedMoviesCount as int? ?? 0;
+    var purchasedMovies = ViewBag.PurchasedMovies as List<MovieWeb.Core.Models.Movie> ?? new();
+}
+
+<div class="main-wrapper" style="padding-top: 2rem; padding-bottom: 4rem;">
+    <!-- Profile Hero Card -->
+    <div class="profile-hero-card mb-4">
+        <div class="profile-banner-bg"></div>
+        <div class="profile-hero-content p-4 p-md-5">
+            <div class="row align-items-center g-4">
+                <!-- Avatar & Status with Hover Camera Overlay -->
+                <div class="col-auto">
+                    <div class="profile-avatar-wrapper" onclick="openEditProfileModal()" title="Nhấp vào để thay đổi ảnh đại diện và thông tin">
+                        <img src="@Model.AvatarUrl" alt="@Model.FullName" class="profile-avatar-img" />
+                        <div class="avatar-hover-overlay">
+                            <i class="fas fa-camera text-warning"></i>
+                            <span class="avatar-hover-text">Đổi ảnh</span>
+                        </div>
+                        <span class="profile-online-badge" title="Đang hoạt động"></span>
+                    </div>
+                </div>
+                
+                <!-- Main Info -->
+                <div class="col">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <h1 class="profile-fullname text-white mb-0">@Model.FullName</h1>
+                        <span class="profile-role-badge">
+                            <i class="fas fa-shield-alt me-1 text-danger"></i> @Model.Role
+                        </span>
+                    </div>
+                    <p class="profile-email text-muted mb-2">
+                        <i class="far fa-envelope me-1 text-danger"></i> @Model.Email
+                        <span class="mx-2 opacity-50">•</span>
+                        <i class="far fa-user me-1 text-danger"></i> @@Model.Username
+                    </p>
+                    <p class="profile-joined-text text-white-50 small mb-0">
+                        <i class="far fa-calendar-check me-1 text-warning"></i> Thành viên từ: <strong>@Model.CreatedAt.ToString("dd/MM/yyyy")</strong>
+                    </p>
+                </div>
+
+                <!-- Hero Header Actions -->
+                <div class="col-12 col-md-auto d-flex flex-wrap gap-2">
+                    <a href="/phim-da-luu" class="btn-custom btn-warning-custom">
+                        <i class="fas fa-bookmark me-1.5"></i> Phim Đã Lưu (@savedCount)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <a href="/phim-da-luu" class="text-decoration-none">
+                <div class="profile-stat-card">
+                    <div class="stat-icon-wrapper bg-warning-subtle text-warning">
+                        <i class="fas fa-bookmark"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">@savedCount</div>
+                        <div class="stat-label">Phim Đã Lưu</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="profile-stat-card">
+                <div class="stat-icon-wrapper bg-danger-subtle text-danger">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@Model.Role</div>
+                    <div class="stat-label">Quyền Tài Khoản</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="profile-stat-card">
+                <div class="stat-icon-wrapper bg-info-subtle text-info">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div>
+                    <div class="stat-value">@Model.CreatedAt.ToString("MM/yyyy")</div>
+                    <div class="stat-label">Năm Tham Gia</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="profile-stat-card">
+                <div class="stat-icon-wrapper bg-success-subtle text-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-value">Hoạt Động</div>
+                    <div class="stat-label">Trạng Thái</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Information & Shortcuts Section -->
+    <div class="row g-4">
+        <!-- Left: Account Details Card -->
+        <div class="col-lg-8">
+            <div class="profile-section-card h-100">
+                <div class="card-header-custom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div>
+                        <h3 class="card-title-custom">
+                            <i class="fas fa-id-card text-danger me-2"></i> Thông Tin Chi Tiết Tài Khoản
+                        </h3>
+                        <span class="text-muted small">Thông tin cá nhân được bảo vệ an toàn</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (!Model.IsGoogleUser)
+                        {
+                            <button type="button" class="btn-custom btn-glass-custom py-2 px-3" style="font-size: 0.88rem;" onclick="openChangePasswordModal()">
+                                <i class="fas fa-key text-warning me-1.5"></i> Đổi Mật Khẩu
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill d-inline-flex align-items-center" style="font-size: 0.8rem; border: 1px solid rgba(13,202,240,0.3);">
+                                <i class="fab fa-google me-1.5"></i> Đăng nhập Google
+                            </span>
+                        }
+                        <button type="button" class="btn-custom btn-primary-custom py-2 px-3" style="font-size: 0.88rem;" onclick="openEditProfileModal()">
+                            <i class="fas fa-edit me-1.5"></i> Cập Nhật Thông Tin
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body-custom">
+                    <div class="info-row">
+                        <div class="info-label-cell">
+                            <i class="fas fa-user text-danger me-2"></i> Họ và tên
+                        </div>
+                        <div class="info-value-cell fw-bold text-white">
+                            @Model.FullName
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label-cell">
+                            <i class="fas fa-envelope text-danger me-2"></i> Địa chỉ Email
+                        </div>
+                        <div class="info-value-cell text-white">
+                            @Model.Email
+                            <button class="btn-copy-small ms-2" onclick="copyToClipboard('@Model.Email', 'Đã chép Email!')" title="Sao chép Email">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label-cell">
+                            <i class="fas fa-user-tag text-danger me-2"></i> Tên đăng nhập
+                        </div>
+                        <div class="info-value-cell text-white">
+                            @@Model.Username
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label-cell">
+                            <i class="fas fa-fingerprint text-danger me-2"></i> Mã ID Hệ Thống
+                        </div>
+                        <div class="info-value-cell text-muted font-monospace small">
+                            @Model.Id
+                            <button class="btn-copy-small ms-2" onclick="copyToClipboard('@Model.Id', 'Đã chép ID!')" title="Sao chép ID">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="info-row border-0 mb-0 pb-0">
+                        <div class="info-label-cell">
+                            <i class="fas fa-clock text-danger me-2"></i> Ngày đăng ký
+                        </div>
+                        <div class="info-value-cell text-white-50">
+                            @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")
+                        </div>
+                    </div>
+
+                    <div class="pt-3 mt-3 border-top border-secondary-subtle d-flex justify-content-end flex-wrap gap-2">
+                        @if (!Model.IsGoogleUser)
+                        {
+                            <button type="button" class="btn-custom btn-glass-custom px-3.5 py-2" style="font-size: 0.88rem;" onclick="openChangePasswordModal()">
+                                <i class="fas fa-key text-warning me-1.5"></i> Đổi Mật Khẩu
+                            </button>
+                        }
+                        <button type="button" class="btn-custom btn-primary-custom px-3.5 py-2" style="font-size: 0.88rem;" onclick="openEditProfileModal()">
+                            <i class="fas fa-user-edit me-1.5"></i> Cập Nhật Thông Tin
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Quick Navigation & Actions -->
+        <div class="col-lg-4">
+            <div class="profile-section-card h-100">
+                <div class="card-header-custom">
+                    <h3 class="card-title-custom">
+                        <i class="fas fa-compass text-danger me-2"></i> Phím Tắt Nhanh
+                    </h3>
+                </div>
+                <div class="card-body-custom d-flex flex-column gap-2.5">
+                    <a href="/phim-da-luu" class="shortcut-item">
+                        <div class="shortcut-icon text-warning">
+                            <i class="fas fa-bookmark"></i>
+                        </div>
+                        <div class="shortcut-info">
+                            <div class="shortcut-title">Danh Sách Phim Đã Lưu</div>
+                            <div class="shortcut-desc">Xem lại các bộ phim bạn đã lưu (@savedCount phim)</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted ms-auto"></i>
+                    </a>
+
+                    <a href="/phim-da-mua" class="shortcut-item">
+                        <div class="shortcut-icon text-success">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="shortcut-info">
+                            <div class="shortcut-title">Phim Đã Mua</div>
+                            <div class="shortcut-desc">Danh sách phim rạp bạn đã mở khóa (@purchasedCount phim)</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted ms-auto"></i>
+                    </a>
+
+                    <a href="/phim-chieu-rap" class="shortcut-item">
+                        <div class="shortcut-icon text-info">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="shortcut-info">
+                            <div class="shortcut-title">Phim Chiếu Rạp</div>
+                            <div class="shortcut-desc">Phim đang chiếu & sắp chiếu rạp</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted ms-auto"></i>
+                    </a>
+
+                    <div class="pt-2 mt-auto border-top border-secondary-subtle">
+                        <form action="/Account/Logout" method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="shortcut-item w-100 text-start bg-danger-subtle border-0" style="color: #ff4d4d;">
+                                <div class="shortcut-icon text-danger" style="background: rgba(229,9,20,0.15);">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </div>
+                                <div class="shortcut-info">
+                                    <div class="shortcut-title text-danger">Đăng Xuất Tài Khoản</div>
+                                    <div class="shortcut-desc text-danger-subtle" style="opacity: 0.85;">Thoát phiên làm việc hiện tại</div>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- Custom Fail-Safe Edit Profile Modal Overlay -->
+<div id="editProfileModal" class="custom-modal-wrapper" onclick="if(event.target === this) closeEditProfileModal();">
+    <div class="custom-modal-box">
+        <!-- Modal Header -->
+        <div class="custom-modal-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="modal-header-icon text-danger">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-white mb-0" style="font-size: 1.15rem;">Chỉnh Sửa Thông Tin Cá Nhân</h5>
+                    <div class="text-muted small" style="font-size: 0.78rem;">Cập nhật họ tên và hình ảnh đại diện của bạn</div>
+                </div>
+            </div>
+            <button type="button" class="custom-modal-close" onclick="closeEditProfileModal()" title="Đóng modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="custom-modal-body">
+            <form id="formEditProfile" onsubmit="event.preventDefault(); submitEditProfile();">
+                <!-- Hidden file input for device/phone photo upload -->
+                <input type="file" id="fileAvatarInput" accept="image/*" style="display: none;" onchange="handleAvatarFileSelect(this)" />
+
+                <!-- Live Avatar Preview & Camera Badge -->
+                <div class="text-center mb-4">
+                    <div class="avatar-preview-container" style="cursor: pointer;" onclick="document.getElementById('fileAvatarInput').click()" title="Bấm để tải ảnh từ máy / điện thoại">
+                        <img id="avatarLivePreview" src="@Model.AvatarUrl" alt="Avatar Preview" class="avatar-preview-img" />
+                        <span class="avatar-camera-icon">
+                            <i class="fas fa-camera"></i>
+                        </span>
+                    </div>
+                    <div class="mt-2.5">
+                        <button type="button" class="btn-custom btn-glass-custom py-1.5 px-3" style="font-size: 0.82rem; border-color: rgba(255,255,255,0.18);" onclick="document.getElementById('fileAvatarInput').click()">
+                            <i class="fas fa-upload me-1.5 text-warning"></i> Tải Ảnh Từ Điện Thoại / Máy Tính
+                        </button>
+                    </div>
+                    <div class="text-muted small mt-1" style="font-size: 0.75rem;">Hỗ trợ ảnh JPG, PNG, WEBP (tối đa 5MB)</div>
+                </div>
+
+                <!-- Preset Avatars -->
+                <div class="form-group-custom mb-3.5">
+                    <label class="form-label-custom mb-2">
+                        <i class="fas fa-icons text-warning me-1.5"></i> Gợi Ý Avatar Mẫu Theo Chủ Đề
+                    </label>
+
+                    <!-- Category 1: General / Male -->
+                    <div class="preset-category-box mb-2.5">
+                        <div class="preset-category-title text-info">
+                            <i class="fas fa-user-ninja me-1"></i> Phong Cách Nam / Đa Dạng
+                        </div>
+                        <div class="preset-avatar-grid">
+                            @{
+                                var generalSeeds = new[] { "Felix", "Zack", "Oliver", "Max", "Shadow", "Sam", "Leo", "Jack" };
+                                foreach (var seed in generalSeeds)
+                                {
+                                    var avatarSrc = $"https://api.dicebear.com/7.x/avataaars/svg?seed={seed}";
+                                    <img src="@avatarSrc" class="preset-avatar-item" onclick="selectPresetAvatar('@avatarSrc')" title="Chọn mẫu Nam @seed" />
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Category 2: Girls / Female -->
+                    <div class="preset-category-box mb-2.5">
+                        <div class="preset-category-title" style="color: #ff75c3;">
+                            <i class="fas fa-female me-1"></i> Phong Cách Con Gái / Nữ
+                        </div>
+                        <div class="preset-avatar-grid">
+                            @{
+                                var girlSeeds = new[] { "Sophia", "Emma", "Bella", "Luna", "Mia", "Lily", "Chloe", "Grace" };
+                                foreach (var seed in girlSeeds)
+                                {
+                                    var avatarSrc = $"https://api.dicebear.com/7.x/lorelei/svg?seed={seed}";
+                                    <img src="@avatarSrc" class="preset-avatar-item" onclick="selectPresetAvatar('@avatarSrc')" title="Chọn mẫu Con gái @seed" />
+                                }
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Category 3: Animals / Mascots -->
+                    <div class="preset-category-box">
+                        <div class="preset-category-title text-warning">
+                            <i class="fas fa-paw me-1"></i> Phong Cách Động Vật Dễ Thương
+                        </div>
+                        <div class="preset-avatar-grid">
+                            @{
+                                var animalAvatars = new[]
+                                {
+                                    new { Name = "Mèo", Url = "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=150&auto=format&fit=crop&q=80" },
+                                    new { Name = "Chó", Url = "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&auto=format&fit=crop&q=80" },
+                                    new { Name = "Gấu Trúc", Url = "https://images.unsplash.com/photo-1564349683136-77e08dba1ef9?w=150&auto=format&fit=crop&q=80" },
+                                    new { Name = "Cáo", Url = "https://images.unsplash.com/photo-1474511320723-9a56873867b5?w=150&auto=format&fit=crop&q=80" },
+                                    new { Name = "Thỏ", Url = "https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=150&auto=format&fit=crop&q=80" },
+                                    new { Name = "Sư Tử", Url = "https://images.unsplash.com/photo-1614027164847-1b28cfe1df60?w=150&auto=format&fit=crop&q=80" },
+                                    new { Name = "Hổ", Url = "https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?w=150&auto=format&fit=crop&q=80" },
+                                    new { Name = "Cánh Cụt", Url = "https://images.unsplash.com/photo-1598439210625-5067c578f3f6?w=150&auto=format&fit=crop&q=80" }
+                                };
+                                foreach (var item in animalAvatars)
+                                {
+                                    <img src="@item.Url" class="preset-avatar-item" onclick="selectPresetAvatar('@item.Url')" title="Chọn mẫu Động vật @item.Name" />
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FullName Input -->
+                <div class="form-group-custom mb-3.5">
+                    <label for="editFullName" class="form-label-custom">
+                        <i class="fas fa-user text-danger me-1.5"></i> Họ và Tên
+                    </label>
+                    <input type="text" class="custom-input" id="editFullName" value="@Model.FullName" placeholder="Nhập họ và tên của bạn" required />
+                </div>
+
+                <!-- Email Input -->
+                <div class="form-group-custom mb-4">
+                    <label for="editEmail" class="form-label-custom">
+                        <i class="fas fa-envelope text-danger me-1.5"></i> Địa Chỉ Email
+                    </label>
+                    <input type="email" class="custom-input" id="editEmail" value="@Model.Email" placeholder="vd: user@example.com" required />
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn-custom btn-glass-custom px-4" onclick="closeEditProfileModal()">
+                        Hủy Bỏ
+                    </button>
+                    <button type="submit" class="btn-custom btn-primary-custom px-4 py-2.5" id="btnSubmitProfile">
+                        <i class="fas fa-save me-1.5"></i> Lưu Thay Đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Fail-Safe Change Password Modal Overlay -->
+<div id="changePasswordModal" class="custom-modal-wrapper" onclick="if(event.target === this) closeChangePasswordModal();">
+    <div class="custom-modal-box">
+        <!-- Modal Header -->
+        <div class="custom-modal-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="modal-header-icon text-warning" style="background: rgba(245, 158, 11, 0.15);">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-white mb-0" style="font-size: 1.15rem;">Đổi Mật Khẩu Tài Khoản</h5>
+                    <div class="text-muted small" style="font-size: 0.78rem;">Nhập mật khẩu hiện tại và mật khẩu mới để cập nhật</div>
+                </div>
+            </div>
+            <button type="button" class="custom-modal-close" onclick="closeChangePasswordModal()" title="Đóng modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="custom-modal-body">
+            <form id="formChangePassword" onsubmit="event.preventDefault(); submitChangePassword();">
+                <!-- Current Password -->
+                <div class="form-group-custom mb-3.5">
+                    <label for="currentPasswordInput" class="form-label-custom">
+                        <i class="fas fa-lock text-warning me-1.5"></i> Mật Khẩu Hiện Tại
+                    </label>
+                    <div class="position-relative">
+                        <input type="password" class="custom-input pe-5" id="currentPasswordInput" placeholder="Nhập mật khẩu hiện tại" required />
+                        <button type="button" class="btn-eye-toggle position-absolute top-50 end-0 translate-middle-y me-3 bg-transparent border-0 text-muted" onclick="togglePassVisibility('currentPasswordInput', this)" tabindex="-1">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- New Password -->
+                <div class="form-group-custom mb-3.5">
+                    <label for="newPasswordInput" class="form-label-custom">
+                        <i class="fas fa-key text-danger me-1.5"></i> Mật Khẩu Mới
+                    </label>
+                    <div class="position-relative">
+                        <input type="password" class="custom-input pe-5" id="newPasswordInput" placeholder="Nhập mật khẩu mới (ít nhất 6 ký tự)" required />
+                        <button type="button" class="btn-eye-toggle position-absolute top-50 end-0 translate-middle-y me-3 bg-transparent border-0 text-muted" onclick="togglePassVisibility('newPasswordInput', this)" tabindex="-1">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Confirm New Password -->
+                <div class="form-group-custom mb-4">
+                    <label for="confirmNewPasswordInput" class="form-label-custom">
+                        <i class="fas fa-check-double text-success me-1.5"></i> Xác Nhận Mật Khẩu Mới
+                    </label>
+                    <div class="position-relative">
+                        <input type="password" class="custom-input pe-5" id="confirmNewPasswordInput" placeholder="Nhập lại mật khẩu mới" required />
+                        <button type="button" class="btn-eye-toggle position-absolute top-50 end-0 translate-middle-y me-3 bg-transparent border-0 text-muted" onclick="togglePassVisibility('confirmNewPasswordInput', this)" tabindex="-1">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn-custom btn-glass-custom px-4" onclick="closeChangePasswordModal()">
+                        Hủy Bỏ
+                    </button>
+                    <button type="submit" class="btn-custom btn-warning-custom px-4 py-2.5" id="btnSubmitChangePass">
+                        <i class="fas fa-shield-alt me-1.5"></i> Cập Nhật Mật Khẩu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openEditProfileModal() {
+    var modalEl = document.getElementById('editProfileModal');
+    if (!modalEl) return;
+    modalEl.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeEditProfileModal() {
+    var modalEl = document.getElementById('editProfileModal');
+    if (modalEl) {
+        modalEl.classList.remove('show');
+    }
+    document.body.style.overflow = '';
+}
+
+function openChangePasswordModal() {
+    var modalEl = document.getElementById('changePasswordModal');
+    if (!modalEl) return;
+    modalEl.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeChangePasswordModal() {
+    var modalEl = document.getElementById('changePasswordModal');
+    if (modalEl) {
+        modalEl.classList.remove('show');
+    }
+    document.body.style.overflow = '';
+}
+
+function togglePassVisibility(inputId, btn) {
+    var input = document.getElementById(inputId);
+    if (!input) return;
+    var icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.className = 'far fa-eye-slash';
+    } else {
+        input.type = 'password';
+        if (icon) icon.className = 'far fa-eye';
+    }
+}
+
+function copyToClipboard(text, msg) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(function() {
+            if (typeof showCommentToast === 'function') {
+                showCommentToast('success', '<i class="fas fa-check-circle text-success me-1"></i> ' + msg);
+            } else {
+                alert(msg);
+            }
+        });
+    }
+}
+
+function updateAvatarPreview(url) {
+    var img = document.getElementById('avatarLivePreview');
+    if (img && url) {
+        img.src = url;
+    }
+}
+
+function handleAvatarFileSelect(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Vui lòng chọn ảnh dung lượng dưới 5MB.');
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            updateAvatarPreview(e.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function selectPresetAvatar(url) {
+    updateAvatarPreview(url);
+}
+
+function submitEditProfile() {
+    var fullName = document.getElementById('editFullName').value;
+    var email = document.getElementById('editEmail').value;
+    var avatarImg = document.getElementById('avatarLivePreview');
+    var avatarUrl = avatarImg ? avatarImg.src : '@Model.AvatarUrl';
+    var btn = document.getElementById('btnSubmitProfile');
+
+    if (!fullName.trim()) {
+        alert('Vui lòng nhập Họ và tên.');
+        return;
+    }
+
+    if (!email.trim()) {
+        alert('Vui lòng nhập Địa chỉ Email.');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1.5"></i> Đang lưu...';
+    }
+
+    fetch('/api/user/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName: fullName, email: email, avatarUrl: avatarUrl })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            closeEditProfileModal();
+            if (typeof showCommentToast === 'function') {
+                showCommentToast('success', '<i class="fas fa-check-circle text-success me-1"></i> ' + data.message);
+            } else {
+                alert(data.message);
+            }
+            setTimeout(function() { location.reload(); }, 500);
+        } else {
+            alert(data.message || 'Có lỗi xảy ra khi cập nhật.');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-1.5"></i> Lưu Thay Đổi';
+            }
+        }
+    })
+    .catch(function() {
+        alert('Lỗi kết nối tới máy chủ.');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-1.5"></i> Lưu Thay Đổi';
+        }
+    });
+}
+
+function submitChangePassword() {
+    var currentPassword = document.getElementById('currentPasswordInput').value;
+    var newPassword = document.getElementById('newPasswordInput').value;
+    var confirmNewPassword = document.getElementById('confirmNewPasswordInput').value;
+    var btn = document.getElementById('btnSubmitChangePass');
+
+    if (!currentPassword) {
+        alert('Vui lòng nhập mật khẩu hiện tại.');
+        return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+        alert('Mật khẩu mới phải có ít nhất 6 ký tự.');
+        return;
+    }
+    if (newPassword !== confirmNewPassword) {
+        alert('Mật khẩu mới và Xác nhận mật khẩu không trùng khớp.');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1.5"></i> Đang đổi...';
+    }
+
+    fetch('/api/user/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            currentPassword: currentPassword,
+            newPassword: newPassword,
+            confirmNewPassword: confirmNewPassword
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            closeChangePasswordModal();
+            if (typeof showCommentToast === 'function') {
+                showCommentToast('success', '<i class="fas fa-check-circle text-success me-1"></i> ' + data.message);
+            } else {
+                alert(data.message);
+            }
+            document.getElementById('formChangePassword').reset();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra khi đổi mật khẩu.');
+        }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-shield-alt me-1.5"></i> Cập Nhật Mật Khẩu';
+        }
+    })
+    .catch(function() {
+        alert('Lỗi kết nối tới máy chủ.');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-shield-alt me-1.5"></i> Cập Nhật Mật Khẩu';
+        }
+    });
+}
+</script>
+
+<style>
+/* Custom Fail-Safe Modal Overlay */
+.custom-modal-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.82);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999 !important;
+    padding: 1.25rem;
+}
+
+.custom-modal-wrapper.show {
+    display: flex !important;
+}
+
+.custom-modal-box {
+    background: linear-gradient(145deg, #1f1f23 0%, #161619 100%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.85), 0 0 30px rgba(229, 9, 20, 0.15);
+    overflow: hidden;
+    animation: modalPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.custom-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(90deg, rgba(229, 9, 20, 0.12), transparent);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.modal-header-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(229, 9, 20, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.custom-modal-close {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.custom-modal-close:hover {
+    background: rgba(229, 9, 20, 0.2);
+    color: #ffffff;
+    border-color: rgba(229, 9, 20, 0.4);
+}
+
+.custom-modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+.custom-modal-body::-webkit-scrollbar,
+.custom-modal-box::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.preset-category-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 10px 12px;
+}
+
+.preset-category-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.avatar-preview-container {
+    position: relative;
+    display: inline-block;
+    width: 105px;
+    height: 105px;
+}
+
+.avatar-preview-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
+    background: #141416;
+}
+
+.avatar-camera-icon {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #1e1e24;
+    border: 2px solid var(--border-color);
+    color: #fbbf24;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.preset-avatar-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.preset-avatar-item {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    background: #1a1a1c;
+}
+
+.preset-avatar-item:hover {
+    transform: scale(1.18);
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 12px rgba(229, 9, 20, 0.6);
+}
+
+.form-label-custom {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #d1d5db;
+    margin-bottom: 0.4rem;
+}
+
+.custom-input {
+    width: 100%;
+    display: block;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 11px 16px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.custom-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 12px rgba(229, 9, 20, 0.3);
+}
+
+.custom-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@@keyframes modalPopIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Modern Profile Styling */
+.profile-hero-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.profile-banner-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: radial-gradient(circle at 10% 20%, rgba(229, 9, 20, 0.25) 0%, transparent 60%),
+                radial-gradient(circle at 90% 80%, rgba(234, 179, 8, 0.15) 0%, transparent 50%),
+                linear-gradient(135deg, rgba(30, 20, 25, 0.95), rgba(15, 15, 18, 0.98));
+    z-index: 1;
+}
+
+.profile-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* Avatar Hover Overlay */
+.profile-avatar-wrapper {
+    position: relative;
+    width: 105px;
+    height: 105px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(229, 9, 20, 0.8);
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.35);
+    background: var(--bg-main);
+    transition: filter 0.25s ease;
+}
+
+.avatar-hover-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 3;
+    backdrop-filter: blur(2px);
+    pointer-events: none;
+}
+
+.profile-avatar-wrapper:hover .avatar-hover-overlay {
+    opacity: 1;
+}
+
+.profile-avatar-wrapper:hover .profile-avatar-img {
+    filter: brightness(0.7);
+}
+
+.avatar-hover-overlay i {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+}
+
+.avatar-hover-text {
+    font-size: 0.7rem;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.profile-online-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    background-color: #10b981;
+    border: 3px solid #141416;
+    border-radius: 50%;
+    z-index: 4;
+}
+
+.profile-fullname {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.profile-role-badge {
+    background: rgba(229, 9, 20, 0.15);
+    color: #ff4d55;
+    border: 1px solid rgba(229, 9, 20, 0.35);
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Stat Cards */
+.profile-stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.profile-stat-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.stat-icon-wrapper {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.stat-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+/* Section Cards */
+.profile-section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.card-header-custom {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title-custom {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.2rem;
+}
+
+/* Detail Rows */
+.info-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.info-label-cell {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.info-value-cell {
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+.btn-copy-small {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #9ca3af;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-copy-small:hover {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+/* Shortcut Links */
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.shortcut-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(4px);
+}
+
+.shortcut-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.shortcut-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.shortcut-desc {
+    font-size: 0.78rem;
+    color: #9ca3af;
+}
+</style>

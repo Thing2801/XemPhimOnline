@@ -12,4 +12,8 @@ public class MovieComment
     public int LikesCount { get; set; } = 0;
     public List<string> LikedUserIds { get; set; } = new();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public string? ParentId { get; set; }
+    public string? ReplyToUserId { get; set; }
+    public string? ReplyToUserName { get; set; }
 }

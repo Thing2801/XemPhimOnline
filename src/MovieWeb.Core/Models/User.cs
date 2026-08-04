@@ -9,5 +9,9 @@ public class User
     public string PasswordHash { get; set; } = string.Empty;
     public string AvatarUrl { get; set; } = "/images/default-avatar.png";
     public string Role { get; set; } = "User";
+    public bool IsGoogleAccount { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public List<string> PurchasedMovieIds { get; set; } = new();
+
+    public bool IsGoogleUser => IsGoogleAccount || string.IsNullOrWhiteSpace(PasswordHash) || PasswordHash.StartsWith("GOOGLE_");
 }

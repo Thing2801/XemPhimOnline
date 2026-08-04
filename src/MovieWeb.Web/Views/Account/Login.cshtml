@@ -6,18 +6,27 @@
 <div class="cinema-auth-wrapper">
     <div class="container relative-z">
         <div class="row justify-content-center align-items-center min-vh-80 py-5">
-            <div class="col-md-6 col-lg-5 col-xl-4">
+            <div class="col-11 col-sm-10 col-md-6 col-lg-5 col-xl-4">
                 <div class="cinema-auth-card">
                     <div class="cinema-auth-main">
                         <div class="auth-header text-center mb-4">
-                            <div class="auth-cinema-logo mb-2">
-                                <span class="brand-text"><i class="fas fa-play me-2 text-danger"></i>Movie<span class="text-danger">Online</span></span>
+                            <div class="auth-cinema-logo mb-3">
+                                <a href="/" class="brand-text" style="display: inline-block;">
+                                    <img src="/image/Logo/logo.png" alt="MovieOnline Logo" style="height: 70px; width: auto; object-fit: contain;" />
+                                </a>
                             </div>
                             <h4 class="auth-form-title">Đăng Nhập Tài Khoản</h4>
-                            <p class="auth-form-subtitle">Chào mừng bạn quay trở lại với MovieOnline!</p>
+                            <p class="auth-form-subtitle">Chào mừng bạn quay trở lại với thế giới điện ảnh!</p>
                         </div>
 
-                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                        @if (!string.IsNullOrEmpty(Context.Request.Query["error"]))
+                        {
+                            <div class="auth-error-alert mb-4">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <div>@Context.Request.Query["error"]</div>
+                            </div>
+                        }
+                        else if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
                         {
                             <div class="auth-error-alert mb-4">
                                 <i class="fas fa-exclamation-circle me-2"></i>
@@ -29,20 +38,20 @@
                             @Html.AntiForgeryToken()
                             <input type="hidden" asp-for="ReturnUrl" />
 
-                            <div class="form-group-cinema mb-3">
-                                <label asp-for="UsernameOrEmail" class="cinema-label">Tên tài khoản hoặc Email</label>
+                            <div class="form-group-cinema floating-group mb-4">
                                 <div class="cinema-input-wrapper">
                                     <i class="fas fa-user input-icon-left"></i>
-                                    <input asp-for="UsernameOrEmail" class="cinema-input" placeholder="Nhập tên đăng nhập hoặc email..." autofocus autocomplete="username" />
+                                    <input asp-for="UsernameOrEmail" class="cinema-input" placeholder=" " autofocus autocomplete="username" />
+                                    <label asp-for="UsernameOrEmail" class="floating-label">Tên tài khoản hoặc Email</label>
                                 </div>
                                 <span asp-validation-for="UsernameOrEmail" class="cinema-field-error"></span>
                             </div>
 
-                            <div class="form-group-cinema mb-3">
-                                <label asp-for="Password" class="cinema-label">Mật khẩu</label>
+                            <div class="form-group-cinema floating-group mb-4">
                                 <div class="cinema-input-wrapper">
                                     <i class="fas fa-lock input-icon-left"></i>
-                                    <input asp-for="Password" id="passwordInput" class="cinema-input" placeholder="Nhập mật khẩu của bạn..." autocomplete="current-password" />
+                                    <input asp-for="Password" id="passwordInput" class="cinema-input" placeholder=" " autocomplete="current-password" />
+                                    <label asp-for="Password" class="floating-label">Mật khẩu</label>
                                     <button type="button" class="btn-eye-toggle" onclick="togglePasswordVisibility('passwordInput', this)" tabindex="-1">
                                         <i class="far fa-eye"></i>
                                     </button>
@@ -59,12 +68,26 @@
                             </div>
 
                             <button type="submit" class="btn-cinema-submit w-100 mb-3">
-                                <span>Đăng Nhập</span>
+                                <span><i class="fas fa-sign-in-alt me-2"></i>Đăng Nhập</span>
                             </button>
+
+                            <div class="auth-divider mb-3">
+                                <span>HOẶC</span>
+                            </div>
+
+                            <a href="/Account/GoogleLogin?returnUrl=@Uri.EscapeDataString(Model?.ReturnUrl ?? "")" class="btn-google-auth w-100 mb-4">
+                                <svg class="google-svg-icon me-2" width="18" height="18" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                                </svg>
+                                <span>Đăng nhập bằng Google</span>
+                            </a>
 
                             <div class="auth-footer-link text-center pt-3 border-top border-secondary-subtle">
                                 <span class="text-muted small">Bạn chưa có tài khoản? </span>
-                                <a href="/Account/Register?returnUrl=@Uri.EscapeDataString(Model.ReturnUrl ?? "")" class="link-register">
+                                <a href="/Account/Register?returnUrl=@Uri.EscapeDataString(Model?.ReturnUrl ?? "")" class="link-register">
                                     Đăng ký ngay
                                 </a>
                             </div>
@@ -78,11 +101,28 @@
 
 <style>
 .cinema-auth-wrapper {
-    min-height: 80vh;
+    min-height: calc(100vh - 70px);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #121214;
+    padding: 3rem 1rem;
+    background: linear-gradient(180deg, rgba(14, 14, 18, 0.72) 0%, rgba(14, 14, 18, 0.85) 100%),
+                url('/image/BackgrLogin/backgroundLogin.png') center/cover no-repeat;
+    position: relative;
+    width: 100%;
+}
+
+.cinema-auth-wrapper .container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.cinema-auth-wrapper .row {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 }
 
 .relative-z {
@@ -91,49 +131,88 @@
 }
 
 .min-vh-80 {
-    min-height: 75vh;
+    min-height: auto;
 }
 
 .cinema-auth-card {
-    background: #1c1c1e;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    background: rgba(25, 25, 30, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(229, 9, 20, 0.2);
     overflow: hidden;
+    position: relative;
+    max-width: 430px;
+    margin: 0 auto;
+}
+
+.cinema-auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #e50914 0%, #ff5252 50%, #e50914 100%);
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.8);
 }
 
 .cinema-auth-main {
-    padding: 2.5rem 2.2rem;
+    padding: 2.4rem 2.2rem;
 }
 
 .brand-text {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon-box {
+    width: 34px;
+    height: 34px;
+    background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(229, 9, 20, 0.6);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, #ff4d55 0%, #e50914 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .auth-form-title {
     color: #ffffff;
-    font-size: 1.35rem;
+    font-size: 1.4rem;
     font-weight: 700;
     margin-bottom: 0.3rem;
 }
 
 .auth-form-subtitle {
-    color: #888890;
+    color: #a0a0aa;
     font-size: 0.86rem;
     margin: 0;
 }
 
 .auth-error-alert {
-    background: rgba(229, 9, 20, 0.12);
-    border: 1px solid rgba(229, 9, 20, 0.4);
+    background: rgba(229, 9, 20, 0.15);
+    border: 1px solid rgba(229, 9, 20, 0.5);
     color: #ff4d55;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 0.86rem;
+    padding: 11px 15px;
+    border-radius: 12px;
+    font-size: 0.88rem;
     display: flex;
     align-items: center;
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.2);
 }
 
 .form-group-cinema {
@@ -141,43 +220,93 @@
     flex-direction: column;
 }
 
-.cinema-label {
-    color: #d0d0d5;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 0.35rem;
+.floating-group {
+    position: relative;
 }
 
 .cinema-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 .input-icon-left {
     position: absolute;
-    left: 14px;
-    color: #666670;
-    font-size: 0.9rem;
-    z-index: 2;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777785;
+    font-size: 0.95rem;
+    z-index: 3;
+    transition: color 0.25s ease;
+    pointer-events: none;
 }
 
 .cinema-input {
     width: 100%;
-    background: #121215 !important;
-    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    height: 52px;
+    background: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
     color: #ffffff !important;
-    padding: 11px 40px 11px 40px !important;
-    border-radius: 10px !important;
-    font-size: 0.9rem !important;
+    padding: 16px 40px 10px 42px !important;
+    border-radius: 12px !important;
+    font-size: 0.92rem !important;
     outline: none !important;
-    transition: all 0.25s ease !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.floating-label {
+    position: absolute;
+    left: 42px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.88rem;
+    font-weight: 500;
+    pointer-events: none;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    background: transparent;
+    padding: 0 6px;
+    line-height: 1;
+    z-index: 2;
+}
+
+/* Floating animation when focused, filled, or autofilled */
+.cinema-input:focus ~ .floating-label,
+.cinema-input:not(:placeholder-shown) ~ .floating-label,
+.cinema-input:-webkit-autofill ~ .floating-label {
+    top: -1px;
+    left: 34px;
+    transform: translateY(-50%) scale(0.84);
+    color: #ffffff;
+    background: #1a1a22;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+/* Fix autofill blue/white background in Chrome/Edge */
+.cinema-input:-webkit-autofill,
+.cinema-input:-webkit-autofill:hover,
+.cinema-input:-webkit-autofill:focus,
+.cinema-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #141418 inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 .cinema-input:focus {
-    border-color: rgba(255, 255, 255, 0.4) !important;
-    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1) !important;
-    background: #16161a !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.35) !important;
+    background: #1a1a20 !important;
+}
+
+.cinema-input-wrapper:focus-within .input-icon-left,
+.cinema-input:not(:placeholder-shown) ~ .input-icon-left {
+    color: #ffffff !important;
 }
 
 .btn-eye-toggle {
@@ -185,14 +314,15 @@
     right: 12px;
     background: transparent;
     border: none;
-    color: #666670;
-    font-size: 0.9rem;
+    color: #777785;
+    font-size: 0.92rem;
     cursor: pointer;
     padding: 4px;
+    transition: color 0.2s ease;
 }
 
 .btn-eye-toggle:hover {
-    color: #ffffff;
+    color: #ff4d55;
 }
 
 .cinema-field-error {
@@ -205,7 +335,7 @@
     display: inline-flex;
     align-items: center;
     position: relative;
-    padding-left: 26px;
+    padding-left: 28px;
     cursor: pointer;
     user-select: none;
 }
@@ -223,27 +353,33 @@
     top: 50%;
     left: 0;
     transform: translateY(-50%);
-    height: 17px;
-    width: 17px;
-    background-color: #121215;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 4px;
+    height: 18px;
+    width: 18px;
+    background-color: #141418;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    transition: all 0.25s ease;
+}
+
+.cinema-checkbox-container:hover input ~ .checkmark {
+    border-color: #e50914;
 }
 
 .cinema-checkbox-container input:checked ~ .checkmark {
-    background-color: #ffffff;
-    border-color: #ffffff;
+    background-color: #e50914;
+    border-color: #e50914;
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
 }
 
 .checkmark:after {
     content: "";
     position: absolute;
     display: none;
-    left: 5px;
+    left: 6px;
     top: 2px;
     width: 5px;
     height: 9px;
-    border: solid #121215;
+    border: solid #ffffff;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
 }
@@ -253,38 +389,90 @@
 }
 
 .checkbox-text {
-    color: #99999f;
-    font-size: 0.85rem;
+    color: #a0a0aa;
+    font-size: 0.86rem;
 }
 
 .btn-cinema-submit {
-    background: #ffffff;
-    color: #000000;
+    background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+    color: #ffffff;
     font-weight: 700;
     border: none;
-    padding: 11px;
-    border-radius: 10px;
-    font-size: 0.92rem;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.25s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45);
 }
 
 .btn-cinema-submit:hover {
-    background: #e0e0e0;
-    color: #000000;
+    background: linear-gradient(135deg, #ff1e27 0%, #d60914 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(229, 9, 20, 0.65);
+    color: #ffffff;
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.auth-divider span {
+    padding: 0 12px;
+}
+
+.btn-google-auth {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 0.93rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.btn-google-auth:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
 }
 
 .link-register {
-    color: #ffffff;
-    font-weight: 600;
-    text-decoration: underline;
+    color: #ff4d55;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 
 .link-register:hover {
-    color: #cccccc;
+    color: #ff757c;
+    text-shadow: 0 0 10px rgba(255, 77, 85, 0.5);
+    text-decoration: underline;
 }
 </style>
 

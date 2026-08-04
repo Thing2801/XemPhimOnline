@@ -295,6 +295,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.8.0, )"
+            },
             "OrchardCore.Module.Targets": {
               "target": "Package",
               "version": "[2.1.0, )"
@@ -544,6 +548,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.Google": {
+              "target": "Package",
+              "version": "[8.0.10, )"
+            },
             "OrchardCore.Application.Cms.Targets": {
               "target": "Package",
               "version": "[2.1.0, )"

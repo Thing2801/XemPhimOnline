@@ -486,3 +486,4 @@ E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Web\bin\Debug\net8.0\MovieWeb.Mod
 E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Web\bin\Debug\net8.0\MovieWeb.Modules.Series.dll
 E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Web\bin\Debug\net8.0\MovieWeb.Modules.Series.pdb
 E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Web\obj\Debug\net8.0\MovieWeb.Web.sourcelink.json
+E:\Work\Project\Project3\MovieWeb\src\MovieWeb.Web\bin\Debug\net8.0\appsettings.json

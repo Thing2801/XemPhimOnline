@@ -1,16 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "TeD4RFvaNHM=",
+  "dgSpecHash": "3zOnVLj+e5U=",
   "success": true,
   "projectFilePath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Thinh\\.nuget\\packages\\azure.core\\1.40.0\\azure.core.1.40.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\azure.identity\\1.12.1\\azure.identity.1.12.1.nupkg.sha512",
+    "C:\\Users\\Thinh\\.nuget\\packages\\bouncycastle.cryptography\\2.4.0\\bouncycastle.cryptography.2.4.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\castle.core\\5.1.1\\castle.core.5.1.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\dapper.strongname\\2.1.35\\dapper.strongname.2.1.35.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\fluid.core\\2.12.0\\fluid.core.2.12.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\json.more.net\\2.0.2\\json.more.net.2.0.2.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\jsonpath.net\\1.1.6\\jsonpath.net.1.1.6.nupkg.sha512",
+    "C:\\Users\\Thinh\\.nuget\\packages\\mailkit\\4.8.0\\mailkit.4.8.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\microsoft.aspnetcore.mvc.razor.extensions\\6.0.0\\microsoft.aspnetcore.mvc.razor.extensions.6.0.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\microsoft.aspnetcore.mvc.razor.runtimecompilation\\8.0.10\\microsoft.aspnetcore.mvc.razor.runtimecompilation.8.0.10.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\microsoft.aspnetcore.razor.language\\6.0.0\\microsoft.aspnetcore.razor.language.6.0.0.nupkg.sha512",
@@ -40,6 +42,7 @@
     "C:\\Users\\Thinh\\.nuget\\packages\\microsoft.io.recyclablememorystream\\3.0.1\\microsoft.io.recyclablememorystream.3.0.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\microsoft.netcore.platforms\\2.1.2\\microsoft.netcore.platforms.2.1.2.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
+    "C:\\Users\\Thinh\\.nuget\\packages\\mimekit\\4.8.0\\mimekit.4.8.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\mysqlconnector\\2.3.7\\mysqlconnector.2.3.7.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\npgsql\\8.0.3\\npgsql.8.0.3.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\orchardcore.abstractions\\2.1.0\\orchardcore.abstractions.2.1.0.nupkg.sha512",
@@ -70,6 +73,7 @@
     "C:\\Users\\Thinh\\.nuget\\packages\\system.configuration.configurationmanager\\8.0.1\\system.configuration.configurationmanager.8.0.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.diagnostics.diagnosticsource\\6.0.1\\system.diagnostics.diagnosticsource.6.0.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.diagnostics.eventlog\\8.0.1\\system.diagnostics.eventlog.8.0.1.nupkg.sha512",
+    "C:\\Users\\Thinh\\.nuget\\packages\\system.formats.asn1\\8.0.1\\system.formats.asn1.8.0.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.identitymodel.tokens.jwt\\8.1.0\\system.identitymodel.tokens.jwt.8.1.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.memory.data\\1.0.2\\system.memory.data.1.0.2.nupkg.sha512",
@@ -77,6 +81,7 @@
     "C:\\Users\\Thinh\\.nuget\\packages\\system.reflection.metadata\\5.0.0\\system.reflection.metadata.5.0.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.runtime.caching\\8.0.1\\system.runtime.caching.8.0.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "C:\\Users\\Thinh\\.nuget\\packages\\system.security.cryptography.pkcs\\8.0.0\\system.security.cryptography.pkcs.8.0.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.security.cryptography.protecteddata\\8.0.0\\system.security.cryptography.protecteddata.8.0.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.text.encoding.codepages\\4.5.1\\system.text.encoding.codepages.4.5.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\system.text.encodings.web\\4.7.2\\system.text.encodings.web.4.7.2.nupkg.sha512",
@@ -92,5 +97,18 @@
     "C:\\Users\\Thinh\\.nuget\\packages\\yessql.provider.sqlserver\\5.1.1\\yessql.provider.sqlserver.5.1.1.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\zstring\\2.6.0\\zstring.2.6.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "message": "Package 'MailKit' 4.8.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-9j88-vvj5-vhgr",
+      "projectPath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
+      "warningLevel": 1,
+      "filePath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
+      "libraryId": "MailKit",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }

@@ -1,8 +1,15 @@
 @model MovieWeb.Core.Models.Movie
 
 <div class="movie-card">
-    <div class="movie-poster-wrap">
+    <div class="movie-poster-wrap position-relative">
         <img src="@Model.PosterUrl" class="movie-poster" alt="@Model.Title" loading="lazy" />
+        @if (Model.Price > 0)
+        {
+            <div class="position-absolute top-0 start-0 m-2 px-2.5 py-1 rounded-pill text-dark fw-bold shadow-sm d-flex align-items-center gap-1"
+                 style="background: linear-gradient(135deg, #f59e0b, #fbbf24); font-size: 0.78rem; z-index: 4; border: 1px solid rgba(255,255,255,0.6);">
+                <i class="fas fa-ticket-alt"></i> @Model.FormattedPrice
+            </div>
+        }
         
         <div class="movie-badge-group">
             <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @Model.Rating</span>

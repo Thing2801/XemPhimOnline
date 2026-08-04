@@ -13,11 +13,40 @@
     <div class="hero-content" style="padding-top: 5rem;">
         <div class="hero-text-side">
             <div class="hero-badges">
-                <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @Model.Rating</span>
+                @{
+                    double headerRating = ViewBag.AverageRating != null && (double)ViewBag.AverageRating > 0 
+                        ? (double)ViewBag.AverageRating 
+                        : Model.Rating;
+                    if (headerRating > 5.0)
+                    {
+                        while (headerRating > 5.0) { headerRating /= 2.0; }
+                        headerRating = Math.Clamp(Math.Round(headerRating, 1), 1.0, 5.0);
+                    }
+                }
+                @if (Model.IsComingSoon)
+                {
+                    <span class="badge-pill badge-gold"><i class="fas fa-calendar-alt me-1"></i> Sắp khởi chiếu</span>
+                }
+                else if (headerRating > 0)
+                {
+                    <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @headerRating.ToString("0.0")</span>
+                }
+                else
+                {
+                    <span class="badge-pill badge-glass text-muted"><i class="far fa-star me-1"></i> Chưa có đánh giá</span>
+                }
                 <span class="badge-pill badge-primary">@Model.Quality</span>
                 <span class="badge-pill badge-glass">@Model.AgeRating</span>
                 <span class="badge-pill badge-glass">@Model.Country</span>
                 <span class="badge-pill badge-glass">@Model.Duration</span>
+                @if (Model.Price > 0)
+                {
+                    <span class="badge-pill badge-warning"><i class="fas fa-ticket-alt me-1"></i> Vé: @Model.FormattedPrice</span>
+                }
+                @if (Model.IsComingSoon && !string.IsNullOrWhiteSpace(Model.ComingShowDate))
+                {
+                    <span class="badge-pill badge-warning"><i class="fas fa-calendar-check me-1"></i> Khởi chiếu: @Model.ComingShowDate</span>
+                }
             </div>
 
             <h1 class="hero-title" style="font-size: 2.8rem;">@Model.Title</h1>
@@ -33,17 +62,55 @@
             <p class="hero-description">@Model.Description</p>
 
             <div class="hero-actions mt-4">
-                <button class="btn-custom btn-primary-custom" onclick="document.getElementById('playerSection').scrollIntoView({behavior: 'smooth'})">
-                    <i class="fas fa-play"></i> Xem Phim Ngay
-                </button>
-                <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@Model.TrailerUrl', '@Model.Title')">
-                    <i class="fas fa-film"></i> Xem Trailer
+                @{
+                    bool isBookmarked = ViewBag.IsBookmarked as bool? ?? false;
+                    bool isPurchased = ViewBag.IsPurchased as bool? ?? false;
+                    // Phìm chiếu rạp chưa mua (không phụ thuộc vào Price hay IsNowShowing)
+                    bool isCinemaUnlocked = Model.IsCinema && !Model.IsComingSoon && !isPurchased;
+                }
+                @if (Model.IsComingSoon)
+                {
+                    <button class="btn-custom btn-primary-custom" onclick="openNotifyModal('@Model.Id', '@Model.Title')">
+                        <i class="fas fa-bell me-1.5"></i> Nhận Thông Báo
+                    </button>
+                    <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@Model.TrailerUrl', '@Model.Title')">
+                        <i class="fas fa-film me-1.5"></i> Xem Trailer Phim
+                    </button>
+                }
+                else if (isCinemaUnlocked)
+                {
+                    <button class="btn-custom btn-primary-custom" id="btnWatchNow" onclick="openBuyMovieModal()">
+                        <i class="fas fa-play me-1.5"></i> Xem Phim Ngay@(Model.Price > 0 ? " (" + Model.FormattedPrice + ")" : "")
+                    </button>
+                    <button class="btn-custom btn-glass-custom" onclick="document.getElementById('playerSection').scrollIntoView({behavior: 'smooth'})">
+                        <i class="fas fa-film me-1.5"></i> Xem Trailer Phim
+                    </button>
+                }
+                else
+                {
+                    <button class="btn-custom btn-primary-custom" onclick="document.getElementById('playerSection').scrollIntoView({behavior: 'smooth'})">
+                        <i class="fas fa-play me-1.5"></i> Xem Phim Ngay
+                    </button>
+                    <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@Model.TrailerUrl', '@Model.Title')">
+                        <i class="fas fa-film me-1.5"></i> Xem Trailer
+                    </button>
+                }
+                <button class="btn-custom @(isBookmarked ? "btn-warning-custom" : "btn-glass-custom")" id="btnBookmarkDetail" onclick="toggleBookmark('@Model.Id')">
+                    <i class="@(isBookmarked ? "fas" : "far") fa-bookmark me-1.5" id="bookmarkIcon"></i>
+                    <span id="bookmarkText">@(isBookmarked ? "Đã Lưu Phim" : "Lưu Phim")</span>
                 </button>
             </div>
         </div>
 
-        <div class="hero-poster-card" style="width:280px; justify-self:center;">
+        <div class="hero-poster-card position-relative" style="width:280px; justify-self:center;">
             <img src="@Model.PosterUrl" class="hero-poster-img" style="height:390px;" alt="@Model.Title" />
+            @if (Model.Price > 0)
+            {
+                <div class="position-absolute top-0 start-0 m-3 px-3 py-1.5 rounded-pill text-dark fw-bold shadow-lg d-flex align-items-center gap-1.5"
+                     style="background: linear-gradient(135deg, #f59e0b, #fbbf24); font-size: 0.9rem; z-index: 4; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 15px rgba(245,158,11,0.5);">
+                    <i class="fas fa-ticket-alt"></i> Vé: @Model.FormattedPrice
+                </div>
+            }
         </div>
     </div>
 </section>
@@ -56,11 +123,56 @@
             <div class="card bg-card border-secondary-custom mb-4 style-card-player" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:hidden;">
                 <div class="card-header p-3 d-flex align-items-center justify-content-between" style="border-bottom:1px solid var(--border-color)">
                     <div class="d-flex align-items-center gap-2 text-white font-weight-bold">
-                        <i class="fas fa-play-circle text-danger"></i> Đang phát: <span class="text-white">@Model.Title</span>
+                        <i class="fas fa-play-circle text-danger"></i> @(Model.IsComingSoon ? "Trailer phim:" : (isCinemaUnlocked ? "Trailer xem trước (Phim có phí):" : "Đang phát:")) <span class="text-white">@Model.Title</span>
                     </div>
-                    <span class="badge-pill badge-primary">Server 4K High-Speed</span>
+                    <span class="badge-pill @(Model.IsComingSoon ? "badge-warning" : (isCinemaUnlocked ? "badge-warning" : "badge-primary"))">
+                        @(Model.IsComingSoon ? "Sắp Khởi Chiếu" : (isCinemaUnlocked ? $"Vé: {Model.FormattedPrice}" : "Server 4K High-Speed"))
+                    </span>
                 </div>
-                <div class="video-responsive">
+                @if (isCinemaUnlocked)
+                {
+                    <div class="p-3 bg-dark-subtle border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: rgba(245,158,11,0.12) !important; border-color: rgba(245,158,11,0.25) !important;">
+                        <div class="text-warning small d-flex align-items-center gap-2">
+                            <i class="fas fa-film fs-5"></i>
+                            <div>
+                                <div class="fw-bold text-white">Đang phát trailer xem trước của phim chiếu rạp</div>
+                                <div class="text-warning-subtle" style="font-size:0.78rem;">Bạn cần mua vé để xem bản chiếu HD/4K đầy đủ.</div>
+                            </div>
+                        </div>
+                        <button class="btn-custom btn-warning-custom py-1.5 px-3" style="font-size:0.85rem;" onclick="openBuyMovieModal()">
+                            <i class="fas fa-ticket-alt me-1.5"></i> Mua vé mở khóa phim (@Model.FormattedPrice)
+                        </button>
+                    </div>
+                }
+                <div class="video-responsive" style="position:relative;">
+                    @if (Model.IsComingSoon)
+                    {
+                        <div class="d-flex flex-column align-items-center justify-content-center h-100 w-100 p-4 text-center"
+                             style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(18,18,18,0.96), rgba(35,20,20,0.96)); z-index:5;">
+                            <div class="mb-3" style="width:70px; height:70px; border-radius:50%; background:rgba(234, 179, 8, 0.15); display:flex; align-items:center; justify-content:center;">
+                                <i class="fas fa-calendar-alt text-warning" style="font-size:2.2rem;"></i>
+                            </div>
+                            <h3 class="text-white fw-bold mb-2">Phim Chiếu Rạp Sắp Công Chiếu</h3>
+                            <p class="text-muted mb-4" style="max-width:460px; font-size:0.95rem; line-height:1.6;">
+                                Phim hiện chưa chính thức khởi chiếu tại các rạp phim.
+                                @if (!string.IsNullOrWhiteSpace(Model.ComingShowDate))
+                                {
+                                    <span class="d-block text-warning fw-bold my-1" style="font-size:1.05rem;">
+                                        <i class="far fa-calendar-alt me-1"></i> Ngày khởi chiếu: @Model.ComingShowDate
+                                    </span>
+                                }
+                                Bạn có thể thưởng thức ngay đoạn <strong class="text-white">Trailer xem trước</strong> trong lúc chờ đợi!
+                            </p>
+                            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                <button class="btn-custom btn-primary-custom px-4 py-2.5" onclick="openNotifyModal('@Model.Id', '@Model.Title')">
+                                    <i class="fas fa-bell me-2"></i> Nhận Thông Báo
+                                </button>
+                                <button class="btn-custom btn-glass-custom px-4 py-2.5" onclick="playTrailerModal('@Model.TrailerUrl', '@Model.Title')">
+                                    <i class="fas fa-film me-2"></i> Xem Trailer Ngay
+                                </button>
+                            </div>
+                        </div>
+                    }
                     <iframe src="@Model.TrailerUrl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
@@ -74,6 +186,10 @@
                         <p class="text-muted mb-2.5"><strong class="text-white">Đạo diễn:</strong> @Model.Director</p>
                         <p class="text-muted mb-2.5"><strong class="text-white">Ngôn ngữ:</strong> @Model.LanguageMode</p>
                         <p class="text-muted mb-2.5"><strong class="text-white">Thời lượng:</strong> @Model.Duration</p>
+                        @if (!string.IsNullOrWhiteSpace(Model.ComingShowDate))
+                        {
+                            <p class="text-muted mb-2.5"><strong class="text-warning">Lịch khởi chiếu:</strong> <span class="text-warning fw-bold">@Model.ComingShowDate</span></p>
+                        }
                     </div>
                     <div class="col-md-6">
                         <p class="text-muted mb-2.5"><strong class="text-white">Lượt xem:</strong> @(string.IsNullOrWhiteSpace(Model.ViewsText) ? Model.ViewsCount.ToString("N0") + " lượt" : (Model.ViewsText.Contains("lượt", StringComparison.OrdinalIgnoreCase) ? Model.ViewsText : Model.ViewsText + " lượt"))</p>
@@ -100,23 +216,45 @@
 
                 @{
                     var realComments = ViewBag.Comments as List<MovieWeb.Core.Models.MovieComment> ?? new List<MovieWeb.Core.Models.MovieComment>();
-                    int totalComments = ViewBag.CommentsCount != null ? (int)ViewBag.CommentsCount : realComments.Count;
+                    var topLevelComments = realComments.Where(c => string.IsNullOrEmpty(c.ParentId)).OrderByDescending(c => c.CreatedAt).ToList();
+                    int totalRatingsCount = topLevelComments.Count(c => c.Rating > 0);
                     var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int> ?? new Dictionary<int, int> { {5,0},{4,0},{3,0},{2,0},{1,0} };
-                    double displayRating = ViewBag.AverageRating != null ? (double)ViewBag.AverageRating : Model.Rating;
+                    double displayRating = ViewBag.AverageRating != null ? (double)ViewBag.AverageRating : 0.0;
                 }
 
                 <!-- Rating Summary Box -->
                 <div class="rating-summary-box">
                     <div class="score-column">
-                        <div class="big-score">@displayRating.ToString("0.0")</div>
-                        <div class="star-row">
-                            <i class="fas fa-star" style="color: #f5c518 !important;"></i>
-                            <i class="fas fa-star" style="color: #f5c518 !important;"></i>
-                            <i class="fas fa-star" style="color: #f5c518 !important;"></i>
-                            <i class="fas fa-star" style="color: #f5c518 !important;"></i>
-                            <i class="fas fa-star-half-alt" style="color: #f5c518 !important;"></i>
-                        </div>
-                        <div class="score-sub">Dựa trên @totalComments lượt đánh giá</div>
+                        @if (totalRatingsCount > 0 || displayRating > 0)
+                        {
+                            <div class="big-score">@displayRating.ToString("0.0")</div>
+                            <div class="star-row">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (displayRating >= i)
+                                    {
+                                        <i class="fas fa-star" style="color: #f5c518 !important;"></i>
+                                    }
+                                    else if (displayRating >= i - 0.5)
+                                    {
+                                        <i class="fas fa-star-half-alt" style="color: #f5c518 !important;"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="far fa-star" style="color: #444444 !important;"></i>
+                                    }
+                                }
+                            </div>
+                            <div class="score-sub">Dựa trên @totalRatingsCount lượt đánh giá</div>
+                        }
+                        else
+                        {
+                            <div class="big-score text-muted" style="font-size: 1.8rem; opacity: 0.7;">N/A</div>
+                            <div class="star-row text-muted" style="font-size: 0.9rem; margin-top: 4px;">
+                                <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                            </div>
+                            <div class="score-sub">Chưa có lượt đánh giá nào</div>
+                        }
                     </div>
                     <div class="bars-column">
                         <div class="bar-row">
@@ -189,7 +327,7 @@
 
                 <!-- Comments List -->
                 <div class="comments-list-box" id="commentsContainer">
-                    @if (!realComments.Any())
+                    @if (!topLevelComments.Any())
                     {
                         <div class="text-center py-4 text-muted" id="noCommentsNotice">
                             <i class="far fa-comment-dots fs-2 mb-2 d-block text-secondary"></i>
@@ -198,9 +336,11 @@
                     }
                     else
                     {
-                        @foreach (var c in realComments)
+                        foreach (var c in topLevelComments)
                         {
-                            <div class="comment-card" data-comment-id="@c.Id">
+                            var childReplies = realComments.Where(r => r.ParentId == c.Id).OrderBy(r => r.CreatedAt).ToList();
+
+                            <div class="comment-card parent-comment-card" data-comment-id="@c.Id" data-content="@c.Content" data-rating="@c.Rating" data-user-id="@c.UserId">
                                 <div class="comment-card-top">
                                     <div class="comment-user">
                                         <img src="@c.UserAvatar" class="comment-avatar" alt="Avatar" />
@@ -209,29 +349,157 @@
                                             <div class="comment-time">@c.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
                                         </div>
                                     </div>
-                                    <div class="comment-stars">
-                                        @for (int i = 1; i <= 5; i++)
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="comment-stars">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= c.Rating)
+                                                {
+                                                    <i class="fas fa-star" style="color: #f5c518 !important;"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="far fa-star" style="color: #444444 !important;"></i>
+                                                }
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(ViewBag.CurrentUserId as string) && c.UserId == (string)ViewBag.CurrentUserId)
                                         {
-                                            if (i <= c.Rating)
-                                            {
-                                                <i class="fas fa-star" style="color: #f5c518 !important;"></i>
-                                            }
-                                            else
-                                            {
-                                                <i class="far fa-star" style="color: #444444 !important;"></i>
-                                            }
+                                            <div class="comment-owner-actions">
+                                                <button class="btn-comment-action btn-edit-comment" title="Chỉnh sửa" onclick="openEditModal('@c.Id', this)">
+                                                    <i class="fas fa-pen"></i>
+                                                </button>
+                                                <button class="btn-comment-action btn-delete-comment" title="Xóa bình luận" onclick="deleteComment('@c.Id', this)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         }
                                     </div>
                                 </div>
-                                <p class="comment-text">@c.Content</p>
-                                <div class="comment-actions">
+                                <p class="comment-text" id="comment-text-@c.Id">@c.Content</p>
+                                <div class="comment-actions d-flex align-items-center gap-2">
                                     <button class="btn-like-comment" onclick="likeComment('@c.Id', this)">
                                         <i class="far fa-thumbs-up me-1"></i> <span class="like-count">@c.LikesCount</span> Thích
                                     </button>
+                                    <button class="btn-reply-comment" onclick="toggleReplyBox('@c.Id', '@c.Id', '@c.UserId', '@c.UserName', this)">
+                                        <i class="far fa-comment-dots me-1"></i> Trả lời
+                                    </button>
+                                </div>
+
+                                <!-- Inline Reply Form for Parent Comment -->
+                                <div class="inline-reply-box" id="reply-box-@c.Id" style="display: none;">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="small text-secondary"><i class="fas fa-reply text-danger me-1"></i> Đang trả lời <strong class="text-white">@c.UserName</strong></span>
+                                        <button type="button" class="btn-close-reply" onclick="closeReplyBox('@c.Id')">&times;</button>
+                                    </div>
+                                    <textarea id="replyText-@c.Id" class="comment-textarea-custom mb-2" rows="2" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button class="btn btn-sm btn-outline-secondary text-white" onclick="closeReplyBox('@c.Id')">Hủy</button>
+                                        <button class="btn btn-sm btn-danger" onclick="postCommentReply('@Model.Id', '@c.Id', '@c.UserId', '@c.UserName', '@c.Id')">
+                                            <i class="fas fa-paper-plane me-1"></i> Gửi Trả Lời
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Child Replies Container (Nested with Indentation) -->
+                                <div class="comment-replies-container" id="replies-container-@c.Id" style="@(childReplies.Any() ? "" : "display:none;")">
+                                    @foreach (var r in childReplies)
+                                    {
+                                        <div class="comment-card child-comment-card" data-comment-id="@r.Id" data-content="@r.Content" data-rating="@r.Rating" data-user-id="@r.UserId">
+                                            <div class="comment-card-top">
+                                                <div class="comment-user">
+                                                    <img src="@r.UserAvatar" class="comment-avatar" alt="Avatar" />
+                                                    <div class="comment-user-info">
+                                                        <div class="user-name">
+                                                            @r.UserName
+                                                            @if (!string.IsNullOrEmpty(r.ReplyToUserName))
+                                                            {
+                                                                <span class="reply-arrow-symbol">&gt;</span>
+                                                                <span class="reply-target-name">@r.ReplyToUserName</span>
+                                                            }
+                                                        </div>
+                                                        <div class="comment-time">@r.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    @if (!string.IsNullOrEmpty(ViewBag.CurrentUserId as string) && r.UserId == (string)ViewBag.CurrentUserId)
+                                                    {
+                                                        <div class="comment-owner-actions">
+                                                            <button class="btn-comment-action btn-edit-comment" title="Chỉnh sửa" onclick="openEditModal('@r.Id', this)">
+                                                                <i class="fas fa-pen"></i>
+                                                            </button>
+                                                            <button class="btn-comment-action btn-delete-comment" title="Xóa bình luận" onclick="deleteComment('@r.Id', this)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <p class="comment-text" id="comment-text-@r.Id">@r.Content</p>
+                                            <div class="comment-actions d-flex align-items-center gap-2">
+                                                <button class="btn-like-comment" onclick="likeComment('@r.Id', this)">
+                                                    <i class="far fa-thumbs-up me-1"></i> <span class="like-count">@r.LikesCount</span> Thích
+                                                </button>
+                                                <button class="btn-reply-comment" onclick="toggleReplyBox('@r.Id', '@c.Id', '@r.UserId', '@r.UserName', this)">
+                                                    <i class="far fa-comment-dots me-1"></i> Trả lời
+                                                </button>
+                                            </div>
+
+                                            <!-- Inline Reply Form for Child Comment -->
+                                            <div class="inline-reply-box" id="reply-box-@r.Id" style="display: none;">
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                                    <span class="small text-secondary"><i class="fas fa-reply text-danger me-1"></i> Đang trả lời <strong class="text-white">@r.UserName</strong></span>
+                                                    <button type="button" class="btn-close-reply" onclick="closeReplyBox('@r.Id')">&times;</button>
+                                                </div>
+                                                <textarea id="replyText-@r.Id" class="comment-textarea-custom mb-2" rows="2" placeholder="Nhập câu trả lời của bạn..."></textarea>
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <button class="btn btn-sm btn-outline-secondary text-white" onclick="closeReplyBox('@r.Id')">Hủy</button>
+                                                    <button class="btn btn-sm btn-danger" onclick="postCommentReply('@Model.Id', '@c.Id', '@r.UserId', '@r.UserName', '@r.Id')">
+                                                        <i class="fas fa-paper-plane me-1"></i> Gửi Trả Lời
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         }
                     }
+                </div>
+            </div>
+
+            <!-- Edit Comment Modal -->
+            <div id="editCommentModal" class="comment-modal-overlay" style="display:none;" onclick="closeEditModal(event)">
+                <div class="comment-modal-box" onclick="event.stopPropagation()">
+                    <div class="comment-modal-header">
+                        <h5><i class="fas fa-pen-alt text-danger me-2"></i>Chỉnh Sửa Bình Luận</h5>
+                        <button class="comment-modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="comment-modal-body">
+                        <div class="mb-3">
+                            <label class="modal-label">Đánh giá của bạn</label>
+                            <div class="star-rating-select" id="editStarRating">
+                                <i class="fas fa-star edit-star" data-rating="1" style="cursor:pointer;"></i>
+                                <i class="fas fa-star edit-star" data-rating="2" style="cursor:pointer;"></i>
+                                <i class="fas fa-star edit-star" data-rating="3" style="cursor:pointer;"></i>
+                                <i class="fas fa-star edit-star" data-rating="4" style="cursor:pointer;"></i>
+                                <i class="fas fa-star edit-star" data-rating="5" style="cursor:pointer;"></i>
+                                <span id="editRatingText" style="color:#f5c518; font-weight:bold; margin-left:8px;">(5 sao)</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="modal-label">Nội dung bình luận</label>
+                            <textarea id="editCommentText" class="comment-textarea-custom" rows="4" placeholder="Nhập nội dung bình luận..."></textarea>
+                        </div>
+                    </div>
+                    <div class="comment-modal-footer">
+                        <button class="btn-cancel-modal" onclick="closeEditModal()">
+                            <i class="fas fa-times me-1"></i>Hủy
+                        </button>
+                        <button class="btn-submit-comment" onclick="submitEditComment()">
+                            <i class="fas fa-check me-1"></i>Lưu thay đổi
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -482,10 +750,218 @@
             .btn-like-comment:hover {
                 color: #ff333d;
             }
+            .comment-owner-actions {
+                display: flex;
+                gap: 6px;
+                align-items: center;
+            }
+            .btn-comment-action {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                border: 1px solid rgba(255,255,255,0.12);
+                background: rgba(255,255,255,0.06);
+                color: #aaaaaa;
+                font-size: 0.72rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+            }
+            .btn-edit-comment:hover {
+                background: rgba(59, 130, 246, 0.25);
+                border-color: rgba(59, 130, 246, 0.5);
+                color: #60a5fa;
+                transform: scale(1.12);
+            }
+            .btn-delete-comment:hover {
+                background: rgba(229, 9, 20, 0.25);
+                border-color: rgba(229, 9, 20, 0.5);
+                color: #ff4d57;
+                transform: scale(1.12);
+            }
+            /* Edit Modal */
+            .comment-modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.75);
+                backdrop-filter: blur(6px);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeInOverlay 0.2s ease;
+            }
+            @@keyframes fadeInOverlay {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .comment-modal-box {
+                background: linear-gradient(145deg, #1e1e22, #26262c);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 16px;
+                width: 90%;
+                max-width: 520px;
+                padding: 0;
+                box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(229,9,20,0.15);
+                animation: slideUpModal 0.25s ease;
+            }
+            @@keyframes slideUpModal {
+                from { opacity: 0; transform: translateY(20px) scale(0.97); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+            .comment-modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1.2rem 1.5rem;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+            }
+            .comment-modal-header h5 {
+                color: #ffffff;
+                font-weight: 700;
+                font-size: 1rem;
+                margin: 0;
+            }
+            .comment-modal-close {
+                background: transparent;
+                border: none;
+                color: #888888;
+                font-size: 1rem;
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 50%;
+                transition: color 0.2s;
+            }
+            .comment-modal-close:hover { color: #ff4d57; }
+            .comment-modal-body {
+                padding: 1.5rem;
+            }
+            .modal-label {
+                color: #aaaaaa;
+                font-size: 0.82rem;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            .comment-modal-footer {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                padding: 1rem 1.5rem;
+                border-top: 1px solid rgba(255,255,255,0.08);
+            }
+            .btn-cancel-modal {
+                background: rgba(255,255,255,0.07);
+                border: 1px solid rgba(255,255,255,0.12);
+                color: #aaaaaa;
+                padding: 8px 20px;
+                border-radius: 20px;
+                font-size: 0.86rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .btn-cancel-modal:hover {
+                background: rgba(255,255,255,0.13);
+                color: #ffffff;
+            }
+            /* Comment delete fade */
+            .comment-card.deleting {
+                opacity: 0;
+                transform: translateX(-30px);
+                transition: opacity 0.35s ease, transform 0.35s ease;
+                pointer-events: none;
+            }
+            /* Toast notification */
+            .comment-toast {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: #1e1e22;
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: 10px;
+                padding: 12px 20px;
+                color: #ffffff;
+                font-size: 0.88rem;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                animation: toastIn 0.3s ease;
+            }
+            @@keyframes toastIn {
+                from { opacity: 0; transform: translateY(16px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            /* Comment Replies & Indentation */
+            .comment-replies-container {
+                margin-left: 28px;
+                margin-top: 12px;
+                padding-left: 14px;
+                border-left: 2px solid rgba(229, 9, 20, 0.35);
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .child-comment-card {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 10px;
+                padding: 12px 14px;
+            }
+            .reply-arrow-symbol {
+                color: #e50914;
+                font-weight: bold;
+                margin: 0 5px;
+            }
+            .reply-target-name {
+                color: #e2e8f0;
+                font-weight: 600;
+            }
+            .btn-reply-comment {
+                background: transparent;
+                border: none;
+                color: #a0aec0;
+                font-size: 0.85rem;
+                cursor: pointer;
+                padding: 4px 10px;
+                border-radius: 20px;
+                transition: all 0.2s ease;
+            }
+            .btn-reply-comment:hover {
+                color: #e50914;
+                background: rgba(229, 9, 20, 0.12);
+            }
+            .inline-reply-box {
+                background: rgba(20, 20, 24, 0.95);
+                border: 1px solid rgba(229, 9, 20, 0.3);
+                border-radius: 10px;
+                padding: 12px 14px;
+                margin-top: 10px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            }
+            .btn-close-reply {
+                background: transparent;
+                border: none;
+                color: #a0aec0;
+                font-size: 1.2rem;
+                cursor: pointer;
+                line-height: 1;
+            }
+            .btn-close-reply:hover { color: #e50914; }
             </style>
 
             <script>
             var selectedRating = 5;
+            var currentUserId = '@Html.Raw(ViewBag.CurrentUserId ?? "")';
+
             document.addEventListener('DOMContentLoaded', function() {
                 var stars = document.querySelectorAll('#userStarRating i');
                 var ratingText = document.getElementById('ratingText');
@@ -549,6 +1025,9 @@
                         var newComment = document.createElement('div');
                         newComment.className = 'comment-card';
                         newComment.style.cssText = 'background: rgba(229,9,20,0.1); border: 1px solid rgba(229,9,20,0.3);';
+                        newComment.setAttribute('data-comment-id', c.id);
+                        newComment.setAttribute('data-content', c.content);
+                        newComment.setAttribute('data-rating', c.rating);
 
                         var starsHtml = '';
                         for (var i = 1; i <= 5; i++) {
@@ -559,6 +1038,14 @@
                             }
                         }
 
+                        var ownerActionsHtml = '';
+                        if (currentUserId && c.userId === currentUserId) {
+                            ownerActionsHtml = '<div class="comment-owner-actions">' +
+                                '<button class="btn-comment-action btn-edit-comment" title="Chỉnh sửa" onclick="openEditModal(\'' + c.id + '\', this)"><i class="fas fa-pen"></i></button>' +
+                                '<button class="btn-comment-action btn-delete-comment" title="Xóa bình luận" onclick="deleteComment(\'' + c.id + '\', this)"><i class="fas fa-trash"></i></button>' +
+                                '</div>';
+                        }
+
                         var commentContent = '<div class="comment-card-top">' +
                             '<div class="comment-user">' +
                             '<img src="' + c.userAvatar + '" class="comment-avatar" alt="Avatar" />' +
@@ -567,9 +1054,12 @@
                             '<div class="comment-time">Vừa xong</div>' +
                             '</div>' +
                             '</div>' +
+                            '<div class="d-flex align-items-center gap-2">' +
                             '<div class="comment-stars">' + starsHtml + '</div>' +
+                            ownerActionsHtml +
                             '</div>' +
-                            '<p class="comment-text">' + escapeHtml(c.content) + '</p>' +
+                            '</div>' +
+                            '<p class="comment-text" id="comment-text-' + c.id + '">' + escapeHtml(c.content) + '</p>' +
                             '<div class="comment-actions">' +
                             '<button class="btn-like-comment" onclick="likeComment(\'' + c.id + '\', this)"><i class="far fa-thumbs-up"></i> <span class="like-count">0</span> Thích</button>' +
                             '</div>';
@@ -616,6 +1106,257 @@
                     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
                 });
             }
+
+            // ---- Delete Comment ----
+            function deleteComment(commentId, btn) {
+                if (!confirm('Bạn có chắc muốn xóa bình luận này không?')) return;
+                var card = document.querySelector('[data-comment-id="' + commentId + '"]');
+                fetch('/api/comments/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ commentId: commentId })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        if (card) {
+                            card.classList.add('deleting');
+                            setTimeout(function() { card.remove(); }, 360);
+                        }
+                        showCommentToast('success', '<i class="fas fa-trash-alt me-2"></i>Đã xóa bình luận thành công.');
+                        var badge = document.getElementById('commentCountText');
+                        if (badge) badge.innerText = Math.max(0, parseInt(badge.innerText || '0') - 1);
+                    } else {
+                        showCommentToast('error', '<i class="fas fa-exclamation-circle me-2"></i>' + (data.message || 'Không thể xóa bình luận.'));
+                    }
+                })
+                .catch(function() {
+                    showCommentToast('error', '<i class="fas fa-exclamation-circle me-2"></i>Lỗi kết nối máy chủ.');
+                });
+            }
+
+            // ---- Edit Modal ----
+            var _editCommentId = null;
+            var _editRating = 5;
+
+            function openEditModal(commentId, btn) {
+                _editCommentId = commentId;
+                var card = document.querySelector('[data-comment-id="' + commentId + '"]');
+                var content = card ? (card.getAttribute('data-content') || '') : '';
+                var rating = card ? parseInt(card.getAttribute('data-rating') || '5') : 5;
+                _editRating = rating;
+
+                var textarea = document.getElementById('editCommentText');
+                if (textarea) textarea.value = content;
+                highlightEditStars(rating);
+
+                var modal = document.getElementById('editCommentModal');
+                if (modal) modal.style.display = 'flex';
+                if (textarea) setTimeout(function() { textarea.focus(); }, 100);
+            }
+
+            function closeEditModal(e) {
+                if (e && e.target !== document.getElementById('editCommentModal')) return;
+                var modal = document.getElementById('editCommentModal');
+                if (modal) modal.style.display = 'none';
+            }
+
+            function submitEditComment() {
+                if (!_editCommentId) return;
+                var textarea = document.getElementById('editCommentText');
+                var content = textarea ? textarea.value.trim() : '';
+                if (!content) {
+                    showCommentToast('error', '<i class="fas fa-exclamation-circle me-2"></i>Vui lòng nhập nội dung bình luận.');
+                    return;
+            }
+                fetch('/api/comments/edit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ commentId: _editCommentId, content: content, rating: _editRating })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var card = document.querySelector('[data-comment-id="' + _editCommentId + '"]');
+                        if (card) {
+                            card.setAttribute('data-content', content);
+                            card.setAttribute('data-rating', _editRating);
+                            var textEl = document.getElementById('comment-text-' + _editCommentId);
+                            if (textEl) textEl.innerText = content;
+                            // Update stars in the card
+                            var starsContainer = card.querySelector('.comment-stars');
+                            if (starsContainer) {
+                                var starsHtml = '';
+                                for (var i = 1; i <= 5; i++) {
+                                    starsHtml += i <= _editRating
+                                        ? '<i class="fas fa-star" style="color:#f5c518 !important;"></i>'
+                                        : '<i class="far fa-star" style="color:#444444 !important;"></i>';
+                                }
+                                starsContainer.innerHTML = starsHtml;
+                            }
+                        }
+                        var modal = document.getElementById('editCommentModal');
+                        if (modal) modal.style.display = 'none';
+                        showCommentToast('success', '<i class="fas fa-check-circle me-2"></i>Đã cập nhật bình luận.');
+                    } else {
+                        showCommentToast('error', '<i class="fas fa-exclamation-circle me-2"></i>' + (data.message || 'Không thể cập nhật bình luận.'));
+                    }
+                })
+                .catch(function() {
+                    showCommentToast('error', '<i class="fas fa-exclamation-circle me-2"></i>Lỗi kết nối máy chủ.');
+                });
+            }
+
+            // Edit modal star setup
+            document.addEventListener('DOMContentLoaded', function() {
+                var editStars = document.querySelectorAll('#editStarRating .edit-star');
+                var editRatingText = document.getElementById('editRatingText');
+                editStars.forEach(function(star) {
+                    star.addEventListener('mouseover', function() {
+                        highlightEditStars(parseInt(this.getAttribute('data-rating')));
+                    });
+                    star.addEventListener('mouseout', function() {
+                        highlightEditStars(_editRating);
+                    });
+                    star.addEventListener('click', function() {
+                        _editRating = parseInt(this.getAttribute('data-rating'));
+                        highlightEditStars(_editRating);
+                        if (editRatingText) editRatingText.innerText = '(' + _editRating + ' sao)';
+                    });
+                });
+
+                // Close modal on Escape
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        var modal = document.getElementById('editCommentModal');
+                        if (modal) modal.style.display = 'none';
+                    }
+                });
+            });
+
+            function highlightEditStars(r) {
+                var editStars = document.querySelectorAll('#editStarRating .edit-star');
+                var editRatingText = document.getElementById('editRatingText');
+                editStars.forEach(function(star, idx) {
+                    star.style.color = '#f5c518';
+                    star.style.opacity = (idx < r) ? '1' : '0.3';
+                });
+                if (editRatingText) editRatingText.innerText = '(' + r + ' sao)';
+            }
+
+            // Toast helper
+            function showCommentToast(type, html) {
+                var t = document.createElement('div');
+                t.className = 'comment-toast ' + type;
+                t.innerHTML = html;
+                document.body.appendChild(t);
+                setTimeout(function() {
+                    t.style.opacity = '0';
+                    t.style.transition = 'opacity 0.4s';
+                    setTimeout(function() { t.remove(); }, 400);
+                }, 2800);
+            }
+
+            // Reply functionality
+            function toggleReplyBox(commentId, parentId, targetUserId, targetUserName, btnEl) {
+                var isAuth = '@(User.Identity != null && User.Identity.IsAuthenticated ? "true" : "false")';
+                if (isAuth !== 'true') {
+                    alert('Vui lòng đăng nhập để trả lời bình luận.');
+                    return;
+                }
+
+                var box = document.getElementById('reply-box-' + commentId);
+                if (!box) return;
+
+                if (box.style.display === 'none' || !box.style.display) {
+                    document.querySelectorAll('.inline-reply-box').forEach(function(b) { b.style.display = 'none'; });
+                    box.style.display = 'block';
+                    var txt = document.getElementById('replyText-' + commentId);
+                    if (txt) txt.focus();
+                } else {
+                    box.style.display = 'none';
+                }
+            }
+
+            function closeReplyBox(commentId) {
+                var box = document.getElementById('reply-box-' + commentId);
+                if (box) box.style.display = 'none';
+            }
+
+            function postCommentReply(movieId, parentId, targetUserId, targetUserName, commentId) {
+                var input = document.getElementById('replyText-' + commentId);
+                var txt = input ? input.value.trim() : '';
+                if (!txt) {
+                    alert('Vui lòng nhập nội dung trả lời.');
+                    return;
+                }
+
+                fetch('/api/comments/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        movieId: movieId,
+                        rating: 5,
+                        content: txt,
+                        parentId: parentId,
+                        replyToUserId: targetUserId,
+                        replyToUserName: targetUserName
+                    })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success && data.comment) {
+                        closeReplyBox(commentId);
+                        if (input) input.value = '';
+                        showCommentToast('success', '<i class="fas fa-check-circle text-success fs-5"></i> Đã gửi câu trả lời thành công!');
+                        setTimeout(function() { location.reload(); }, 600);
+                    } else {
+                        alert(data.message || 'Không thể gửi phản hồi.');
+                    }
+                })
+                .catch(function(err) {
+                    alert('Lỗi khi kết nối với máy chủ.');
+                });
+            }
+
+            function toggleBookmark(movieId) {
+                fetch('/api/bookmarks/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ movieId: movieId })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var btn = document.getElementById('btnBookmarkDetail');
+                        var icon = document.getElementById('bookmarkIcon');
+                        var text = document.getElementById('bookmarkText');
+                        if (data.isBookmarked) {
+                            if (btn) { btn.classList.remove('btn-glass-custom'); btn.classList.add('btn-warning-custom'); }
+                            if (icon) { icon.className = 'fas fa-bookmark me-1.5'; }
+                            if (text) text.innerText = 'Đã Lưu Phim';
+                        } else {
+                            if (btn) { btn.classList.remove('btn-warning-custom'); btn.classList.add('btn-glass-custom'); }
+                            if (icon) { icon.className = 'far fa-bookmark me-1.5'; }
+                            if (text) text.innerText = 'Lưu Phim';
+                        }
+                        if (typeof showCommentToast === 'function') {
+                            showCommentToast('success', '<i class="fas fa-bookmark text-warning me-1"></i> ' + data.message);
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        if (typeof showCommentToast === 'function') {
+                            showCommentToast('error', '<i class="fas fa-exclamation-circle text-danger me-1"></i> ' + data.message);
+                        } else {
+                            alert(data.message);
+                        }
+                    }
+                })
+                .catch(function() {
+                    alert('Lỗi khi kết nối với máy chủ.');
+                });
+            }
             </script>
         </div>
 
@@ -638,6 +1379,562 @@
                     </a>
                 }
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Fail-Safe Buy Movie Modal Overlay -->
+<!-- Custom Fail-Safe Buy Movie Modal Overlay -->
+<style>
+    #buyMovieModal.custom-modal-wrapper {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999 !important;
+        padding: 1.25rem;
+    }
+    #buyMovieModal.custom-modal-wrapper.show {
+        display: flex !important;
+    }
+    #buyMovieModal .custom-modal-box {
+        background: linear-gradient(160deg, #191b22 0%, #0f1015 100%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        width: 100%;
+        max-width: 480px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(216, 45, 139, 0.15);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: buyModalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @@keyframes buyModalPopIn {
+        from { transform: scale(0.92) translateY(20px); opacity: 0; }
+        to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    #buyMovieModal .custom-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    #buyMovieModal .modal-header-icon {
+        width: 44px; height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(229, 9, 20, 0.2));
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.25rem;
+        color: #f59e0b;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+    }
+    #buyMovieModal .custom-modal-close {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #a0aec0;
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    #buyMovieModal .custom-modal-close:hover {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.4);
+    }
+    #buyMovieModal .custom-modal-body {
+        padding: 1.5rem;
+    }
+    #buyMovieModal .movie-preview-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        margin-bottom: 1.25rem;
+    }
+    #buyMovieModal .movie-preview-poster {
+        width: 54px;
+        height: 76px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    #buyMovieModal .payment-option-card {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.15rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1.5px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+    }
+    #buyMovieModal .payment-option-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    #buyMovieModal .payment-option-card.active {
+        background: rgba(216, 45, 139, 0.1);
+        border-color: #d82d8b !important;
+        box-shadow: 0 4px 20px rgba(216, 45, 139, 0.25);
+    }
+    #buyMovieModal .payment-option-card input[type="radio"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        outline: none;
+        margin: 0;
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        transition: all 0.2s ease;
+    }
+    #buyMovieModal .payment-option-card input[type="radio"]::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 0.2s transform ease-in-out;
+        background-color: #d82d8b;
+    }
+    #buyMovieModal .payment-option-card input[type="radio"]:checked {
+        border-color: #d82d8b;
+    }
+    #buyMovieModal .payment-option-card input[type="radio"]:checked::before {
+        transform: scale(1);
+    }
+    #buyMovieModal .momo-brand-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: #a50064;
+        color: #fff;
+        font-weight: 900;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(165, 0, 100, 0.4);
+        flex-shrink: 0;
+    }
+    #buyMovieModal .vnpay-brand-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #005baa, #0088ff);
+        color: #fff;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 91, 170, 0.4);
+        flex-shrink: 0;
+    }
+    #buyMovieModal .custom-modal-footer {
+        display: flex;
+        gap: 0.85rem;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+    }
+</style>
+<div id="buyMovieModal" class="custom-modal-wrapper" onclick="if(event.target === this) closeBuyMovieModal();">
+    <div class="custom-modal-box">
+        <!-- Modal Header -->
+        <div class="custom-modal-header">
+            <div class="d-flex align-items-center gap-3">
+                <div class="modal-header-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-white mb-0" style="font-size: 1.15rem; letter-spacing: -0.2px;">Thanh Toán Vé Xem Phim</h5>
+                    <div class="text-muted small" style="font-size: 0.78rem;">Mở khóa để thưởng thức phim rạp sắc nét</div>
+                </div>
+            </div>
+            <button type="button" class="custom-modal-close" onclick="closeBuyMovieModal()" title="Đóng modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="custom-modal-body">
+            <!-- Movie Info & Price Preview -->
+            <div class="movie-preview-card">
+                <img src="@Model.PosterUrl" alt="@Model.Title" class="movie-preview-poster" />
+                <div class="flex-grow-1 min-w-0">
+                    <h6 class="text-white fw-bold text-truncate mb-1" style="font-size: 0.95rem;" title="@Model.Title">@Model.Title</h6>
+                    <div class="text-muted small mb-1" style="font-size: 0.78rem;"><i class="fas fa-clock me-1 text-warning"></i> Sơ hữu xem vĩnh viễn</div>
+                    <div class="d-flex align-items-center gap-1.5 text-warning fw-bold font-monospace" style="font-size: 1.3rem;">
+                        <i class="fas fa-tag me-1" style="font-size: 1rem;"></i> @Model.FormattedPrice
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods Selection -->
+            <div class="mb-2">
+                <label class="form-label text-white-50 fw-semibold mb-2.5" style="font-size: 0.83rem;">
+                    <i class="fas fa-wallet text-danger me-1.5"></i> CHỌN PHƯƠNG THỨC THANH TOÁN
+                </label>
+                <div class="d-flex flex-column gap-2.5">
+                    <!-- MoMo Option -->
+                    <label class="payment-option-card active" id="optionCardMomo" onclick="selectPaymentOption('momo')">
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="radio" name="paymentMethod" value="momo" id="radioMomo" checked />
+                            <div class="momo-brand-badge">MoMo</div>
+                            <div>
+                                <div class="text-white fw-bold" style="font-size: 0.92rem;">Ví Điện Tử MoMo</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Quét mã QR / App MoMo tiện lợi</div>
+                            </div>
+                        </div>
+                        <span class="badge bg-danger-subtle text-danger px-2.5 py-1 rounded-pill" style="font-size: 0.7rem; border: 1px solid rgba(229,9,20,0.3);">
+                            <i class="fas fa-fire me-1"></i>Phổ biến
+                        </span>
+                    </label>
+
+                    <!-- VNPay Option -->
+                    <label class="payment-option-card" id="optionCardVnpay" onclick="selectPaymentOption('vnpay')">
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="radio" name="paymentMethod" value="vnpay" id="radioVnpay" />
+                            <div class="vnpay-brand-badge">
+                                <i class="fas fa-qrcode"></i>
+                            </div>
+                            <div>
+                                <div class="text-white fw-bold" style="font-size: 0.92rem;">VNPay / QR Banking</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">Quét QR từ 40+ ứng dụng ngân hàng</div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="custom-modal-footer">
+                <button type="button" class="btn-custom btn-glass-custom px-4 py-2.5" onclick="closeBuyMovieModal()">
+                    Hủy Bỏ
+                </button>
+                <button type="button" class="btn-custom btn-warning-custom px-4 py-2.5" id="btnSubmitBuyMovie" onclick="submitBuyMovie('@Model.Id')">
+                    <i class="fas fa-check-circle me-1.5"></i> Xác Nhận Thanh Toán
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function selectPaymentOption(method) {
+    var cardMomo = document.getElementById('optionCardMomo');
+    var cardVnpay = document.getElementById('optionCardVnpay');
+    var radioMomo = document.getElementById('radioMomo');
+    var radioVnpay = document.getElementById('radioVnpay');
+
+    if (method === 'momo') {
+        if (radioMomo) radioMomo.checked = true;
+        if (cardMomo) cardMomo.classList.add('active');
+        if (cardVnpay) cardVnpay.classList.remove('active');
+    } else {
+        if (radioVnpay) radioVnpay.checked = true;
+        if (cardVnpay) cardVnpay.classList.add('active');
+        if (cardMomo) cardMomo.classList.remove('active');
+    }
+}
+</script>
+
+<script>
+var _isUserAuthenticated = @(User.Identity != null && User.Identity.IsAuthenticated ? "true" : "false");
+
+// Auto-detect payment success from MoMo redirect
+(function() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+        // Clean URL
+        var cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+        // Show success notification
+        setTimeout(function() {
+            if (typeof showCommentToast === 'function') {
+                showCommentToast('success', '<i class="fas fa-check-circle text-success me-1"></i> Thanh toán thành công! Phim đã được mở khóa. Chúc bạn xem phim vui vẻ!');
+            } else {
+                alert('🎉 Thanh toán thành công! Phim đã được mở khóa.');
+            }
+        }, 500);
+    }
+})();
+
+function openBuyMovieModal() {
+    if (!_isUserAuthenticated) {
+        if (typeof showCommentToast === 'function') {
+            showCommentToast('danger', '<i class="fas fa-exclamation-circle text-danger me-1"></i> Vui lòng đăng nhập để mua vé xem phim!');
+        } else {
+            alert('Vui lòng đăng nhập để mua vé xem phim!');
+        }
+        setTimeout(function() { location.href = '/Account/Login?returnUrl=' + encodeURIComponent(location.pathname); }, 1200);
+        return;
+    }
+    var modalEl = document.getElementById('buyMovieModal');
+    if (!modalEl) {
+        alert('Không tìm thấy modal thanh toán. Vui lòng tải lại trang.');
+        return;
+    }
+    modalEl.style.display = 'flex';
+    modalEl.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeBuyMovieModal() {
+    var modalEl = document.getElementById('buyMovieModal');
+    if (modalEl) {
+        modalEl.classList.remove('show');
+        modalEl.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+}
+
+function submitBuyMovie(movieId) {
+    var btn = document.getElementById('btnSubmitBuyMovie');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1.5"></i> Đang chuyển đến MoMo...';
+    }
+
+    fetch('/api/movies/momo-create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movieId: movieId })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success && data.payUrl) {
+            // Redirect to MoMo payment page
+            window.location.href = data.payUrl;
+        } else {
+            alert(data.message || 'Không thể tạo thanh toán MoMo. Vui lòng thử lại.');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle me-1.5"></i> Xác Nhận Thanh Toán';
+            }
+        }
+    })
+    .catch(function() {
+        alert('Lỗi kết nối tới máy chủ.');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-1.5"></i> Xác Nhận Thanh Toán';
+        }
+    });
+}
+
+/* ---- Notify Coming Soon Movie Modal Functions ---- */
+function openNotifyModal(movieId, movieTitle) {
+    var modalEl = document.getElementById('notifyMovieModal');
+    if (!modalEl) return;
+    if (movieTitle) {
+        var titleEl = document.getElementById('notifyModalMovieTitle');
+        if (titleEl) titleEl.innerText = movieTitle;
+    }
+    modalEl.style.display = 'flex';
+    modalEl.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeNotifyModal() {
+    var modalEl = document.getElementById('notifyMovieModal');
+    if (modalEl) {
+        modalEl.classList.remove('show');
+        modalEl.style.display = 'none';
+    }
+    document.body.style.overflow = '';
+}
+
+function submitNotifyForm(e) {
+    e.preventDefault();
+    var name = document.getElementById('notifyName').value.trim();
+    var email = document.getElementById('notifyEmail').value.trim();
+    var btn = document.getElementById('btnSubmitNotify');
+
+    if (!name || !email) {
+        alert('Vui lòng nhập đầy đủ Họ tên và Email.');
+        return;
+    }
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1.5"></i> Đang gửi dữ liệu...';
+    }
+
+    fetch('/api/movies/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            movieId: '@Model.Id',
+            movieTitle: '@Model.Title',
+            name: name,
+            email: email
+        })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        closeNotifyModal();
+        if (data.success) {
+            try {
+                var key = 'notify_movie_' + '@Model.Id';
+                localStorage.setItem(key, JSON.stringify({ name: name, email: email, date: new Date().toISOString() }));
+            } catch(err) {}
+
+            if (typeof showCommentToast === 'function') {
+                showCommentToast('success', '<i class="fas fa-check-circle text-success me-1"></i> ' + data.message);
+            } else {
+                alert(data.message);
+            }
+        } else {
+            alert(data.message || 'Đăng ký nhận thông báo thất bại.');
+        }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane me-1.5"></i> Đăng Ký Nhận Tin';
+        }
+    })
+    .catch(function() {
+        alert('Lỗi kết nối tới hệ thống máy chủ.');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane me-1.5"></i> Đăng Ký Nhận Tin';
+        }
+    });
+}
+</script>
+
+<!-- Notify Coming Soon Movie Modal Overlay -->
+<style>
+    #notifyMovieModal.custom-modal-wrapper {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(12px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999 !important;
+        padding: 1.25rem;
+    }
+    #notifyMovieModal.custom-modal-wrapper.show {
+        display: flex !important;
+    }
+    #notifyMovieModal .custom-modal-box {
+        background: linear-gradient(145deg, #1f1f23 0%, #161619 100%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 20px;
+        width: 100%;
+        max-width: 480px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    #notifyMovieModal .custom-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    #notifyMovieModal .modal-header-icon {
+        width: 42px; height: 42px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+    }
+    #notifyMovieModal .custom-modal-close {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #a0aec0;
+        width: 34px; height: 34px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    #notifyMovieModal .custom-modal-close:hover { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.3); }
+    #notifyMovieModal .custom-modal-body { padding: 1.5rem; overflow-y: auto; }
+    #notifyMovieModal .custom-modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem; }
+    #notifyMovieModal .notify-input-field {
+        width: 100%;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #ffffff;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 0.92rem;
+        outline: none;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    #notifyMovieModal .notify-input-field:focus {
+        background: rgba(255,255,255,0.1);
+        border-color: #f59e0b;
+    }
+</style>
+
+<div id="notifyMovieModal" class="custom-modal-wrapper" onclick="if(event.target === this) closeNotifyModal();">
+    <div class="custom-modal-box">
+        <!-- Modal Header -->
+        <div class="custom-modal-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="modal-header-icon text-warning" style="background: rgba(245, 158, 11, 0.15);">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-white mb-0" style="font-size: 1.15rem;">Nhận Thông Báo Khởi Chiếu</h5>
+                    <div class="text-muted small" style="font-size: 0.78rem;" id="notifyModalMovieTitle">@Model.Title</div>
+                </div>
+            </div>
+            <button type="button" class="custom-modal-close" onclick="closeNotifyModal()" title="Đóng modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="custom-modal-body">
+            <p class="text-muted small mb-3" style="line-height: 1.5;">
+                Đăng ký nhận thông báo ngay khi phim chính thức công chiếu tại rạp. Chúng tôi sẽ gửi thông báo trực tiếp qua Email của bạn!
+            </p>
+            <form id="notifyForm" onsubmit="submitNotifyForm(event)">
+                <div class="mb-3">
+                    <label class="form-label text-white small fw-semibold mb-1">Họ và Tên</label>
+                    <input type="text" id="notifyName" class="notify-input-field" placeholder="Nhập họ tên của bạn..." required
+                           value="@(User.Identity != null && User.Identity.IsAuthenticated ? User.Identity.Name : "")" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-white small fw-semibold mb-1">Địa chỉ Email</label>
+                    <input type="email" id="notifyEmail" class="notify-input-field" placeholder="example@domain.com" required
+                           value="@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "")" />
+                </div>
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn-custom btn-glass-custom px-3 py-2" onclick="closeNotifyModal()">Hủy</button>
+                    <button type="submit" class="btn-custom btn-primary-custom px-4 py-2" id="btnSubmitNotify">
+                        <i class="fas fa-paper-plane me-1.5"></i> Đăng Ký Nhận Tin
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

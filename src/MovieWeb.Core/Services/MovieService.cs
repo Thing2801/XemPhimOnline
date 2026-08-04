@@ -367,7 +367,14 @@ public class MovieService : IMovieService
 
         if (!string.IsNullOrWhiteSpace(country) && country != "all")
         {
-            query = query.Where(m => m.Country.Equals(country, StringComparison.OrdinalIgnoreCase));
+            string cNorm = OrchardCoreMovieService.RemoveDiacritics(country.Trim().ToLowerInvariant());
+            query = query.Where(m => {
+                if (string.IsNullOrWhiteSpace(m.Country)) return false;
+                string mNorm = OrchardCoreMovieService.RemoveDiacritics(m.Country.Trim().ToLowerInvariant());
+                if (mNorm == cNorm || mNorm.Contains(cNorm) || cNorm.Contains(mNorm)) return true;
+                if (cNorm.Contains("au my") && (mNorm.Contains("my") || mNorm.Contains("hoa ky") || mNorm.Contains("anh") || mNorm.Contains("phap") || mNorm.Contains("au my"))) return true;
+                return false;
+            });
         }
 
         if (year.HasValue && year.Value > 0)

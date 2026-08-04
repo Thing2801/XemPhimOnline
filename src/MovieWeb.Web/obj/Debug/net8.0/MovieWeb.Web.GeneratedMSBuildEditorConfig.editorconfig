@@ -24,20 +24,20 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Account/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxQcm9maWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Account/PurchasedMovies.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxQdXJjaGFzZWRNb3ZpZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Home/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Movie/Detail.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW92aWVcRGV0YWlsLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Movie/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW92aWVcSW5kZXguY3NodG1s
+[E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Account/SavedMovies.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxTYXZlZE1vdmllcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [E:/Work/Project/Project3/MovieWeb/src/MovieWeb.Web/Views/Shared/_Layout.cshtml]
