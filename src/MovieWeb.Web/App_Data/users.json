@@ -112,5 +112,18 @@
     "CreatedAt": "2026-08-04T08:04:31.3146806Z",
     "PurchasedMovieIds": [],
     "IsGoogleUser": true
+  },
+  {
+    "Id": "65d2ce23cb124968838cfeaf3fcecdd2",
+    "Username": "thinhtesting",
+    "Email": "thinhtesting@example.com",
+    "FullName": "Thinh Testing",
+    "PasswordHash": "AQAAAAIAAYagAAAAEBSfrC7kbulrExciOErOX5NXQvK6SWl\u002BWxY0ABp5n04AmbnA9z9JeDj2E7aZzYg9Zg==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=thinhtesting",
+    "Role": "User",
+    "IsGoogleAccount": false,
+    "CreatedAt": "2026-08-05T07:29:06.9125107Z",
+    "PurchasedMovieIds": [],
+    "IsGoogleUser": false
   }
 ]

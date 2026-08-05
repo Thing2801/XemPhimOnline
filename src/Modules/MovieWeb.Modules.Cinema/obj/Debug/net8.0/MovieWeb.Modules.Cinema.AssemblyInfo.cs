@@ -20,7 +20,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MovieWeb.Modules.Cinema")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b695f9525e82189917cd114f22a0686d26393421")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cd4d98fbc4aceffceed39b0e681821671161db2d")]
 [assembly: System.Reflection.AssemblyProductAttribute("MovieWeb.Modules.Cinema")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MovieWeb.Modules.Cinema")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

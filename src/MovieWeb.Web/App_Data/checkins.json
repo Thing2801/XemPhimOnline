@@ -1,0 +1,23 @@
+[
+  {
+    "UserId": "066ae0b87c93448e9ee0e21edb37076e",
+    "CheckinDate": "2026-08-05T00:00:00+07:00",
+    "DayOfMonth": 5,
+    "Month": 8,
+    "Year": 2026
+  },
+  {
+    "UserId": "65d2ce23cb124968838cfeaf3fcecdd2",
+    "CheckinDate": "2026-08-05T00:00:00+07:00",
+    "DayOfMonth": 5,
+    "Month": 8,
+    "Year": 2026
+  },
+  {
+    "UserId": "405e175b1afb4c2584fcb6549b507213",
+    "CheckinDate": "2026-08-05T00:00:00+07:00",
+    "DayOfMonth": 5,
+    "Month": 8,
+    "Year": 2026
+  }
+]

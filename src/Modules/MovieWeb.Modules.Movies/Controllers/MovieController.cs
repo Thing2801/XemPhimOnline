@@ -12,6 +12,7 @@ public class MovieController : Controller
     private readonly ICommentService _commentService;
     private readonly IBookmarkService? _bookmarkService;
     private readonly IUserService? _userService;
+    private readonly ICheckinService? _checkinService;
     private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
 
     public MovieController(
@@ -19,13 +20,15 @@ public class MovieController : Controller
         ICommentService commentService, 
         Microsoft.Extensions.Configuration.IConfiguration configuration,
         IBookmarkService? bookmarkService = null, 
-        IUserService? userService = null)
+        IUserService? userService = null,
+        ICheckinService? checkinService = null)
     {
         _movieService = movieService;
         _commentService = commentService;
         _configuration = configuration;
         _bookmarkService = bookmarkService;
         _userService = userService;
+        _checkinService = checkinService;
     }
 
     [HttpGet]
@@ -420,6 +423,114 @@ public class MovieController : Controller
         return sb2.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
 
+    // ============= Checkin & Voucher System =============
+
+    [HttpGet]
+    [Route("diem-danh")]
+    public IActionResult Checkin()
+    {
+        ViewData["Title"] = "Điểm Danh Nhận Quà";
+        ViewData["ActivePage"] = "Checkin";
+        return View();
+    }
+
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
+    [Route("api/checkin")]
+    public async Task<IActionResult> ApiCheckin()
+    {
+        if (User.Identity == null || !User.Identity.IsAuthenticated)
+            return Json(new { success = false, message = "Vui lòng đăng nhập để điểm danh." });
+
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (string.IsNullOrEmpty(userId) || _checkinService == null)
+            return Json(new { success = false, message = "Dịch vụ điểm danh không khả dụng." });
+
+        var result = await _checkinService.CheckinAsync(userId);
+        return Json(new
+        {
+            success = result.Success,
+            message = result.Message,
+            totalDays = result.TotalDaysThisMonth,
+            alreadyCheckedIn = result.AlreadyCheckedIn,
+            reward = result.RewardVoucher != null ? new
+            {
+                voucherCode = result.RewardVoucher.VoucherCode,
+                discountPercent = result.RewardVoucher.DiscountPercent,
+                expiresAt = result.RewardVoucher.ExpiresAt.ToString("dd/MM/yyyy")
+            } : null
+        });
+    }
+
+    [HttpGet]
+    [Route("api/checkin/status")]
+    public async Task<IActionResult> ApiCheckinStatus()
+    {
+        if (User.Identity == null || !User.Identity.IsAuthenticated)
+            return Json(new { success = false, message = "Vui lòng đăng nhập." });
+
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (string.IsNullOrEmpty(userId) || _checkinService == null)
+            return Json(new { success = false });
+
+        var status = await _checkinService.GetCheckinStatusAsync(userId);
+        return Json(new
+        {
+            success = true,
+            totalDays = status.TotalDaysThisMonth,
+            checkedDays = status.CheckedDays,
+            checkedToday = status.CheckedToday,
+            currentMonth = status.CurrentMonth,
+            currentYear = status.CurrentYear,
+            currentDay = status.CurrentDay,
+            daysInMonth = status.DaysInMonth,
+            firstDayOffset = status.FirstDayOffset,
+            milestones = status.Milestones.Select(m => new
+            {
+                day = m.Day,
+                discountPercent = m.DiscountPercent,
+                reached = m.Reached,
+                voucherCode = m.VoucherCode,
+                label = m.Label
+            }),
+            vouchers = status.ActiveVouchers.Select(v => new
+            {
+                code = v.VoucherCode,
+                discountPercent = v.DiscountPercent,
+                expiresAt = v.ExpiresAt.ToString("dd/MM/yyyy"),
+                isUsed = v.IsUsed,
+                milestoneDay = v.MilestoneDay
+            })
+        });
+    }
+
+    [HttpGet]
+    [Route("api/vouchers")]
+    public async Task<IActionResult> ApiGetVouchers()
+    {
+        if (User.Identity == null || !User.Identity.IsAuthenticated)
+            return Json(new { success = false, message = "Vui lòng đăng nhập." });
+
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        if (string.IsNullOrEmpty(userId) || _checkinService == null)
+            return Json(new { success = true, vouchers = new object[0] });
+
+        var vouchers = await _checkinService.GetUserVouchersAsync(userId);
+        return Json(new
+        {
+            success = true,
+            vouchers = vouchers.Select(v => new
+            {
+                code = v.VoucherCode,
+                discountPercent = v.DiscountPercent,
+                originalPrice = v.OriginalPrice,
+                discountedPrice = v.DiscountedPrice,
+                expiresAt = v.ExpiresAt.ToString("dd/MM/yyyy"),
+                milestoneDay = v.MilestoneDay
+            })
+        });
+    }
+
     // ============= MoMo Payment Integration =============
 
     [HttpPost]
@@ -449,6 +560,21 @@ public class MovieController : Controller
 
         long amount = (long)movie.Price;
         if (amount < 1000) amount = 10000; // MoMo minimum is 1000 VND
+
+        // Apply voucher if provided
+        string? appliedVoucherCode = request?.VoucherCode;
+        int appliedDiscount = 0;
+        if (!string.IsNullOrWhiteSpace(appliedVoucherCode) && _checkinService != null)
+        {
+            var voucher = await _checkinService.ValidateVoucherAsync(userId, appliedVoucherCode);
+            if (voucher != null)
+            {
+                long discountedAmount = (long)(movie.Price * (1 - voucher.DiscountPercent / 100m));
+                if (discountedAmount < 1000) discountedAmount = 1000; // MoMo minimum
+                amount = discountedAmount;
+                appliedDiscount = voucher.DiscountPercent;
+            }
+        }
 
         // MoMo config
         var partnerCode = _configuration["MoMo:PartnerCode"] ?? "MOMO";
@@ -525,6 +651,11 @@ public class MovieController : Controller
                 {
                     await _userService.BuyMovieAsync(userId, movieId);
                 }
+                // Mark voucher as used
+                if (!string.IsNullOrWhiteSpace(appliedVoucherCode) && _checkinService != null)
+                {
+                    await _checkinService.ApplyVoucherAsync(userId, appliedVoucherCode, movieId, movie.Price);
+                }
                 return Json(new { success = true, payUrl, qrCodeUrl, movieId, movieTitle = movie.Title, amount });
             }
             else
@@ -596,6 +727,7 @@ public class MovieController : Controller
 public class BuyMovieRequest
 {
     public string MovieId { get; set; } = string.Empty;
+    public string? VoucherCode { get; set; }
 }
 
 public class NotifyMovieRequest

@@ -20,6 +20,10 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
+[e:/Work/Project/Project3/MovieWeb/src/Modules/MovieWeb.Modules.Movies/Views/Movie/Checkin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW92aWVcQ2hlY2tpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [e:/Work/Project/Project3/MovieWeb/src/Modules/MovieWeb.Modules.Movies/Views/Movie/Detail.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW92aWVcRGV0YWlsLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 

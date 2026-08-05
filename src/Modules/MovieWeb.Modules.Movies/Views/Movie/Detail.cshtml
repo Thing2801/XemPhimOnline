@@ -1703,6 +1703,26 @@
                 </div>
             </div>
 
+            <!-- Voucher Selection -->
+            <div class="mb-3" id="voucherSectionModal" style="display: none;">
+                <label class="form-label text-white-50 fw-semibold mb-2" style="font-size: 0.83rem;">
+                    <i class="fas fa-ticket-alt text-warning me-1.5"></i> CHỌN VOUCHER GIẢM GIÁ
+                </label>
+                <select class="form-select" id="voucherSelect" onchange="onVoucherChange()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; border-radius: 10px; padding: 10px 14px; font-size: 0.88rem;">
+                    <option value="">-- Không sử dụng voucher --</option>
+                </select>
+                <div id="voucherPricePreview" style="display: none; margin-top: 0.6rem; padding: 8px 14px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="text-muted" style="font-size: 0.82rem;">Giá gốc:</span>
+                        <span class="text-white-50" style="font-size: 0.85rem; text-decoration: line-through;" id="voucherOrigPrice">@Model.FormattedPrice</span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mt-1">
+                        <span class="text-success fw-bold" style="font-size: 0.88rem;"><i class="fas fa-check-circle me-1"></i> Giá sau giảm:</span>
+                        <span class="text-warning fw-bold font-monospace" style="font-size: 1.15rem;" id="voucherFinalPrice">--</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Payment Methods Selection -->
             <div class="mb-2">
                 <label class="form-label text-white-50 fw-semibold mb-2.5" style="font-size: 0.83rem;">
@@ -1839,9 +1859,59 @@ function openBuyMovieModal() {
         alert('Không tìm thấy modal thanh toán. Vui lòng tải lại trang.');
         return;
     }
+
+    // Fetch available vouchers
+    loadVouchersForModal();
+
     modalEl.style.display = 'flex';
     modalEl.classList.add('show');
     document.body.style.overflow = 'hidden';
+}
+
+function loadVouchersForModal() {
+    var section = document.getElementById('voucherSectionModal');
+    var select = document.getElementById('voucherSelect');
+    if (!section || !select) return;
+
+    fetch('/api/vouchers')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success && data.vouchers && data.vouchers.length > 0) {
+                section.style.display = 'block';
+                // Reset select
+                select.innerHTML = '<option value="">-- Không sử dụng voucher --</option>';
+                data.vouchers.forEach(function(v) {
+                    var opt = document.createElement('option');
+                    opt.value = v.code;
+                    opt.dataset.discount = v.discountPercent;
+                    opt.dataset.originalPrice = v.originalPrice;
+                    opt.dataset.discountedPrice = v.discountedPrice;
+                    opt.textContent = 'Giảm ' + v.discountPercent + '% (Mã: ' + v.code + ' · HSD: ' + v.expiresAt + ')';
+                    select.appendChild(opt);
+                });
+            } else {
+                section.style.display = 'none';
+            }
+        })
+        .catch(function() {
+            section.style.display = 'none';
+        });
+}
+
+function onVoucherChange() {
+    var select = document.getElementById('voucherSelect');
+    var preview = document.getElementById('voucherPricePreview');
+    var finalPriceEl = document.getElementById('voucherFinalPrice');
+    if (!select || !preview || !finalPriceEl) return;
+
+    var opt = select.options[select.selectedIndex];
+    if (select.value && opt.dataset.discountedPrice) {
+        preview.style.display = 'block';
+        var dp = parseFloat(opt.dataset.discountedPrice);
+        finalPriceEl.textContent = dp.toLocaleString('vi-VN') + ' VNĐ';
+    } else {
+        preview.style.display = 'none';
+    }
 }
 
 function closeBuyMovieModal() {
@@ -1860,10 +1930,17 @@ function submitBuyMovie(movieId) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1.5"></i> Đang chuyển đến MoMo...';
     }
 
+    // Get selected voucher code
+    var voucherCode = '';
+    var voucherSelect = document.getElementById('voucherSelect');
+    if (voucherSelect && voucherSelect.value) {
+        voucherCode = voucherSelect.value;
+    }
+
     fetch('/api/movies/momo-create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ movieId: movieId })
+        body: JSON.stringify({ movieId: movieId, voucherCode: voucherCode })
     })
     .then(function(res) { return res.json(); })
     .then(function(data) {

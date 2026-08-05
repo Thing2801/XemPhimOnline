@@ -60,6 +60,7 @@ builder.Services.AddOrchardCms(tenantBuilder =>
         services.AddSingleton<IUserService>(sp => new UserService(dataDir));
         services.AddSingleton<ICommentService>(sp => new CommentService(dataDir));
         services.AddSingleton<IBookmarkService, BookmarkService>();
+        services.AddSingleton<ICheckinService, CheckinService>();
     });
     tenantBuilder.AddGlobalFeatures(
         "MovieWeb.Modules.Home",
@@ -75,6 +76,7 @@ builder.Services.AddScoped<IMovieService, OrchardCoreMovieService>();
 builder.Services.AddSingleton<IUserService>(sp => new UserService(dataDir));
 builder.Services.AddSingleton<ICommentService>(sp => new CommentService(dataDir));
 builder.Services.AddSingleton<IBookmarkService, BookmarkService>();
+builder.Services.AddSingleton<ICheckinService, CheckinService>();
 
 var app = builder.Build();
 
