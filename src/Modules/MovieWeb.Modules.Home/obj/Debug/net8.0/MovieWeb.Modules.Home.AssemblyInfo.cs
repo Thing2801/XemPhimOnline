@@ -11,20 +11,20 @@ using System;
 using System.Reflection;
 
 [assembly: OrchardCore.Modules.Manifest.ModuleMarkerAttribute("MovieWeb.Modules.Home", "Module")]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\Home\\Index.cshtml|E:\\Work\\Project\\Project3\\Movi" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\Home\\Index.cshtml|e:\\Work\\Project\\Project3\\Movi" +
     "eWeb\\src\\Modules\\MovieWeb.Modules.Home\\Views\\Home\\Index.cshtml"))]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\Shared\\_Layout.cshtml|E:\\Work\\Project\\Project3\\" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\Shared\\_Layout.cshtml|e:\\Work\\Project\\Project3\\" +
     "MovieWeb\\src\\Modules\\MovieWeb.Modules.Home\\Views\\Shared\\_Layout.cshtml"))]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\Shared\\_MovieCard.cshtml|E:\\Work\\Project\\Projec" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\Shared\\_MovieCard.cshtml|e:\\Work\\Project\\Projec" +
     "t3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Home\\Views\\Shared\\_MovieCard.cshtml"))]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\_ViewImports.cshtml|E:\\Work\\Project\\Project3\\Mo" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\_ViewImports.cshtml|e:\\Work\\Project\\Project3\\Mo" +
     "vieWeb\\src\\Modules\\MovieWeb.Modules.Home\\Views\\_ViewImports.cshtml"))]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\_ViewStart.cshtml|E:\\Work\\Project\\Project3\\Movi" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Home\\Views\\_ViewStart.cshtml|e:\\Work\\Project\\Project3\\Movi" +
     "eWeb\\src\\Modules\\MovieWeb.Modules.Home\\Views\\_ViewStart.cshtml"))]
 [assembly: System.Reflection.AssemblyCompanyAttribute("MovieWeb.Modules.Home")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8092d9942a302e713e6478e4c402ae2ab70925db")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b695f9525e82189917cd114f22a0686d26393421")]
 [assembly: System.Reflection.AssemblyProductAttribute("MovieWeb.Modules.Home")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MovieWeb.Modules.Home")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

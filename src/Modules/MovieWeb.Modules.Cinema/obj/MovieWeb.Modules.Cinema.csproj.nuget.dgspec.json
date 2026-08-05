@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj": {}
+    "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj": {}
   },
   "projects": {
-    "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj": {
+    "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj",
+        "projectUniqueName": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj",
         "projectName": "MovieWeb.Modules.Cinema",
-        "projectPath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj",
+        "projectPath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\MovieWeb.Modules.Cinema.csproj",
         "packagesPath": "C:\\Users\\Thinh\\.nuget\\packages\\",
-        "outputPath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\obj\\",
+        "outputPath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -33,8 +33,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "E:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj": {
-                "projectPath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj"
+              "e:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj": {
+                "projectPath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj"
               }
             }
           }
@@ -83,14 +83,14 @@
         }
       }
     },
-    "E:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj": {
+    "e:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj",
+        "projectUniqueName": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj",
         "projectName": "MovieWeb.Core",
-        "projectPath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj",
+        "projectPath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\MovieWeb.Core.csproj",
         "packagesPath": "C:\\Users\\Thinh\\.nuget\\packages\\",
-        "outputPath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\obj\\",
+        "outputPath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\MovieWeb.Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

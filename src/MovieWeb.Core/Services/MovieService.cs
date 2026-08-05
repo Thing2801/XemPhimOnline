@@ -260,6 +260,49 @@ public class MovieService : IMovieService
         }
     }
 
+    public Task<List<Movie>> GetRankedMoviesAsync(string criteria = "views", string period = "all", string? genreId = null, int count = 50)
+    {
+        lock (_lockObj)
+        {
+            IEnumerable<Movie> query = _movies;
+
+            if (!string.IsNullOrWhiteSpace(genreId) && genreId != "all")
+            {
+                query = query.Where(m => m.GenreIds.Contains(genreId, StringComparer.OrdinalIgnoreCase));
+            }
+
+            if (string.Equals(criteria, "rating", StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.OrderByDescending(m => m.Rating).ThenByDescending(m => m.ViewsCount);
+            }
+            else
+            {
+                query = (period?.ToLowerInvariant()) switch
+                {
+                    "today" => query.OrderByDescending(m => (m.ViewsCount * 0.05) + (m.ReleaseYear >= 2026 ? 100000 : 0) + (m.Rating * 5000)),
+                    "week"  => query.OrderByDescending(m => (m.ViewsCount * 0.25) + (m.ReleaseYear >= 2026 ? 250000 : 0) + (m.Rating * 15000)),
+                    "month" => query.OrderByDescending(m => (m.ViewsCount * 0.65) + (m.ReleaseYear >= 2026 ? 500000 : 0) + (m.Rating * 30000)),
+                    _       => query.OrderByDescending(m => m.ViewsCount).ThenByDescending(m => m.Rating)
+                };
+            }
+
+            return Task.FromResult(query.Take(count).ToList());
+        }
+    }
+
+    public Task IncrementViewsAsync(string movieId)
+    {
+        lock (_lockObj)
+        {
+            var movie = _movies.FirstOrDefault(m => m.Id == movieId || m.Slug == movieId);
+            if (movie != null)
+            {
+                movie.ViewsCount++;
+            }
+        }
+        return Task.CompletedTask;
+    }
+
     public Task<List<Movie>> GetAllMoviesAsync()
     {
         lock (_lockObj)

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "3zOnVLj+e5U=",
+  "dgSpecHash": "P44+elKgeKI=",
   "success": true,
-  "projectFilePath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
+  "projectFilePath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Thinh\\.nuget\\packages\\azure.core\\1.40.0\\azure.core.1.40.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\azure.identity\\1.12.1\\azure.identity.1.12.1.nupkg.sha512",
@@ -102,9 +102,9 @@
       "code": "NU1902",
       "level": "Warning",
       "message": "Package 'MailKit' 4.8.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-9j88-vvj5-vhgr",
-      "projectPath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
+      "projectPath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
       "warningLevel": 1,
-      "filePath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
+      "filePath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Movies\\MovieWeb.Modules.Movies.csproj",
       "libraryId": "MailKit",
       "targetGraphs": [
         "net8.0"

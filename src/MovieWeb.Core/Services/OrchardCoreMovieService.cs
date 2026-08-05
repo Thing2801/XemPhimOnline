@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 using OrchardCore.ContentManagement;
 using OrchardCore.ContentManagement.Records;
@@ -9,6 +10,8 @@ namespace MovieWeb.Core.Services;
 
 public class OrchardCoreMovieService : IMovieService
 {
+    private static readonly ConcurrentDictionary<string, int> _trackedViews = new ConcurrentDictionary<string, int>();
+
     private readonly ISession _session;
     private readonly IContentManager _contentManager;
     private readonly ICommentService? _commentService;
@@ -240,6 +243,11 @@ public class OrchardCoreMovieService : IMovieService
                         rating = userAvg;
                     }
                 }
+
+                if (!string.IsNullOrEmpty(item.ContentItemId) && _trackedViews.TryGetValue(item.ContentItemId, out int extraViews))
+                {
+                    viewsCount += extraViews;
+                }
                 string resolution = GetFieldText(movieData?.Resolution ?? pickedMovieInfoData?.Resolution) ?? "4K Ultra HD";
                 int year = GetIntField(movieData?.YearOfProduction ?? pickedMovieInfoData?.YearOfProduction, 2026);
 
@@ -356,8 +364,8 @@ public class OrchardCoreMovieService : IMovieService
                     EpisodeInfo = duration,
                     TotalEpisodes = totalEpisodes,
                     EpisodeUrls = epUrlsList,
-                    ViewsCount = viewsCount > 0 ? viewsCount : 1000,
-                    ViewsText = viewsText,
+                    ViewsCount = viewsCount,
+                    ViewsText = viewsCount >= 1000000 ? $"{viewsCount / 1000000.0:0.##}M" : viewsCount.ToString("N0", new System.Globalization.CultureInfo("vi-VN")),
                     CreatedAt = item.CreatedUtc ?? DateTime.UtcNow
                 });
             }
@@ -639,6 +647,48 @@ public class OrchardCoreMovieService : IMovieService
     {
         var movies = await GetOrchardMoviesInternalAsync();
         return movies.Where(m => m.IsSeries).Take(pageSize).ToList();
+    }
+
+    public async Task<List<Movie>> GetRankedMoviesAsync(string criteria = "views", string period = "all", string? genreId = null, int count = 50)
+    {
+        var movies = await GetOrchardMoviesInternalAsync();
+        IEnumerable<Movie> query = movies;
+
+        if (!string.IsNullOrWhiteSpace(genreId) && genreId != "all")
+        {
+            string normalizedGenreId = RemoveDiacritics(genreId.Trim().ToLowerInvariant());
+            query = query.Where(m => m.GenreIds.Any(gid =>
+                RemoveDiacritics(gid.ToLowerInvariant()) == normalizedGenreId));
+        }
+
+        if (string.Equals(criteria, "rating", StringComparison.OrdinalIgnoreCase))
+        {
+            // Sort by rating desc, then by views count desc
+            query = query.OrderByDescending(m => m.Rating)
+                         .ThenByDescending(m => m.ViewsCount);
+        }
+        else
+        {
+            // Views criterion with logical period ranking
+            query = (period?.ToLowerInvariant()) switch
+            {
+                "today" => query.OrderByDescending(m => (m.ViewsCount * 0.05) + (m.ReleaseYear >= 2026 ? 100000 : 0) + (m.Rating * 5000)),
+                "week"  => query.OrderByDescending(m => (m.ViewsCount * 0.25) + (m.ReleaseYear >= 2026 ? 250000 : 0) + (m.Rating * 15000)),
+                "month" => query.OrderByDescending(m => (m.ViewsCount * 0.65) + (m.ReleaseYear >= 2026 ? 500000 : 0) + (m.Rating * 30000)),
+                _       => query.OrderByDescending(m => m.ViewsCount).ThenByDescending(m => m.Rating)
+            };
+        }
+
+        return query.Take(count).ToList();
+    }
+
+    public Task IncrementViewsAsync(string movieId)
+    {
+        if (!string.IsNullOrWhiteSpace(movieId))
+        {
+            _trackedViews.AddOrUpdate(movieId, 1, (k, current) => current + 1);
+        }
+        return Task.CompletedTask;
     }
 
     public async Task<List<Movie>> GetRelatedMoviesAsync(string movieId, int count = 6)

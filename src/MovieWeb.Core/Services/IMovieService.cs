@@ -34,6 +34,11 @@ public interface IMovieService
     Task<List<Movie>> GetCinemaMoviesAsync(int pageSize = 50);
     /// <summary>Lấy danh sách phim bộ (IsSeries / IsPartMovie = true)</summary>
     Task<List<Movie>> GetSeriesMoviesAsync(int pageSize = 50);
+    /// <summary>Lấy danh sách phim xếp hạng theo tiêu chí (views/rating) và thời gian</summary>
+    Task<List<Movie>> GetRankedMoviesAsync(string criteria = "views", string period = "all", string? genreId = null, int count = 50);
+
+    /// <summary>Tăng số lượt xem cho phim khi người dùng truy cập/xem phim</summary>
+    Task IncrementViewsAsync(string movieId);
 
     // Dynamic Data Management (CRUD)
     Task AddMovieAsync(Movie movie);

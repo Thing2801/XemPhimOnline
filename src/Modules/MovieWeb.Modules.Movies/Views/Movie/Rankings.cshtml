@@ -1,0 +1,856 @@
+@model MovieWeb.Modules.Movies.Models.RankingsViewModel
+@{
+    ViewData["Title"] = "Bảng Xếp Hạng Phim - MovieOnline";
+    ViewData["ActivePage"] = "Rankings";
+}
+
+<style>
+    /* Leaderboard Design Tokens & Styling */
+    .rankings-hero {
+        position: relative;
+        background: linear-gradient(135deg, rgba(225, 29, 72, 0.15) 0%, rgba(15, 23, 42, 0.8) 50%, rgba(16, 185, 129, 0.1) 100%),
+                    radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.15), transparent 70%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 3.5rem 1rem 2.5rem;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .rankings-hero-bg-glow {
+        position: absolute;
+        top: -50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 250px;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, rgba(225, 29, 72, 0.15) 50%, transparent 80%);
+        filter: blur(50px);
+        pointer-events: none;
+    }
+
+    .rankings-title-gradient {
+        background: linear-gradient(135deg, #fff 0%, #f5c518 50%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    /* Filter Toolbar */
+    .rankings-filter-bar {
+        background: rgba(30, 41, 59, 0.65);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 0.6rem 1.1rem;
+        margin-top: 1rem;
+        margin-bottom: 2.2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        z-index: 10;
+        position: relative;
+    }
+
+    .tab-btn-custom {
+        background: transparent;
+        border: 1px solid transparent;
+        color: #94a3b8;
+        padding: 0.45rem 1.1rem;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        cursor: pointer;
+    }
+
+    .tab-btn-custom:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .tab-btn-custom.active[data-type="views"] {
+        background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);
+    }
+
+    .tab-btn-custom.active[data-type="rating"] {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .period-btn-custom {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #94a3b8;
+        padding: 0.3rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .period-btn-custom:hover, .period-btn-custom.active {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.15);
+        border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .tab-btn-custom {
+        background: transparent;
+        border: 1px solid transparent;
+        color: #94a3b8;
+        padding: 0.55rem 1.25rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.92rem;
+        transition: all 0.25s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .tab-btn-custom:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn-custom.active[data-type="views"] {
+        background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(225, 29, 72, 0.4);
+    }
+
+    .tab-btn-custom.active[data-type="rating"] {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .period-btn-custom {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #94a3b8;
+        padding: 0.35rem 0.85rem;
+        border-radius: 8px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .period-btn-custom:hover, .period-btn-custom.active {
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.15);
+        border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    /* Podium Layout */
+    .podium-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 1.25rem;
+        margin-bottom: 3.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .podium-card {
+        position: relative;
+        background: rgba(30, 41, 59, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .podium-card:hover {
+        transform: translateY(-8px);
+    }
+
+    /* Rank #1 Gold */
+    .podium-rank-1 {
+        order: 2;
+        border: 2px solid rgba(245, 158, 11, 0.7);
+        background: linear-gradient(180deg, rgba(245, 158, 11, 0.18) 0%, rgba(30, 41, 59, 0.85) 60%);
+        box-shadow: 0 12px 35px rgba(245, 158, 11, 0.25);
+        z-index: 3;
+    }
+
+    /* Rank #2 Silver */
+    .podium-rank-2 {
+        order: 1;
+        border: 2px solid rgba(203, 213, 225, 0.5);
+        background: linear-gradient(180deg, rgba(203, 213, 225, 0.12) 0%, rgba(30, 41, 59, 0.75) 60%);
+        box-shadow: 0 8px 25px rgba(203, 213, 225, 0.15);
+        z-index: 2;
+    }
+
+    /* Rank #3 Bronze */
+    .podium-rank-3 {
+        order: 3;
+        border: 2px solid rgba(217, 119, 6, 0.5);
+        background: linear-gradient(180deg, rgba(217, 119, 6, 0.12) 0%, rgba(30, 41, 59, 0.75) 60%);
+        box-shadow: 0 8px 25px rgba(217, 119, 6, 0.15);
+        z-index: 1;
+    }
+
+    .crown-icon {
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+        filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.5));
+        animation: pulseCrown 2s infinite alternate ease-in-out;
+    }
+
+    @@keyframes pulseCrown {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.1); }
+    }
+
+    .podium-poster-wrapper {
+        position: relative;
+        width: 100%;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        aspect-ratio: 2/3;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .podium-poster-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .podium-card:hover .podium-poster-img {
+        transform: scale(1.06);
+    }
+
+    .badge-rank-pill {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-weight: 900;
+        font-size: 0.85rem;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        z-index: 5;
+    }
+
+    .badge-rank-1 { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+    .badge-rank-2 { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; }
+    .badge-rank-3 { background: linear-gradient(135deg, #b45309, #78350f); color: #fff; }
+
+    .podium-title {
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #fff;
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .podium-metric {
+        font-weight: 800;
+        font-size: 1.05rem;
+        margin-bottom: 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .podium-metric-views { color: #f43f5e; }
+    .podium-metric-rating { color: #fbbf24; }
+
+    /* Ranking Table List (Top 4-50) */
+    .ranking-table-card {
+        background: rgba(30, 41, 59, 0.5);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .ranking-row {
+        display: grid;
+        grid-template-columns: 52px 1fr 140px 110px 100px;
+        align-items: center;
+        padding: 0.55rem 1.1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        transition: background 0.2s ease;
+    }
+
+    .ranking-row:last-child {
+        border-bottom: none;
+    }
+
+    .ranking-row:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .rank-number-box {
+        font-weight: 800;
+        font-size: 0.92rem;
+        color: #cbd5e1;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .movie-thumb-mini {
+        width: 40px;
+        height: 56px;
+        border-radius: 8px;
+        object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s ease;
+    }
+
+    .ranking-row:hover .movie-thumb-mini {
+        transform: scale(1.05);
+    }
+
+    .metric-badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.28rem 0.7rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.84rem;
+    }
+
+    .metric-badge-views {
+        background: rgba(225, 29, 72, 0.12);
+        color: #fb7185;
+        border: 1px solid rgba(225, 29, 72, 0.25);
+    }
+
+    .metric-badge-rating {
+        background: rgba(245, 158, 11, 0.12);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    /* Skeleton Loading UI */
+    .skeleton-loader {
+        background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 37%, rgba(255,255,255,0.03) 63%);
+        background-size: 400% 100%;
+        animation: skeletonShimmer 1.4s ease infinite;
+    }
+
+    @@keyframes skeletonShimmer {
+        0% { background-position: 100% 50%; }
+        100% { background-position: 0 50%; }
+    }
+
+    /* Responsive Adjustments */
+    @@media (max-width: 991px) {
+        .podium-container {
+            flex-direction: column;
+            align-items: center;
+        }
+        .podium-card {
+            max-width: 100%;
+            width: 100%;
+        }
+        .podium-rank-1, .podium-rank-2, .podium-rank-3 {
+            order: unset;
+        }
+        .ranking-row {
+            grid-template-columns: 50px 1fr 100px 90px;
+        }
+        .ranking-row .col-type {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .ranking-row {
+            grid-template-columns: 40px 1fr 80px;
+        }
+        .ranking-row .col-action {
+            display: none;
+        }
+    }
+</style>
+
+<div class="container mb-5">
+    <!-- Filter Toolbar -->
+    <div class="rankings-filter-bar d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <!-- Criteria Tabs -->
+        <div class="d-flex align-items-center gap-2">
+            <button class="tab-btn-custom @(Model.ActiveCriteria == "views" ? "active" : "")" data-type="views" onclick="switchCriteria('views')">
+                <i class="fas fa-fire text-danger"></i> Top Lượt Xem
+            </button>
+            <button class="tab-btn-custom @(Model.ActiveCriteria == "rating" ? "active" : "")" data-type="rating" onclick="switchCriteria('rating')">
+                <i class="fas fa-star text-warning"></i> Top Đánh Giá
+            </button>
+        </div>
+
+        <!-- Period & Genre Controls -->
+        <div class="d-flex flex-wrap align-items-center gap-3 ms-auto">
+            <!-- Time Period Filters (Visible when Criteria is 'views') -->
+            <div id="periodFilterGroup" class="d-flex align-items-center gap-1.5" style="@(Model.ActiveCriteria == "views" ? "" : "display: none !important;")">
+                <button class="period-btn-custom @(Model.ActivePeriod == "today" ? "active" : "")" onclick="switchPeriod('today')">Hôm nay</button>
+                <button class="period-btn-custom @(Model.ActivePeriod == "week" ? "active" : "")" onclick="switchPeriod('week')">Tuần này</button>
+                <button class="period-btn-custom @(Model.ActivePeriod == "month" ? "active" : "")" onclick="switchPeriod('month')">Tháng này</button>
+                <button class="period-btn-custom @(Model.ActivePeriod == "all" ? "active" : "")" onclick="switchPeriod('all')">Tất cả</button>
+            </div>
+
+            <!-- Genre Dropdown -->
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-filter text-muted small"></i>
+                <select id="genreSelect" class="form-select form-select-sm text-white border-secondary"
+                        style="background: rgba(15, 23, 42, 0.8); border-radius: 10px; width: 170px; font-size: 0.85rem;"
+                        onchange="onGenreChange(this.value)">
+                    <option value="all" selected="@(Model.SelectedGenre == "all")">Tất cả thể loại</option>
+                    @foreach (var g in Model.Genres)
+                    {
+                        <option value="@g.Id" selected="@(Model.SelectedGenre == g.Id)">@g.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area (Top 3 Podium + Ranking List Table) -->
+    <div id="rankingsContentArea">
+        @if (Model.RankedMovies != null && Model.RankedMovies.Any())
+        {
+            <!-- TOP 3 PODIUM SECTION -->
+            <div class="podium-container">
+                <!-- RANK #2 SILVER -->
+                @if (Model.Top2Movie != null)
+                {
+                    var m2 = Model.Top2Movie;
+                    <div class="podium-card podium-rank-2">
+                        <div class="badge-rank-pill badge-rank-2">
+                            <span>🥈 #2</span>
+                        </div>
+                        <div class="podium-poster-wrapper">
+                            <img src="@m2.PosterUrl" class="podium-poster-img" alt="@m2.Title" />
+                        </div>
+                        <div class="podium-title" title="@m2.Title">@m2.Title</div>
+                        <div class="text-muted small mb-1" style="font-size:0.78rem;">@string.Join(", ", m2.GenreNames.Take(2)) (@m2.ReleaseYear)</div>
+                        <div class="podium-metric @(Model.ActiveCriteria == "rating" ? "podium-metric-rating" : "podium-metric-views")">
+                            @if (Model.ActiveCriteria == "rating")
+                            {
+                                <i class="fas fa-star"></i> <span>@m2.Rating.ToString("0.0") / 5.0</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-fire"></i> <span>@(m2.ViewsCount >= 1000000 ? $"{m2.ViewsCount / 1000000.0:0.##}M" : m2.ViewsCount.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))) lượt xem</span>
+                            }
+                        </div>
+                        <a href="/phim/@m2.Slug" class="btn btn-sm btn-outline-light w-100 rounded-pill font-weight-bold" style="font-size:0.82rem; border-color: rgba(255,255,255,0.2);">
+                            <i class="fas fa-play me-1 text-danger"></i> Xem Phim
+                        </a>
+                    </div>
+                }
+
+                <!-- RANK #1 GOLD (CENTER) -->
+                @if (Model.Top1Movie != null)
+                {
+                    var m1 = Model.Top1Movie;
+                    <div class="podium-card podium-rank-1">
+                        <div class="crown-icon">👑</div>
+                        <div class="badge-rank-pill badge-rank-1">
+                            <span>🥇 #1 TOP CHAMPION</span>
+                        </div>
+                        <div class="podium-poster-wrapper" style="aspect-ratio: 2/3;">
+                            <img src="@m1.PosterUrl" class="podium-poster-img" alt="@m1.Title" />
+                        </div>
+                        <div class="podium-title" style="font-size: 1.25rem;" title="@m1.Title">@m1.Title</div>
+                        <div class="text-warning small mb-1 fw-bold" style="font-size:0.82rem;">@string.Join(", ", m1.GenreNames.Take(2)) (@m1.ReleaseYear)</div>
+                        <div class="podium-metric @(Model.ActiveCriteria == "rating" ? "podium-metric-rating" : "podium-metric-views")" style="font-size:1.15rem;">
+                            @if (Model.ActiveCriteria == "rating")
+                            {
+                                <i class="fas fa-star"></i> <span>@m1.Rating.ToString("0.0") / 5.0</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-fire"></i> <span>@(m1.ViewsCount >= 1000000 ? $"{m1.ViewsCount / 1000000.0:0.##}M" : m1.ViewsCount.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))) lượt xem</span>
+                            }
+                        </div>
+                        <a href="/phim/@m1.Slug" class="btn btn-danger w-100 rounded-pill font-weight-bold shadow-lg" style="font-size:0.88rem; background: linear-gradient(135deg, #e50914, #b20710);">
+                            <i class="fas fa-play me-1.5"></i> Xem Ngay Bản 4K
+                        </a>
+                    </div>
+                }
+
+                <!-- RANK #3 BRONZE -->
+                @if (Model.Top3Movie != null)
+                {
+                    var m3 = Model.Top3Movie;
+                    <div class="podium-card podium-rank-3">
+                        <div class="badge-rank-pill badge-rank-3">
+                            <span>🥉 #3</span>
+                        </div>
+                        <div class="podium-poster-wrapper">
+                            <img src="@m3.PosterUrl" class="podium-poster-img" alt="@m3.Title" />
+                        </div>
+                        <div class="podium-title" title="@m3.Title">@m3.Title</div>
+                        <div class="text-muted small mb-1" style="font-size:0.78rem;">@string.Join(", ", m3.GenreNames.Take(2)) (@m3.ReleaseYear)</div>
+                        <div class="podium-metric @(Model.ActiveCriteria == "rating" ? "podium-metric-rating" : "podium-metric-views")">
+                            @if (Model.ActiveCriteria == "rating")
+                            {
+                                <i class="fas fa-star"></i> <span>@m3.Rating.ToString("0.0") / 5.0</span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-fire"></i> <span>@(m3.ViewsCount >= 1000000 ? $"{m3.ViewsCount / 1000000.0:0.##}M" : m3.ViewsCount.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))) lượt xem</span>
+                            }
+                        </div>
+                        <a href="/phim/@m3.Slug" class="btn btn-sm btn-outline-light w-100 rounded-pill font-weight-bold" style="font-size:0.82rem; border-color: rgba(255,255,255,0.2);">
+                            <i class="fas fa-play me-1 text-danger"></i> Xem Phim
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- TOP 4 - 50 RANKING LIST TABLE -->
+            @if (Model.ListMovies.Any())
+            {
+                <div class="ranking-table-card">
+                    <div class="px-3 py-2.5 bg-dark-subtle border-bottom d-flex align-items-center justify-content-between" style="border-color: rgba(255,255,255,0.06) !important;">
+                        <h6 class="mb-0 text-white font-weight-bold" style="font-size: 0.95rem;">
+                            <i class="fas fa-list-ol text-warning me-2"></i> Thứ Hạng (#4 đến #@Model.RankedMovies.Count)
+                        </h6>
+                        <span class="badge bg-secondary opacity-75" style="font-size: 0.72rem;">@Model.ListMovies.Count phim</span>
+                    </div>
+
+                    <div class="ranking-table-body">
+                        @for (int i = 0; i < Model.ListMovies.Count; i++)
+                        {
+                            var m = Model.ListMovies[i];
+                            int rankNum = i + 4;
+                            <div class="ranking-row">
+                                <!-- Col 1: Rank Number -->
+                                <div>
+                                    <div class="rank-number-box">#@rankNum</div>
+                                </div>
+
+                                <!-- Col 2: Poster & Title -->
+                                <div class="d-flex align-items-center gap-3">
+                                    <a href="/phim/@m.Slug">
+                                        <img src="@m.PosterUrl" class="movie-thumb-mini" alt="@m.Title" />
+                                    </a>
+                                    <div>
+                                        <a href="/phim/@m.Slug" class="text-white text-decoration-none font-weight-bold d-block" style="font-size: 0.9rem; line-height: 1.3;">
+                                            @m.Title
+                                        </a>
+                                        <div class="text-muted small mt-0.5" style="font-size: 0.75rem;">
+                                            <span class="text-info me-2">@string.Join(", ", m.GenreNames.Take(2))</span>
+                                            <span>(@m.ReleaseYear)</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Col 3: Metric -->
+                                <div class="col-metric">
+                                    @if (Model.ActiveCriteria == "rating")
+                                    {
+                                        <div class="metric-badge-pill metric-badge-rating">
+                                            <i class="fas fa-star"></i> @m.Rating.ToString("0.0")
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="metric-badge-pill metric-badge-views">
+                                            <i class="fas fa-fire"></i> @(m.ViewsCount >= 1000000 ? $"{m.ViewsCount / 1000000.0:0.##}M" : m.ViewsCount.ToString("N0", new System.Globalization.CultureInfo("vi-VN")))
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Col 4: Type Badge -->
+                                <div class="col-type">
+                                    @if (m.IsCinema)
+                                    {
+                                        <span class="badge" style="background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); font-size: 0.72rem;">
+                                            <i class="fas fa-ticket-alt me-1"></i> Chiếu Rạp
+                                        </span>
+                                    }
+                                    else if (m.IsSeries)
+                                    {
+                                        <span class="badge" style="background: rgba(14,165,233,0.18); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); font-size: 0.72rem;">
+                                            <i class="fas fa-tv me-1"></i> Phim Bộ
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge" style="background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.3); font-size: 0.72rem;">
+                                            <i class="fas fa-film me-1"></i> Phim Lẻ
+                                        </span>
+                                    }
+                                </div>
+
+                                <!-- Col 5: Action Button -->
+                                <div class="col-action text-end">
+                                    <a href="/phim/@m.Slug" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1" style="font-size: 0.78rem; border-color: rgba(255,255,255,0.2);">
+                                        <i class="fas fa-play me-1 text-danger small"></i> Xem
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <!-- EMPTY STATE -->
+            <div class="text-center py-5 px-3 rounded-4" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="mb-3" style="font-size: 3.5rem; color: #64748b;">🎬</div>
+                <h4 class="text-white fw-bold">Không tìm thấy dữ liệu xếp hạng</h4>
+                <p class="text-muted" style="max-width: 420px; margin: 0 auto 1.5rem; font-size: 0.9rem;">
+                    Hiện chưa có bộ phim nào khớp với bộ lọc thể loại hoặc thời gian bạn đã chọn.
+                </p>
+                <button class="btn btn-primary rounded-pill px-4" onclick="resetFilters()">
+                    <i class="fas fa-sync-alt me-1.5"></i> Đặt Lại Bộ Lọc
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let currentCriteria = '@Model.ActiveCriteria';
+    let currentPeriod = '@Model.ActivePeriod';
+    let currentGenre = '@Model.SelectedGenre';
+
+    function switchCriteria(criteria) {
+        if (currentCriteria === criteria) return;
+        currentCriteria = criteria;
+
+        // Toggle Active Tab Buttons
+        document.querySelectorAll('.tab-btn-custom').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-type') === criteria);
+        });
+
+        // Toggle Time Period Filters visibility
+        const periodGroup = document.getElementById('periodFilterGroup');
+        if (periodGroup) {
+            periodGroup.style.display = criteria === 'views' ? 'flex' : 'none';
+        }
+
+        fetchRankingsData();
+    }
+
+    function switchPeriod(period) {
+        if (currentPeriod === period) return;
+        currentPeriod = period;
+
+        document.querySelectorAll('.period-btn-custom').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('onclick').includes(`'${period}'`));
+        });
+
+        fetchRankingsData();
+    }
+
+    function onGenreChange(genreId) {
+        currentGenre = genreId;
+        fetchRankingsData();
+    }
+
+    function resetFilters() {
+        currentCriteria = 'views';
+        currentPeriod = 'all';
+        currentGenre = 'all';
+
+        const genreSelect = document.getElementById('genreSelect');
+        if (genreSelect) genreSelect.value = 'all';
+
+        switchCriteria('views');
+    }
+
+    function fetchRankingsData() {
+        const area = document.getElementById('rankingsContentArea');
+        if (!area) return;
+
+        // Show Skeleton Loader State
+        area.innerHTML = `
+            <div class="podium-container">
+                <div class="podium-card skeleton-loader" style="height: 380px;"></div>
+                <div class="podium-card skeleton-loader" style="height: 440px;"></div>
+                <div class="podium-card skeleton-loader" style="height: 380px;"></div>
+            </div>
+            <div class="ranking-table-card skeleton-loader" style="height: 300px;"></div>
+        `;
+
+        const url = `/api/rankings/filter?type=${encodeURIComponent(currentCriteria)}&period=${encodeURIComponent(currentPeriod)}&genre=${encodeURIComponent(currentGenre)}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(res => {
+                if (res.success && res.data && res.data.length > 0) {
+                    renderRankings(res.data);
+                } else {
+                    renderEmptyState();
+                }
+            })
+            .catch(err => {
+                console.error('Error fetching rankings:', err);
+                renderEmptyState();
+            });
+    }
+
+    function renderRankings(items) {
+        const area = document.getElementById('rankingsContentArea');
+        if (!area) return;
+
+        const top1 = items.length > 0 ? items[0] : null;
+        const top2 = items.length > 1 ? items[1] : null;
+        const top3 = items.length > 2 ? items[2] : null;
+        const listItems = items.length > 3 ? items.slice(3) : [];
+
+        const isRating = currentCriteria === 'rating';
+
+        let html = '<div class="podium-container">';
+
+        // Top 2 Silver
+        if (top2) {
+            html += `
+                <div class="podium-card podium-rank-2">
+                    <div class="badge-rank-pill badge-rank-2"><span>🥈 #2</span></div>
+                    <div class="podium-poster-wrapper"><img src="${top2.posterUrl}" class="podium-poster-img" alt="${top2.title}" /></div>
+                    <div class="podium-title" title="${top2.title}">${top2.title}</div>
+                    <div class="text-muted small mb-1" style="font-size:0.78rem;">${top2.genres} (${top2.year})</div>
+                    <div class="podium-metric ${isRating ? 'podium-metric-rating' : 'podium-metric-views'}">
+                        ${isRating ? `<i class="fas fa-star"></i> <span>${top2.rating.toFixed(1)} / 5.0</span>` : `<i class="fas fa-fire"></i> <span>${top2.formattedViews} lượt xem</span>`}
+                    </div>
+                    <a href="/phim/${top2.slug}" class="btn btn-sm btn-outline-light w-100 rounded-pill font-weight-bold" style="font-size:0.82rem; border-color: rgba(255,255,255,0.2);"><i class="fas fa-play me-1 text-danger"></i> Xem Phim</a>
+                </div>
+            `;
+        }
+
+        // Top 1 Gold
+        if (top1) {
+            html += `
+                <div class="podium-card podium-rank-1">
+                    <div class="crown-icon">👑</div>
+                    <div class="badge-rank-pill badge-rank-1"><span>🥇 #1 TOP CHAMPION</span></div>
+                    <div class="podium-poster-wrapper" style="aspect-ratio: 2/3;"><img src="${top1.posterUrl}" class="podium-poster-img" alt="${top1.title}" /></div>
+                    <div class="podium-title" style="font-size: 1.25rem;" title="${top1.title}">${top1.title}</div>
+                    <div class="text-warning small mb-1 fw-bold" style="font-size:0.82rem;">${top1.genres} (${top1.year})</div>
+                    <div class="podium-metric ${isRating ? 'podium-metric-rating' : 'podium-metric-views'}" style="font-size:1.15rem;">
+                        ${isRating ? `<i class="fas fa-star"></i> <span>${top1.rating.toFixed(1)} / 5.0</span>` : `<i class="fas fa-fire"></i> <span>${top1.formattedViews} lượt xem</span>`}
+                    </div>
+                    <a href="/phim/${top1.slug}" class="btn btn-danger w-100 rounded-pill font-weight-bold shadow-lg" style="font-size:0.88rem; background: linear-gradient(135deg, #e50914, #b20710);"><i class="fas fa-play me-1.5"></i> Xem Ngay Bản 4K</a>
+                </div>
+            `;
+        }
+
+        // Top 3 Bronze
+        if (top3) {
+            html += `
+                <div class="podium-card podium-rank-3">
+                    <div class="badge-rank-pill badge-rank-3"><span>🥉 #3</span></div>
+                    <div class="podium-poster-wrapper"><img src="${top3.posterUrl}" class="podium-poster-img" alt="${top3.title}" /></div>
+                    <div class="podium-title" title="${top3.title}">${top3.title}</div>
+                    <div class="text-muted small mb-1" style="font-size:0.78rem;">${top3.genres} (${top3.year})</div>
+                    <div class="podium-metric ${isRating ? 'podium-metric-rating' : 'podium-metric-views'}">
+                        ${isRating ? `<i class="fas fa-star"></i> <span>${top3.rating.toFixed(1)} / 5.0</span>` : `<i class="fas fa-fire"></i> <span>${top3.formattedViews} lượt xem</span>`}
+                    </div>
+                    <a href="/phim/${top3.slug}" class="btn btn-sm btn-outline-light w-100 rounded-pill font-weight-bold" style="font-size:0.82rem; border-color: rgba(255,255,255,0.2);"><i class="fas fa-play me-1 text-danger"></i> Xem Phim</a>
+                </div>
+            `;
+        }
+
+        html += '</div>';
+
+        // Table List TOP 4-50
+        if (listItems.length > 0) {
+            html += `
+                <div class="ranking-table-card">
+                    <div class="px-3 py-2.5 bg-dark-subtle border-bottom d-flex align-items-center justify-content-between" style="border-color: rgba(255,255,255,0.06) !important;">
+                        <h6 class="mb-0 text-white font-weight-bold" style="font-size: 0.95rem;">
+                            <i class="fas fa-list-ol text-warning me-2"></i> Thứ Hạng (#4 đến #${items.length})
+                        </h6>
+                        <span class="badge bg-secondary opacity-75" style="font-size: 0.72rem;">${listItems.length} phim</span>
+                    </div>
+                    <div class="ranking-table-body">
+            `;
+
+            listItems.forEach(m => {
+                let typeBadge = m.isCinema 
+                    ? '<span class="badge" style="background: rgba(245,158,11,0.18); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); font-size: 0.72rem;"><i class="fas fa-ticket-alt me-1"></i> Chiếu Rạp</span>'
+                    : (m.isSeries ? '<span class="badge" style="background: rgba(14,165,233,0.18); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); font-size: 0.72rem;"><i class="fas fa-tv me-1"></i> Phim Bộ</span>' : '<span class="badge" style="background: rgba(16,185,129,0.18); color: #34d399; border: 1px solid rgba(16,185,129,0.3); font-size: 0.72rem;"><i class="fas fa-film me-1"></i> Phim Lẻ</span>');
+
+                let metricBadge = isRating
+                    ? `<div class="metric-badge-pill metric-badge-rating"><i class="fas fa-star"></i> ${m.rating.toFixed(1)}</div>`
+                    : `<div class="metric-badge-pill metric-badge-views"><i class="fas fa-fire"></i> ${m.formattedViews}</div>`;
+
+                html += `
+                    <div class="ranking-row">
+                        <div><div class="rank-number-box">#${m.rank}</div></div>
+                        <div class="d-flex align-items-center gap-3">
+                            <a href="/phim/${m.slug}"><img src="${m.posterUrl}" class="movie-thumb-mini" alt="${m.title}" /></a>
+                            <div>
+                                <a href="/phim/${m.slug}" class="text-white text-decoration-none font-weight-bold d-block" style="font-size: 0.9rem; line-height: 1.3;">${m.title}</a>
+                                <div class="text-muted small mt-0.5" style="font-size: 0.75rem;">
+                                    <span class="text-info me-2">${m.genres}</span>
+                                    <span>(${m.year})</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-metric">${metricBadge}</div>
+                        <div class="col-type">${typeBadge}</div>
+                        <div class="col-action text-end">
+                            <a href="/phim/${m.slug}" class="btn btn-sm btn-outline-light rounded-pill px-3 py-1" style="font-size: 0.78rem; border-color: rgba(255,255,255,0.2);"><i class="fas fa-play me-1 text-danger small"></i> Xem</a>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+        }
+
+        area.innerHTML = html;
+    }
+
+    function renderEmptyState() {
+        const area = document.getElementById('rankingsContentArea');
+        if (!area) return;
+        area.innerHTML = `
+            <div class="text-center py-5 px-3 rounded-4" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="mb-3" style="font-size: 3.5rem; color: #64748b;">🎬</div>
+                <h4 class="text-white fw-bold">Không tìm thấy dữ liệu xếp hạng</h4>
+                <p class="text-muted" style="max-width: 420px; margin: 0 auto 1.5rem; font-size: 0.9rem;">
+                    Hiện chưa có bộ phim nào khớp với bộ lọc thể loại hoặc thời gian bạn đã chọn.
+                </p>
+                <button class="btn btn-primary rounded-pill px-4" onclick="resetFilters()">
+                    <i class="fas fa-sync-alt me-1.5"></i> Đặt Lại Bộ Lọc
+                </button>
+            </div>
+        `;
+    }
+</script>
+}

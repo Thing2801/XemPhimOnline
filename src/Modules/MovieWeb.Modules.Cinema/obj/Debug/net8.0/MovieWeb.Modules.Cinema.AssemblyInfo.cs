@@ -11,16 +11,16 @@ using System;
 using System.Reflection;
 
 [assembly: OrchardCore.Modules.Manifest.ModuleMarkerAttribute("MovieWeb.Modules.Cinema", "Module")]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Cinema\\Views\\Cinema\\Index.cshtml|E:\\Work\\Project\\Project3\\" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Cinema\\Views\\Cinema\\Index.cshtml|e:\\Work\\Project\\Project3\\" +
     "MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\Views\\Cinema\\Index.cshtml"))]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Cinema\\Views\\_ViewImports.cshtml|E:\\Work\\Project\\Project3\\" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Cinema\\Views\\_ViewImports.cshtml|e:\\Work\\Project\\Project3\\" +
     "MovieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\Views\\_ViewImports.cshtml"))]
-[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Cinema\\Views\\_ViewStart.cshtml|E:\\Work\\Project\\Project3\\Mo" +
+[assembly: OrchardCore.Modules.Manifest.ModuleAssetAttribute(("Areas\\MovieWeb.Modules.Cinema\\Views\\_ViewStart.cshtml|e:\\Work\\Project\\Project3\\Mo" +
     "vieWeb\\src\\Modules\\MovieWeb.Modules.Cinema\\Views\\_ViewStart.cshtml"))]
 [assembly: System.Reflection.AssemblyCompanyAttribute("MovieWeb.Modules.Cinema")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8092d9942a302e713e6478e4c402ae2ab70925db")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b695f9525e82189917cd114f22a0686d26393421")]
 [assembly: System.Reflection.AssemblyProductAttribute("MovieWeb.Modules.Cinema")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MovieWeb.Modules.Cinema")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

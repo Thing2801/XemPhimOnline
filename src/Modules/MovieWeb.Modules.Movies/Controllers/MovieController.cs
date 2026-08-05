@@ -94,6 +94,8 @@ public class MovieController : Controller
             return NotFound();
         }
 
+        await _movieService.IncrementViewsAsync(movie.Id);
+
         var related = await _movieService.GetRelatedMoviesAsync(movie.Id, 6);
         ViewBag.RelatedMovies = related;
 
@@ -126,6 +128,78 @@ public class MovieController : Controller
         ViewBag.IsPurchased = isPurchased;
 
         return View(movie);
+    }
+
+    [HttpGet]
+    [Route("bang-xep-hang")]
+    [Route("rankings")]
+    public async Task<IActionResult> Rankings(
+        string type = "views",
+        string period = "all",
+        string? genre = null)
+    {
+        var rankedMovies = await _movieService.GetRankedMoviesAsync(
+            criteria: type,
+            period: period,
+            genreId: genre,
+            count: 50);
+
+        var genres = await _movieService.GetAllGenresAsync();
+        Genre? currentGenre = null;
+        if (!string.IsNullOrEmpty(genre) && genre != "all")
+        {
+            currentGenre = await _movieService.GetGenreByIdOrSlugAsync(genre);
+        }
+
+        var model = new RankingsViewModel
+        {
+            RankedMovies = rankedMovies,
+            Genres = genres,
+            ActiveCriteria = type ?? "views",
+            ActivePeriod = period ?? "all",
+            SelectedGenre = genre ?? "all",
+            SelectedGenreInfo = currentGenre
+        };
+
+        return View(model);
+    }
+
+    [HttpGet]
+    [Route("api/rankings/filter")]
+    public async Task<IActionResult> FilterRankings(
+        string type = "views",
+        string period = "all",
+        string? genre = null)
+    {
+        var rankedMovies = await _movieService.GetRankedMoviesAsync(
+            criteria: type,
+            period: period,
+            genreId: genre,
+            count: 50);
+
+        var data = rankedMovies.Select((m, index) => new
+        {
+            rank = index + 1,
+            id = m.Id,
+            title = m.Title,
+            originalTitle = m.OriginalTitle,
+            slug = m.Slug,
+            posterUrl = m.PosterUrl,
+            year = m.ReleaseYear,
+            rating = m.Rating,
+            viewsCount = m.ViewsCount,
+            formattedViews = m.ViewsCount >= 1000000 ? $"{m.ViewsCount / 1000000.0:0.##}M" : m.ViewsCount.ToString("N0", new System.Globalization.CultureInfo("vi-VN")),
+            genres = string.Join(", ", m.GenreNames),
+            isCinema = m.IsCinema,
+            isSeries = m.IsSeries,
+            price = m.Price,
+            formattedPrice = m.FormattedPrice,
+            requiresPurchase = m.RequiresPurchase,
+            quality = m.Quality,
+            languageMode = m.LanguageMode
+        });
+
+        return Json(new { success = true, count = data.Count(), data });
     }
 
     [HttpGet]

@@ -48,6 +48,11 @@
                         Phim Chiếu Rạp
                     </a>
                 </li>
+                <li>
+                    <a href="/bang-xep-hang" class="nav-btn-link @(ViewData["ActivePage"]?.ToString() == "Rankings" ? "active" : "")" id="navRankingsLink">
+                        Xếp hạng
+                    </a>
+                </li>
                 <li class="nav-item dropdown">
                     <a href="/the-loai" class="nav-btn-link @(ViewData["ActivePage"]?.ToString() == "Genres" ? "active" : "")" id="navGenresDropdown">
                         Thể loại <i class="fas fa-chevron-down" style="font-size:0.75rem; margin-left:2px"></i>

@@ -113,7 +113,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MovieWeb.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8092d9942a302e713e6478e4c402ae2ab70925db")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e4971481b71f4a136f04f5d265de8571f850ba2")]
 [assembly: System.Reflection.AssemblyProductAttribute("MovieWeb.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MovieWeb.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

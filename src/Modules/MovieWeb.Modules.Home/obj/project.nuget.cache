@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9bcA1pI78oM=",
+  "dgSpecHash": "1edYxdvApmA=",
   "success": true,
-  "projectFilePath": "E:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Home\\MovieWeb.Modules.Home.csproj",
+  "projectFilePath": "e:\\Work\\Project\\Project3\\MovieWeb\\src\\Modules\\MovieWeb.Modules.Home\\MovieWeb.Modules.Home.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Thinh\\.nuget\\packages\\azure.core\\1.40.0\\azure.core.1.40.0.nupkg.sha512",
     "C:\\Users\\Thinh\\.nuget\\packages\\azure.identity\\1.12.1\\azure.identity.1.12.1.nupkg.sha512",
