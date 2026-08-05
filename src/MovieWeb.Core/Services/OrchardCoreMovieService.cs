@@ -142,12 +142,16 @@ public class OrchardCoreMovieService : IMovieService
                 string detail = GetHtmlFieldText(movieData?.Detail) ?? GetFieldText(movieData?.Detail)
                              ?? GetHtmlFieldText(pickedMovieInfoData?.Detail) ?? GetFieldText(pickedMovieInfoData?.Detail) ?? "";
 
-                string trailer = GetFieldText(movieData?.Trailer) 
-                              ?? GetFieldText(pickedMovieInfoData?.Trailer) 
+                string trailer = GetFlexibleMediaOrText(pickedMovieInfoData, "Trailer", "TrailerMovie", "TrailerField", "LinkTrailer", "VideoTrailer", "Video")
+                              ?? GetFlexibleMediaOrText(pickedMovieInfoContent, "Trailer", "TrailerMovie", "TrailerField", "LinkTrailer", "VideoTrailer", "Video")
+                              ?? GetFlexibleMediaOrText(movieData, "Trailer", "TrailerMovie", "TrailerField", "LinkTrailer", "VideoTrailer", "Video")
+                              ?? GetFlexibleMediaOrText(item.Content, "Trailer", "TrailerMovie", "TrailerField", "LinkTrailer", "VideoTrailer", "Video")
                               ?? "https://www.youtube.com/embed/dQw4w9WgXcQ";
 
-                string watchUrl = GetFieldText(movieData?.Watch) 
-                               ?? GetFieldText(pickedMovieInfoData?.Watch) 
+                string watchUrl = GetFlexibleMediaOrText(pickedMovieInfoData, "Watch", "WatchMovie", "WatchField", "LinkWatch", "VideoWatch", "LinkPhim", "Phim", "WatchUrl")
+                               ?? GetFlexibleMediaOrText(pickedMovieInfoContent, "Watch", "WatchMovie", "WatchField", "LinkWatch", "VideoWatch", "LinkPhim", "Phim", "WatchUrl")
+                               ?? GetFlexibleMediaOrText(movieData, "Watch", "WatchMovie", "WatchField", "LinkWatch", "VideoWatch", "LinkPhim", "Phim", "WatchUrl")
+                               ?? GetFlexibleMediaOrText(item.Content, "Watch", "WatchMovie", "WatchField", "LinkWatch", "VideoWatch", "LinkPhim", "Phim", "WatchUrl")
                                ?? trailer;
 
                 string director = GetFlexibleFieldText(pickedMovieInfoData, "DaoDien", "Đạo diễn", "Director")
@@ -294,6 +298,31 @@ public class OrchardCoreMovieService : IMovieService
                     }
                 }
 
+                // Read TotalEpisodes field (NumericField/TextField: TotalEpisodes, SoTap, SoTapPhim)
+                string? totalEpisodesRaw = GetStringFieldValue(item.Content, "TotalEpisodes", "SoTap", "SoTapPhim", "EpisodesCount")
+                                        ?? (pickedMovieInfoContent != null ? GetStringFieldValue(pickedMovieInfoContent, "TotalEpisodes", "SoTap", "SoTapPhim", "EpisodesCount") : null);
+                int totalEpisodes = 0;
+                if (!string.IsNullOrWhiteSpace(totalEpisodesRaw))
+                {
+                    string epDigits = System.Text.RegularExpressions.Regex.Replace(totalEpisodesRaw, @"[^\d]", "");
+                    if (int.TryParse(epDigits, out int parsedEps))
+                    {
+                        totalEpisodes = parsedEps;
+                    }
+                }
+
+                // Read EpisodeUrls field (Multiline TextField: EpisodeUrls, LinkTap, LinkCacTap)
+                string? episodeUrlsRaw = GetStringFieldValue(item.Content, "EpisodeUrls", "LinkTap", "LinkCacTap", "EpisodesList")
+                                      ?? (pickedMovieInfoContent != null ? GetStringFieldValue(pickedMovieInfoContent, "EpisodeUrls", "LinkTap", "LinkCacTap", "EpisodesList") : null);
+                var epUrlsList = new List<string>();
+                if (!string.IsNullOrWhiteSpace(episodeUrlsRaw))
+                {
+                    epUrlsList = episodeUrlsRaw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                               .Select(s => s.Trim())
+                                               .Where(s => !string.IsNullOrWhiteSpace(s))
+                                               .ToList();
+                }
+
                 list.Add(new Movie
                 {
                     Id = item.ContentItemId,
@@ -325,6 +354,8 @@ public class OrchardCoreMovieService : IMovieService
                     Price = price,
                     IsSeries = isPartMovie,
                     EpisodeInfo = duration,
+                    TotalEpisodes = totalEpisodes,
+                    EpisodeUrls = epUrlsList,
                     ViewsCount = viewsCount > 0 ? viewsCount : 1000,
                     ViewsText = viewsText,
                     CreatedAt = item.CreatedUtc ?? DateTime.UtcNow
@@ -722,23 +753,127 @@ public class OrchardCoreMovieService : IMovieService
         try { return field?.Value?.ToString(); } catch { return null; }
     }
 
+    private static string? GetFlexibleMediaOrText(dynamic? data, params string[] fieldNames)
+    {
+        if (data == null) return null;
+        try
+        {
+            string jsonStr = "";
+            try { jsonStr = data.ToJsonString(); }
+            catch
+            {
+                try { jsonStr = System.Text.Json.JsonSerializer.Serialize((object)data); }
+                catch { return GetMediaOrText(data); }
+            }
+
+            if (string.IsNullOrWhiteSpace(jsonStr) || jsonStr.StartsWith("System.")) return GetMediaOrText(data);
+
+            using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
+            var root = doc.RootElement;
+
+            if (root.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                foreach (var targetName in fieldNames)
+                {
+                    string targetNorm = RemoveDiacritics(targetName).ToLowerInvariant().Replace(" ", "").Replace("-", "").Replace("_", "");
+
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        string propNorm = RemoveDiacritics(prop.Name).ToLowerInvariant().Replace(" ", "").Replace("-", "").Replace("_", "");
+
+                        bool isMatch = propNorm.Equals(targetNorm, StringComparison.OrdinalIgnoreCase) ||
+                                       propNorm.Equals(targetNorm + "field", StringComparison.OrdinalIgnoreCase) ||
+                                       targetNorm.Equals(propNorm + "field", StringComparison.OrdinalIgnoreCase) ||
+                                       propNorm.Contains(targetNorm, StringComparison.OrdinalIgnoreCase);
+
+                        if (isMatch)
+                        {
+                            string? mediaUrl = ExtractMediaUrlFromJsonElement(prop.Value);
+                            if (!string.IsNullOrWhiteSpace(mediaUrl)) return mediaUrl;
+                        }
+                    }
+                }
+
+                // If not found in properties matching target names, attempt direct extraction on root if root is a field
+                string? rootUrl = ExtractMediaUrlFromJsonElement(root);
+                if (!string.IsNullOrWhiteSpace(rootUrl)) return rootUrl;
+            }
+        }
+        catch { }
+        return GetMediaOrText(data);
+    }
+
+    private static string? ExtractMediaUrlFromJsonElement(System.Text.Json.JsonElement element)
+    {
+        if (element.ValueKind == System.Text.Json.JsonValueKind.Object)
+        {
+            // 1. MediaField arrays (MediaItemPaths, Paths, AttachedFileNames, MediaFiles)
+            string[] arrayPropNames = new[] { "MediaItemPaths", "Paths", "mediaItemPaths", "paths", "AttachedFileNames", "attachedFileNames", "MediaFiles", "mediaFiles" };
+            foreach (var propName in arrayPropNames)
+            {
+                if (element.TryGetProperty(propName, out var arrProp) && arrProp.ValueKind == System.Text.Json.JsonValueKind.Array)
+                {
+                    foreach (var elem in arrProp.EnumerateArray())
+                    {
+                        string p = elem.GetString() ?? "";
+                        if (!string.IsNullOrWhiteSpace(p))
+                        {
+                            p = CleanHtmlOrPath(p);
+                            return p.StartsWith("http") || p.StartsWith("/") ? p : $"/media/{p}";
+                        }
+                    }
+                }
+            }
+
+            // 2. Text / Html / Value / Url properties
+            string[] textPropNames = new[] { "Text", "text", "Html", "html", "Value", "value", "Url", "url" };
+            foreach (var propName in textPropNames)
+            {
+                if (element.TryGetProperty(propName, out var textProp) && textProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    string t = textProp.GetString() ?? "";
+                    if (!string.IsNullOrWhiteSpace(t) && t != "null")
+                    {
+                        t = CleanHtmlOrPath(t);
+                        return t.StartsWith("http") || t.StartsWith("/") ? t : $"/media/{t}";
+                    }
+                }
+            }
+        }
+        else if (element.ValueKind == System.Text.Json.JsonValueKind.String)
+        {
+            string s = element.GetString() ?? "";
+            if (!string.IsNullOrWhiteSpace(s) && s != "null")
+            {
+                s = CleanHtmlOrPath(s);
+                return s.StartsWith("http") || s.StartsWith("/") ? s : $"/media/{s}";
+            }
+        }
+        return null;
+    }
+
     private static string? GetMediaOrText(dynamic field)
     {
         try
         {
             if (field == null) return null;
 
-            // HtmlField support
-            if (field.Html != null)
+            string jsonStr = "";
+            try { jsonStr = field.ToJsonString(); }
+            catch
             {
-                string cleaned = CleanHtmlOrPath(field.Html.ToString());
-                if (!string.IsNullOrWhiteSpace(cleaned))
-                {
-                    return cleaned.StartsWith("http") || cleaned.StartsWith("/") ? cleaned : $"/media/{cleaned}";
-                }
+                try { jsonStr = System.Text.Json.JsonSerializer.Serialize((object)field); }
+                catch { }
             }
 
-            // MediaField support
+            if (!string.IsNullOrWhiteSpace(jsonStr) && !jsonStr.StartsWith("System."))
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(jsonStr);
+                string? parsedUrl = ExtractMediaUrlFromJsonElement(doc.RootElement);
+                if (!string.IsNullOrWhiteSpace(parsedUrl)) return parsedUrl;
+            }
+
+            // Dynamic fallback
             if (field.MediaItemPaths != null && field.MediaItemPaths.Count > 0)
             {
                 string p = field.MediaItemPaths[0].ToString();
@@ -751,8 +886,7 @@ public class OrchardCoreMovieService : IMovieService
                 return p.StartsWith("http") || p.StartsWith("/") ? p : $"/media/{p}";
             }
 
-            // TextField support
-            string? txt = field.Text?.ToString() ?? field.Value?.ToString();
+            string? txt = field.Text?.ToString() ?? field.Value?.ToString() ?? field.Html?.ToString();
             if (!string.IsNullOrWhiteSpace(txt))
             {
                 string cleanedText = CleanHtmlOrPath(txt);

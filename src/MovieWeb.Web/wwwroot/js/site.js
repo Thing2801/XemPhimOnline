@@ -297,15 +297,75 @@ function playTrailerModal(trailerUrl, movieTitle) {
     const iframe    = document.getElementById('trailerIframe');
     const titleElem = document.getElementById('trailerMovieTitle');
 
-    if (!modal || !iframe) return;
+    if (!modal) return;
 
-    let embedUrl = trailerUrl;
-    if (embedUrl.includes('watch?v=')) {
-        embedUrl = embedUrl.replace('watch?v=', 'embed/');
+    if (titleElem) titleElem.innerText = movieTitle || 'Trailer Phim';
+
+    let embedUrl = (trailerUrl || '').trim();
+
+    // Fallback if URL is missing or empty
+    if (!embedUrl) {
+        embedUrl = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
     }
 
-    iframe.src = embedUrl.includes('autoplay') ? embedUrl : `${embedUrl}?autoplay=1`;
-    if (titleElem) titleElem.innerText = movieTitle || 'Trailer Phim';
+    // Check if video is a direct file (.mp4, .webm, .ogg, .m4v, .mov or /media/ file path)
+    const isDirectVideo = embedUrl.match(/\.(mp4|webm|ogg|m4v|mov)(\?.*)?$/i) || 
+                          (embedUrl.includes('/media/') && !embedUrl.includes('youtube') && !embedUrl.includes('youtu.be') && !embedUrl.includes('vimeo'));
+
+    // Find or create the video-responsive container
+    let videoContainer = modal.querySelector('.video-responsive');
+    if (!videoContainer && iframe) {
+        videoContainer = iframe.parentElement;
+    }
+
+    // Remove any old dynamic video element
+    const oldVideo = modal.querySelector('#trailerVideoPlayer');
+    if (oldVideo) {
+        oldVideo.pause();
+        oldVideo.remove();
+    }
+
+    if (isDirectVideo) {
+        // Hide iframe
+        if (iframe) {
+            iframe.style.display = 'none';
+            iframe.src = '';
+        }
+
+        // Encode spaces and quotes safely for media element
+        let safeSrc = embedUrl;
+        try {
+            safeSrc = encodeURI(decodeURI(embedUrl)).replace(/'/g, "%27");
+        } catch(e) {}
+
+        // Create a fresh video element
+        const videoEl = document.createElement('video');
+        videoEl.id = 'trailerVideoPlayer';
+        videoEl.controls = true;
+        videoEl.autoplay = true;
+        videoEl.preload = 'auto';
+        videoEl.style.cssText = 'position:absolute; top:0; left:0; width:100%; height:100%; background:#000; object-fit:contain; display:block; z-index:2;';
+        videoEl.src = safeSrc;
+
+        if (videoContainer) {
+            videoContainer.appendChild(videoEl);
+        }
+
+        videoEl.play().catch(() => {});
+    } else {
+        // Show iframe, hide/remove video
+        if (iframe) {
+            iframe.style.display = 'block';
+            if (embedUrl.includes('watch?v=')) {
+                embedUrl = embedUrl.replace('watch?v=', 'embed/');
+            }
+            if (embedUrl.includes('youtube.com') || embedUrl.includes('youtu.be')) {
+                iframe.src = embedUrl.includes('autoplay') ? embedUrl : `${embedUrl}?autoplay=1`;
+            } else {
+                iframe.src = embedUrl;
+            }
+        }
+    }
 
     modal.classList.add('active');
 }
@@ -314,8 +374,18 @@ function closeTrailerModal() {
     const modal  = document.getElementById('videoTrailerModal');
     const iframe = document.getElementById('trailerIframe');
 
-    if (modal)  modal.classList.remove('active');
-    if (iframe) iframe.src = '';
+    if (modal) modal.classList.remove('active');
+    if (iframe) {
+        iframe.src = '';
+        iframe.style.display = 'block';
+    }
+
+    // Remove dynamic video element
+    const video = modal ? modal.querySelector('#trailerVideoPlayer') : null;
+    if (video) {
+        video.pause();
+        video.remove();
+    }
 }
 
 // Carousel Scroll Helpers

@@ -45,6 +45,36 @@ public class Movie
 
     public bool IsSeries { get; set; }
     public string EpisodeInfo { get; set; } = "Full Movie";
+    public int TotalEpisodes { get; set; } = 0;
+    public List<string> EpisodeUrls { get; set; } = new();
+
+    public string GetEpisodeUrl(int epNumber)
+    {
+        if (EpisodeUrls != null && epNumber > 0 && epNumber <= EpisodeUrls.Count && !string.IsNullOrWhiteSpace(EpisodeUrls[epNumber - 1]))
+        {
+            return EpisodeUrls[epNumber - 1];
+        }
+        return TrailerUrl;
+    }
+
+    public int GetTotalEpisodes()
+    {
+        if (TotalEpisodes > 0) return TotalEpisodes;
+        if (!IsSeries) return 1;
+
+        if (!string.IsNullOrWhiteSpace(EpisodeInfo))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(EpisodeInfo, @"(\d+)(?:\s*\/\s*(\d+))?");
+            if (match.Success)
+            {
+                if (match.Groups[2].Success && int.TryParse(match.Groups[2].Value, out int count2) && count2 > 0)
+                    return count2;
+                if (int.TryParse(match.Groups[1].Value, out int count1) && count1 > 0)
+                    return count1;
+            }
+        }
+        return 24;
+    }
     
     public int ViewsCount { get; set; }
     public string ViewsText { get; set; } = string.Empty;

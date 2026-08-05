@@ -100,7 +100,7 @@
                                 </div>
                             }
                             <div class="cinema-poster-overlay">
-                                <button class="btn-play-trigger" onclick="playTrailerModal('@movie.TrailerUrl', '@movie.Title')" title="Xem Trailer">
+                                <button class="btn-play-trigger" onclick="playTrailerModal('@movie.TrailerUrl.Replace("'", "\\'")', '@movie.Title.Replace("'", "\\'")')" title="Xem Trailer">
                                     <i class="fas fa-play"></i>
                                 </button>
                                 <a href="/phim/@movie.Id" class="btn-detail-trigger">Xem Chi Tiết</a>

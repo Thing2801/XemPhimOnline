@@ -169,6 +169,7 @@ public class MovieController : Controller
         {
             id = m.Id,
             title = m.Title,
+            trailerUrl = m.TrailerUrl,
             isCinema = m.IsCinema,
             isNowShowing = m.IsNowShowing,
             isComingSoon = m.IsComingSoon,

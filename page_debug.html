@@ -1,116 +1,147 @@
-@model MovieWeb.Core.Models.Movie
-@{
-    ViewData["Title"] = $"{Model.Title} ({Model.ReleaseYear}) - MovieOnline";
-    ViewData["ActivePage"] = "Movies";
-    var relatedMovies = ViewBag.RelatedMovies as List<MovieWeb.Core.Models.Movie> ?? new List<MovieWeb.Core.Models.Movie>();
-}
 
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Avengers: H&#x1ED3;i k&#x1EBF;t (2019) - MovieOnline - MovieOnline</title>
+    <meta name="description" content="Xem phim trực tuyến chất lượng cao 4K, Vietsub, Thuyết minh miễn phí với kho phim đa dạng Thể loại: Tình cảm, Ngôn tình, Kinh dị, Trinh thám, Hành động, Siêu anh hùng, Phim Chiếu Rạp." />
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="/css/site.css?v=4" />
+</head>
+<body style="background-color: #181818; color: #ffffff;">
+
+    <!-- Header & Responsive Navbar (Black Header Bar #000000) -->
+    <header class="site-header" id="siteHeader" style="background-color: #000000; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 1000; padding: 10px 20px;">
+        <div class="nav-container" style="display: flex; align-items: center; justify-content: space-between; max-width: 1400px; margin: 0 auto; gap: 15px; width: 100%;">
+            <!-- Brand Logo -->
+            <a href="/" class="brand-logo" id="headerLogo" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+                <img src="/image/Logo/logo.png" alt="MovieOnline Logo" style="height: 45px; width: auto; object-fit: contain;" />
+            </a>
+
+            <!-- Navigation Buttons (Trang chủ, Phim, Phim Chiếu Rạp, Thể loại dropdown) -->
+            <ul class="nav-menu" id="mainNavMenu">
+                <li>
+                    <a href="/" class="nav-btn-link " id="navHomeLink">
+                        Trang chủ
+                    </a>
+                </li>
+                <li>
+                    <a href="/phim" class="nav-btn-link active" id="navMoviesLink">
+                        Phim
+                    </a>
+                </li>
+                <li>
+                    <a href="/phim-bo" class="nav-btn-link " id="navSeriesLink">
+                        Phim Bộ
+                    </a>
+                </li>
+                <li>
+                    <a href="/phim-chieu-rap" class="nav-btn-link " id="navCinemaLink">
+                        Phim Chiếu Rạp
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="/the-loai" class="nav-btn-link " id="navGenresDropdown">
+                        Thể loại <i class="fas fa-chevron-down" style="font-size:0.75rem; margin-left:2px"></i>
+                    </a>
+                    <div class="dropdown-menu-custom">
+                        <div class="dropdown-header-title">Danh sách Thể loại</div>
+                            <a href="/phim?genre=phim-hoat-hinh" class="dropdown-genre-item">
+                                <i class="fas fa-magic" style="width:18px"></i>
+                                <span>Phim ho&#x1EA1;t h&#xEC;nh</span>
+                            </a>
+                            <a href="/phim?genre=hanh-dong" class="dropdown-genre-item">
+                                <i class="fas fa-fire" style="width:18px"></i>
+                                <span>H&#xE0;nh &#x111;&#x1ED9;ng</span>
+                            </a>
+                            <a href="/phim?genre=sieu-anh-hung" class="dropdown-genre-item">
+                                <i class="fas fa-mask" style="width:18px"></i>
+                                <span>Si&#xEA;u anh h&#xF9;ng</span>
+                            </a>
+                            <a href="/phim?genre=phim-truyen-hinh" class="dropdown-genre-item">
+                                <i class="fas fa-film" style="width:18px"></i>
+                                <span>Phim truy&#x1EC1;n h&#xEC;nh</span>
+                            </a>
+                            <a href="/phim?genre=kinh-di" class="dropdown-genre-item">
+                                <i class="fas fa-ghost" style="width:18px"></i>
+                                <span>Kinh d&#x1ECB;</span>
+                            </a>
+                        <a href="/the-loai" class="dropdown-genre-item" style="grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,0.08); margin-top:0.3rem; padding-top:0.5rem; color:var(--primary); font-weight:700;">
+                            <i class="fas fa-arrow-right" style="width:18px"></i>
+                            <span>Xem tất cả thể loại</span>
+                        </a>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- Header Right Search Bar & User Auth -->
+            <div class="header-actions" style="display: flex !important; align-items: center !important; gap: 15px !important; margin-left: auto;">
+                <div class="search-box-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="headerSearchInput" placeholder="Tìm tên phim, diễn viên..." autocomplete="off" />
+                    <div class="search-results-popup" id="headerSearchPopup"></div>
+                </div>
+
+                    <div class="auth-btn-group" style="display: flex !important; align-items: center !important; visibility: visible !important;">
+                        <a href="/Account/Login" class="btn-nav-login" id="headerLoginBtn" style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%) !important; border: none !important; color: #ffffff !important; padding: 7px 20px !important; border-radius: 20px !important; font-size: 0.86rem !important; font-weight: 700 !important; text-decoration: none !important; display: inline-flex !important; align-items: center !important; gap: 6px !important; white-space: nowrap !important; box-shadow: 0 4px 14px rgba(229, 9, 20, 0.45) !important;">
+                            Đăng nhập
+                        </a>
+                    </div>
+
+                <button class="btn-mobile-toggle" id="mobileNavToggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Body (Layout #181818) -->
+    <main role="main">
+        
 <!-- Movie Banner Detail Header -->
 <section class="hero-slider-container" style="min-height: 55vh;">
-    <img src="@Model.BannerUrl" class="hero-bg" alt="@Model.Title" />
+    <img src="/image/Background/avengers2.jpg" class="hero-bg" alt="Avengers: H&#x1ED3;i k&#x1EBF;t" />
     <div class="hero-overlay"></div>
 
     <div class="hero-content" style="padding-top: 5rem;">
         <div class="hero-text-side">
             <div class="hero-badges">
-                @{
-                    double headerRating = ViewBag.AverageRating != null && (double)ViewBag.AverageRating > 0 
-                        ? (double)ViewBag.AverageRating 
-                        : Model.Rating;
-                    if (headerRating > 5.0)
-                    {
-                        while (headerRating > 5.0) { headerRating /= 2.0; }
-                        headerRating = Math.Clamp(Math.Round(headerRating, 1), 1.0, 5.0);
-                    }
-                }
-                @if (Model.IsComingSoon)
-                {
-                    <span class="badge-pill badge-gold"><i class="fas fa-calendar-alt me-1"></i> Sắp khởi chiếu</span>
-                }
-                else if (headerRating > 0)
-                {
-                    <span class="badge-pill badge-gold"><i class="fas fa-star"></i> @headerRating.ToString("0.0")</span>
-                }
-                else
-                {
-                    <span class="badge-pill badge-glass text-muted"><i class="far fa-star me-1"></i> Chưa có đánh giá</span>
-                }
-                <span class="badge-pill badge-primary">@Model.Quality</span>
-                <span class="badge-pill badge-glass">@Model.AgeRating</span>
-                <span class="badge-pill badge-glass">@Model.Country</span>
-                <span class="badge-pill badge-glass">@Model.Duration</span>
-                @if (Model.Price > 0)
-                {
-                    <span class="badge-pill badge-warning"><i class="fas fa-ticket-alt me-1"></i> Vé: @Model.FormattedPrice</span>
-                }
-                @if (Model.IsComingSoon && !string.IsNullOrWhiteSpace(Model.ComingShowDate))
-                {
-                    <span class="badge-pill badge-warning"><i class="fas fa-calendar-check me-1"></i> Khởi chiếu: @Model.ComingShowDate</span>
-                }
+                    <span class="badge-pill badge-gold"><i class="fas fa-star"></i> 5,0</span>
+                <span class="badge-pill badge-primary">Full HD&#x2B;</span>
+                <span class="badge-pill badge-glass">16&#x2B;</span>
+                <span class="badge-pill badge-glass">Hoa K&#x1EF3;</span>
+                <span class="badge-pill badge-glass">181 ph&#xFA;t</span>
             </div>
 
-            <h1 class="hero-title" style="font-size: 2.8rem;">@Model.Title</h1>
-            <div class="hero-orig-title">@Model.OriginalTitle (@Model.ReleaseYear)</div>
+            <h1 class="hero-title" style="font-size: 2.8rem;">Avengers: H&#x1ED3;i k&#x1EBF;t</h1>
+            <div class="hero-orig-title">Avengers: H&#x1ED3;i k&#x1EBF;t (2019)</div>
 
             <div class="d-flex flex-wrap gap-2 mb-3">
-                @foreach (var gName in Model.GenreNames)
-                {
-                    <span class="badge-pill badge-glass"><i class="fas fa-tag"></i> @gName</span>
-                }
+                    <span class="badge-pill badge-glass"><i class="fas fa-tag"></i> Si&#xEA;u anh h&#xF9;ng</span>
+                    <span class="badge-pill badge-glass"><i class="fas fa-tag"></i> H&#xE0;nh &#x111;&#x1ED9;ng</span>
             </div>
 
-            <p class="hero-description">@Model.Description</p>
+            <p class="hero-description">Avengers: Endgame m&#x1EDF; &#x111;&#x1EA7;u b&#x1EB1;ng m&#x1ED9;t c&#x1EA3;nh v&#x1EC1; bi k&#x1ECB;ch c&#xE1; nh&#xE2;n, &#x111;&#x1ED3;ng th&#x1EDD;i nh&#x1EAF;c l&#x1EA1;i s&#x1EF1; ki&#x1EC7;n c&#x169;. Th&#x1EBF; gi&#x1EDB;i Marvel ch&#xEC;m trong n&#x1ED7;i &#x111;au sau c&#xFA; b&#xFA;ng tay c&#x1EE7;a Thanos cu&#x1ED1;i Avengers: Infinity War. M&#x1ED9;t n&#x1EED;a s&#x1ED1; sinh v&#x1EAD;t s&#x1ED1;ng tan th&#xE0;nh tro b&#x1EE5;i, trong &#x111;&#xF3; c&#xF3; c&#x1EA3; nh&#x1EEF;ng ng&#x1B0;&#x1EDD;i h&#xF9;ng m&#x1EA1;nh nh&#x1B0; Doctor Strange, Black Panther, Scarlet Witch. Iron Man (Robert Downey Jr. &#x111;&#xF3;ng) tr&#xF4;i d&#x1EA1;t trong kh&#xF4;ng gian, c&#xF2;n Thanos &#x1EA9;n th&#xE2;n &#x1EDF; n&#x1A1;i kh&#xF4;ng ai bi&#x1EBF;t.</p>
 
             <div class="hero-actions mt-4">
-                @{
-                    bool isBookmarked = ViewBag.IsBookmarked as bool? ?? false;
-                    bool isPurchased = ViewBag.IsPurchased as bool? ?? false;
-                    // Phìm chiếu rạp chưa mua (không phụ thuộc vào Price hay IsNowShowing)
-                    bool isCinemaUnlocked = Model.IsCinema && !Model.IsComingSoon && !isPurchased;
-                }
-                @if (Model.IsComingSoon)
-                {
-                    <button class="btn-custom btn-primary-custom" onclick="openNotifyModal('@Model.Id.Replace("'", "\\'")', '@Model.Title.Replace("'", "\\'")')">
-                        <i class="fas fa-bell me-1.5"></i> Nhận Thông Báo
-                    </button>
-                    <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@Model.TrailerUrl.Replace("'", "\\'")', '@Model.Title.Replace("'", "\\'")')">
-                        <i class="fas fa-film me-1.5"></i> Xem Trailer Phim
-                    </button>
-                }
-                else if (isCinemaUnlocked)
-                {
-                    <button class="btn-custom btn-primary-custom" id="btnWatchNow" onclick="openBuyMovieModal()">
-                        <i class="fas fa-play me-1.5"></i> Xem Phim Ngay@(Model.Price > 0 ? " (" + Model.FormattedPrice + ")" : "")
-                    </button>
-                    <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@Model.TrailerUrl.Replace("'", "\\'")', '@Model.Title.Replace("'", "\\'")')">
-                        <i class="fas fa-film me-1.5"></i> Xem Trailer Phim
-                    </button>
-                }
-                else
-                {
                     <button class="btn-custom btn-primary-custom" onclick="document.getElementById('playerSection').scrollIntoView({behavior: 'smooth'})">
                         <i class="fas fa-play me-1.5"></i> Xem Phim Ngay
                     </button>
-                    <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@Model.TrailerUrl.Replace("'", "\\'")', '@Model.Title.Replace("'", "\\'")')">
+                    <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('/media/Marvel Studios\&#x27; Avengers- Endgame - Official Trailer.mp4', 'Avengers: H&#x1ED3;i k&#x1EBF;t')">
                         <i class="fas fa-film me-1.5"></i> Xem Trailer
                     </button>
-                }
-                <button class="btn-custom @(isBookmarked ? "btn-warning-custom" : "btn-glass-custom")" id="btnBookmarkDetail" onclick="toggleBookmark('@Model.Id')">
-                    <i class="@(isBookmarked ? "fas" : "far") fa-bookmark me-1.5" id="bookmarkIcon"></i>
-                    <span id="bookmarkText">@(isBookmarked ? "Đã Lưu Phim" : "Lưu Phim")</span>
+                <button class="btn-custom btn-glass-custom" id="btnBookmarkDetail" onclick="toggleBookmark('4fefwhcgsj9p9sma7zgv062an1')">
+                    <i class="far fa-bookmark me-1.5" id="bookmarkIcon"></i>
+                    <span id="bookmarkText">L&#x1B0;u Phim</span>
                 </button>
             </div>
         </div>
 
         <div class="hero-poster-card position-relative" style="width:280px; justify-self:center;">
-            <img src="@Model.PosterUrl" class="hero-poster-img" style="height:390px;" alt="@Model.Title" />
-            @if (Model.Price > 0)
-            {
-                <div class="position-absolute top-0 start-0 m-3 px-3 py-1.5 rounded-pill text-dark fw-bold shadow-lg d-flex align-items-center gap-1.5"
-                     style="background: linear-gradient(135deg, #f59e0b, #fbbf24); font-size: 0.9rem; z-index: 4; border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 15px rgba(245,158,11,0.5);">
-                    <i class="fas fa-ticket-alt"></i> Vé: @Model.FormattedPrice
-                </div>
-            }
+            <img src="/image/AvatarMovie/avengers2.jpg" class="hero-poster-img" style="height:390px;" alt="Avengers: H&#x1ED3;i k&#x1EBF;t" />
         </div>
     </div>
 </section>
@@ -123,173 +154,17 @@
             <div class="card bg-card border-secondary-custom mb-4 style-card-player" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md); overflow:hidden;">
                 <div class="card-header p-3 d-flex align-items-center justify-content-between" style="border-bottom:1px solid var(--border-color)">
                     <div class="d-flex align-items-center gap-2 text-white font-weight-bold">
-                        <i class="fas fa-play-circle text-danger"></i> @(Model.IsComingSoon ? "Trailer phim:" : (isCinemaUnlocked ? "Trailer xem trước (Phim có phí):" : "Đang phát:")) <span class="text-white">@Model.Title</span>
+                        <i class="fas fa-play-circle text-danger"></i> &#x110;ang ph&#xE1;t: <span class="text-white">Avengers: H&#x1ED3;i k&#x1EBF;t</span>
                     </div>
-                    <span class="badge-pill @(Model.IsComingSoon ? "badge-warning" : (isCinemaUnlocked ? "badge-warning" : "badge-primary"))">
-                        @(Model.IsComingSoon ? "Sắp Khởi Chiếu" : (isCinemaUnlocked ? $"Vé: {Model.FormattedPrice}" : "Server 4K High-Speed"))
+                    <span class="badge-pill badge-primary">
+                        Server 4K High-Speed
                     </span>
                 </div>
-                @if (isCinemaUnlocked)
-                {
-                    <div class="p-3 bg-dark-subtle border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: rgba(245,158,11,0.12) !important; border-color: rgba(245,158,11,0.25) !important;">
-                        <div class="text-warning small d-flex align-items-center gap-2">
-                            <i class="fas fa-film fs-5"></i>
-                            <div>
-                                <div class="fw-bold text-white">Đang phát trailer xem trước của phim chiếu rạp</div>
-                                <div class="text-warning-subtle" style="font-size:0.78rem;">Bạn cần mua vé để xem bản chiếu HD/4K đầy đủ.</div>
-                            </div>
-                        </div>
-                        <button class="btn-custom btn-warning-custom py-1.5 px-3" style="font-size:0.85rem;" onclick="openBuyMovieModal()">
-                            <i class="fas fa-ticket-alt me-1.5"></i> Mua vé mở khóa phim (@Model.FormattedPrice)
-                        </button>
-                    </div>
-                }
                 <div class="video-responsive" style="position:relative;">
-                    @if (Model.IsComingSoon)
-                    {
-                        <div class="d-flex flex-column align-items-center justify-content-center h-100 w-100 p-4 text-center"
-                             style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(18,18,18,0.96), rgba(35,20,20,0.96)); z-index:5;">
-                            <div class="mb-3" style="width:70px; height:70px; border-radius:50%; background:rgba(234, 179, 8, 0.15); display:flex; align-items:center; justify-content:center;">
-                                <i class="fas fa-calendar-alt text-warning" style="font-size:2.2rem;"></i>
-                            </div>
-                            <h3 class="text-white fw-bold mb-2">Phim Chiếu Rạp Sắp Công Chiếu</h3>
-                            <p class="text-muted mb-4" style="max-width:460px; font-size:0.95rem; line-height:1.6;">
-                                Phim hiện chưa chính thức khởi chiếu tại các rạp phim.
-                                @if (!string.IsNullOrWhiteSpace(Model.ComingShowDate))
-                                {
-                                    <span class="d-block text-warning fw-bold my-1" style="font-size:1.05rem;">
-                                        <i class="far fa-calendar-alt me-1"></i> Ngày khởi chiếu: @Model.ComingShowDate
-                                    </span>
-                                }
-                                Bạn có thể thưởng thức ngay đoạn <strong class="text-white">Trailer xem trước</strong> trong lúc chờ đợi!
-                            </p>
-                            <div class="d-flex gap-2 justify-content-center flex-wrap">
-                                <button class="btn-custom btn-primary-custom px-4 py-2.5" onclick="openNotifyModal('@Model.Id.Replace("'", "\\'")', '@Model.Title.Replace("'", "\\'")')">
-                                    <i class="fas fa-bell me-2"></i> Nhận Thông Báo
-                                </button>
-                                <button class="btn-custom btn-glass-custom px-4 py-2.5" onclick="playTrailerModal('@Model.TrailerUrl.Replace("'", "\\'")', '@Model.Title.Replace("'", "\\'")')">
-                                    <i class="fas fa-film me-2"></i> Xem Trailer Ngay
-                                </button>
-                            </div>
-                        </div>
-                    }
-                    @{
-                        bool isDirectTrailer = !string.IsNullOrWhiteSpace(Model.TrailerUrl) && 
-                            (Model.TrailerUrl.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) || 
-                             Model.TrailerUrl.EndsWith(".webm", StringComparison.OrdinalIgnoreCase) || 
-                             (Model.TrailerUrl.StartsWith("/media/", StringComparison.OrdinalIgnoreCase) && !Model.TrailerUrl.Contains("youtube") && !Model.TrailerUrl.Contains("youtu.be")));
-                    }
-                    @if (isDirectTrailer)
-                    {
-                        <video controls style="position:absolute; top:0; left:0; width:100%; height:100%; background:#000; object-fit:contain;">
-                            <source src="@Model.TrailerUrl" type="video/mp4">
-                            Trình duyệt của bạn không hỗ trợ phát video MP4 trực tiếp.
-                        </video>
-                    }
-                    else
-                    {
-                        <iframe src="@Model.TrailerUrl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    }
+                    <iframe src="/media/Marvel Studios&#x27; Avengers- Endgame - Official Trailer.mp4" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
 
-            @if (Model.IsSeries)
-            {
-                int totalEps = Model.GetTotalEpisodes();
-                <style>
-                    .btn-episode {
-                        background: rgba(255, 255, 255, 0.05);
-                        border: 1px solid rgba(255, 255, 255, 0.12);
-                        color: #d1d5db;
-                        padding: 0.55rem 0.95rem;
-                        border-radius: 10px;
-                        font-weight: 600;
-                        font-size: 0.88rem;
-                        cursor: pointer;
-                        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 0.4rem;
-                        user-select: none;
-                    }
-                    .btn-episode .episode-play-icon {
-                        font-size: 0.7rem;
-                        opacity: 0;
-                        transform: scale(0);
-                        transition: all 0.2s ease;
-                    }
-                    .btn-episode:hover {
-                        background: rgba(229, 9, 20, 0.2);
-                        border-color: rgba(229, 9, 20, 0.5);
-                        color: #ffffff;
-                        transform: translateY(-2px);
-                        box-shadow: 0 4px 12px rgba(229, 9, 20, 0.25);
-                    }
-                    .btn-episode.active {
-                        background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
-                        border-color: #ff333d;
-                        color: #ffffff !important;
-                        font-weight: 700;
-                        box-shadow: 0 4px 16px rgba(229, 9, 20, 0.5);
-                    }
-                    .btn-episode.active .episode-play-icon {
-                        opacity: 1;
-                        transform: scale(1);
-                    }
-                    .episode-range-btn {
-                        border-radius: 8px;
-                        font-size: 0.8rem;
-                        padding: 0.25rem 0.75rem;
-                        background: rgba(255, 255, 255, 0.03);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                        color: #a0aec0;
-                        transition: all 0.2s ease;
-                    }
-                    .episode-range-btn.active, .episode-range-btn:hover {
-                        background: rgba(245, 158, 11, 0.2);
-                        border-color: #f59e0b;
-                        color: #f59e0b !important;
-                    }
-                </style>
-                <div class="card bg-card border-secondary-custom mb-4 p-4" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 pb-3 border-bottom border-secondary-subtle">
-                        <div class="d-flex align-items-center gap-2.5">
-                            <div class="p-2 rounded-3 bg-danger-subtle text-danger d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                <i class="fas fa-list-ol fs-6"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-white mb-0" style="font-size:1.15rem; font-weight:700;">Danh Sách Tập Phim</h3>
-                                <div class="text-muted small" style="font-size:0.78rem;">Chọn tập phim bạn muốn xem</div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <span class="badge bg-danger-subtle text-danger px-2.5 py-1.5 rounded-pill" style="font-size:0.78rem; border:1px solid rgba(229,9,20,0.3);">
-                                <i class="fas fa-layer-group me-1"></i>@Model.EpisodeInfo
-                            </span>
-                            <span class="badge bg-dark border border-secondary-subtle text-warning px-2.5 py-1.5 rounded-pill" style="font-size:0.78rem;">
-                                <i class="fas fa-server me-1"></i>Server #1 VIP
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Episodes Grid -->
-                    <div class="episode-grid d-flex flex-wrap gap-2" id="episodeGrid">
-                        @for (int i = 1; i <= totalEps; i++)
-                        {
-                            string epNumStr = i < 10 ? $"0{i}" : $"{i}";
-                            string epUrl = Model.GetEpisodeUrl(i);
-                            <button type="button" 
-                                    class="btn-episode @(i == 1 ? "active" : "")" 
-                                    data-episode="@i" 
-                                    data-url="@epUrl"
-                                    onclick="switchEpisode(@i, '@epUrl', this)">
-                                <i class="fas fa-play episode-play-icon"></i>
-                                Tập @epNumStr
-                            </button>
-                        }
-                    </div>
-                </div>
-            }
 
             <!-- Cast & Info -->
             <div class="p-4" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
@@ -297,129 +172,65 @@
 
                 <div class="row g-3" style="font-size:0.92rem;">
                     <div class="col-md-6">
-                        <p class="text-muted mb-2.5"><strong class="text-white">Đạo diễn:</strong> @Model.Director</p>
-                        <p class="text-muted mb-2.5"><strong class="text-white">Ngôn ngữ:</strong> @Model.LanguageMode</p>
-                        <p class="text-muted mb-2.5"><strong class="text-white">Thời lượng:</strong> @Model.Duration</p>
-                        @if (!string.IsNullOrWhiteSpace(Model.ComingShowDate))
-                        {
-                            <p class="text-muted mb-2.5"><strong class="text-warning">Lịch khởi chiếu:</strong> <span class="text-warning fw-bold">@Model.ComingShowDate</span></p>
-                        }
+                        <p class="text-muted mb-2.5"><strong class="text-white">Đạo diễn:</strong> Anthony v&#xE0; Joe Russo</p>
+                        <p class="text-muted mb-2.5"><strong class="text-white">Ngôn ngữ:</strong> Vietsub</p>
+                        <p class="text-muted mb-2.5"><strong class="text-white">Thời lượng:</strong> 181 ph&#xFA;t</p>
                     </div>
                     <div class="col-md-6">
-                        <p class="text-muted mb-2.5"><strong class="text-white">Lượt xem:</strong> @(string.IsNullOrWhiteSpace(Model.ViewsText) ? Model.ViewsCount.ToString("N0") + " lượt" : (Model.ViewsText.Contains("lượt", StringComparison.OrdinalIgnoreCase) ? Model.ViewsText : Model.ViewsText + " lượt"))</p>
-                        <p class="text-muted mb-2.5"><strong class="text-white">Phân loại:</strong> @Model.AgeRating</p>
+                        <p class="text-muted mb-2.5"><strong class="text-white">Lượt xem:</strong> 155 l&#x1B0;&#x1EE3;t</p>
+                        <p class="text-muted mb-2.5"><strong class="text-white">Phân loại:</strong> 16&#x2B;</p>
                     </div>
                 </div>
 
-                @if (!string.IsNullOrWhiteSpace(Model.Description))
-                {
                     <hr style="border-color:var(--border-color); margin:1.5rem 0;" />
                     <h4 class="text-white mb-2" style="font-size:1.1rem; font-weight:600;"><i class="fas fa-file-alt text-danger me-2"></i> Nội dung phim</h4>
                     <div class="movie-synopsis text-light" style="line-height:1.7; font-size:0.95rem; background: rgba(0,0,0,0.3); padding:1.2rem; border-radius:var(--radius-sm); border-left:4px solid var(--primary);">
-                        @Html.Raw(Model.Description)
+                        Avengers: Endgame mở đầu bằng một cảnh về bi kịch cá nhân, đồng thời nhắc lại sự kiện cũ. Thế giới Marvel chìm trong nỗi đau sau cú búng tay của Thanos cuối Avengers: Infinity War. Một nửa số sinh vật sống tan thành tro bụi, trong đó có cả những người hùng mạnh như Doctor Strange, Black Panther, Scarlet Witch. Iron Man (Robert Downey Jr. đóng) trôi dạt trong không gian, còn Thanos ẩn thân ở nơi không ai biết.
                     </div>
-                }
             </div>
 
             <!-- Rating & Comments Section -->
             <div class="rating-comments-container">
                 <div class="comments-header">
                     <h3 class="comments-title"><i class="fas fa-comments text-danger"></i> Đánh giá & Bình luận</h3>
-                    <span class="comments-count-badge" id="commentCountBadge"><i class="fas fa-comment-dots text-danger me-1"></i> <span id="commentCountText">@(ViewBag.CommentsCount ?? 0)</span> bình luận</span>
+                    <span class="comments-count-badge" id="commentCountBadge"><i class="fas fa-comment-dots text-danger me-1"></i> <span id="commentCountText">0</span> bình luận</span>
                 </div>
 
-                @{
-                    var realComments = ViewBag.Comments as List<MovieWeb.Core.Models.MovieComment> ?? new List<MovieWeb.Core.Models.MovieComment>();
-                    var topLevelComments = realComments.Where(c => string.IsNullOrEmpty(c.ParentId)).OrderByDescending(c => c.CreatedAt).ToList();
-                    int totalRatingsCount = topLevelComments.Count(c => c.Rating > 0);
-                    var breakdown = ViewBag.RatingBreakdown as Dictionary<int, int> ?? new Dictionary<int, int> { {5,0},{4,0},{3,0},{2,0},{1,0} };
-                    double displayRating = ViewBag.AverageRating != null ? (double)ViewBag.AverageRating : 0.0;
-                }
 
                 <!-- Rating Summary Box -->
                 <div class="rating-summary-box">
                     <div class="score-column">
-                        @if (totalRatingsCount > 0 || displayRating > 0)
-                        {
-                            <div class="big-score">@displayRating.ToString("0.0")</div>
-                            <div class="star-row">
-                                @for (int i = 1; i <= 5; i++)
-                                {
-                                    if (displayRating >= i)
-                                    {
-                                        <i class="fas fa-star" style="color: #f5c518 !important;"></i>
-                                    }
-                                    else if (displayRating >= i - 0.5)
-                                    {
-                                        <i class="fas fa-star-half-alt" style="color: #f5c518 !important;"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="far fa-star" style="color: #444444 !important;"></i>
-                                    }
-                                }
-                            </div>
-                            <div class="score-sub">Dựa trên @totalRatingsCount lượt đánh giá</div>
-                        }
-                        else
-                        {
                             <div class="big-score text-muted" style="font-size: 1.8rem; opacity: 0.7;">N/A</div>
                             <div class="star-row text-muted" style="font-size: 0.9rem; margin-top: 4px;">
                                 <i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                             </div>
                             <div class="score-sub">Chưa có lượt đánh giá nào</div>
-                        }
                     </div>
                     <div class="bars-column">
                         <div class="bar-row">
                             <span class="bar-label">5 sao</span>
-                            <div class="bar-track"><div class="bar-fill" style="width: @(breakdown.ContainsKey(5) ? breakdown[5] : 0)%;"></div></div>
-                            <span class="bar-percent">@(breakdown.ContainsKey(5) ? breakdown[5] : 0)%</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%;"></div></div>
+                            <span class="bar-percent">0%</span>
                         </div>
                         <div class="bar-row">
                             <span class="bar-label">4 sao</span>
-                            <div class="bar-track"><div class="bar-fill" style="width: @(breakdown.ContainsKey(4) ? breakdown[4] : 0)%;"></div></div>
-                            <span class="bar-percent">@(breakdown.ContainsKey(4) ? breakdown[4] : 0)%</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%;"></div></div>
+                            <span class="bar-percent">0%</span>
                         </div>
                         <div class="bar-row">
                             <span class="bar-label">3 sao</span>
-                            <div class="bar-track"><div class="bar-fill" style="width: @(breakdown.ContainsKey(3) ? breakdown[3] : 0)%;"></div></div>
-                            <span class="bar-percent">@(breakdown.ContainsKey(3) ? breakdown[3] : 0)%</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%;"></div></div>
+                            <span class="bar-percent">0%</span>
                         </div>
                         <div class="bar-row">
                             <span class="bar-label">2 & 1 sao</span>
-                            <div class="bar-track"><div class="bar-fill" style="width: @((breakdown.ContainsKey(2) ? breakdown[2] : 0) + (breakdown.ContainsKey(1) ? breakdown[1] : 0))%;"></div></div>
-                            <span class="bar-percent">@((breakdown.ContainsKey(2) ? breakdown[2] : 0) + (breakdown.ContainsKey(1) ? breakdown[1] : 0))%</span>
+                            <div class="bar-track"><div class="bar-fill" style="width: 0%;"></div></div>
+                            <span class="bar-percent">0%</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Add Comment Box -->
-                @if (User.Identity != null && User.Identity.IsAuthenticated)
-                {
-                    <div class="add-comment-box">
-                        <div class="add-comment-header">
-                            <span class="add-comment-title"><i class="fas fa-pen-alt text-danger me-1"></i> Viết đánh giá của bạn (@User.Identity.Name)</span>
-                            <div class="star-rating-select" id="userStarRating">
-                                <i class="fas fa-star" data-rating="1" style="color: #f5c518 !important; cursor: pointer;"></i>
-                                <i class="fas fa-star" data-rating="2" style="color: #f5c518 !important; cursor: pointer;"></i>
-                                <i class="fas fa-star" data-rating="3" style="color: #f5c518 !important; cursor: pointer;"></i>
-                                <i class="fas fa-star" data-rating="4" style="color: #f5c518 !important; cursor: pointer;"></i>
-                                <i class="fas fa-star" data-rating="5" style="color: #f5c518 !important; cursor: pointer;"></i>
-                                <span class="rating-label-text" id="ratingText" style="color: #f5c518; font-weight: bold; margin-left: 8px;">(5 sao)</span>
-                            </div>
-                        </div>
-                        <textarea id="commentText" class="comment-textarea-custom" rows="3" placeholder="Chia sẻ cảm nhận của bạn về bộ phim này... (Vui lòng không spoiler)"></textarea>
-                        <div class="add-comment-footer">
-                            <span class="civil-tip"><i class="fas fa-shield-alt text-success me-1"></i> Bình luận văn minh, tôn trọng người xem</span>
-                            <button class="btn-submit-comment" onclick="postMovieComment('@Model.Id')">
-                                <i class="fas fa-paper-plane me-1"></i> Gửi Bình Luận
-                            </button>
-                        </div>
-                    </div>
-                }
-                else
-                {
                     <div class="auth-required-box">
                         <div class="auth-box-icon">
                             <i class="fas fa-user-lock"></i>
@@ -428,157 +239,22 @@
                             <h4 class="auth-box-title">Tham gia cộng đồng xem phim</h4>
                             <p class="auth-box-desc">Đăng nhập ngay để viết đánh giá, gửi bình luận và chia sẻ cảm nhận của bạn về bộ phim này cùng mọi người!</p>
                             <div class="auth-box-buttons">
-                                <a href="/Account/Login?returnUrl=@Uri.EscapeDataString(Context.Request.Path)" class="auth-btn-primary">
+                                <a href="/Account/Login?returnUrl=%2Fphim%2F4fefwhcgsj9p9sma7zgv062an1" class="auth-btn-primary">
                                     <i class="fas fa-sign-in-alt"></i> Đăng Nhập Ngay
                                 </a>
-                                <a href="/Account/Register?returnUrl=@Uri.EscapeDataString(Context.Request.Path)" class="auth-btn-secondary">
+                                <a href="/Account/Register?returnUrl=%2Fphim%2F4fefwhcgsj9p9sma7zgv062an1" class="auth-btn-secondary">
                                     <i class="fas fa-user-plus"></i> Tạo Tài Khoản Mới
                                 </a>
                             </div>
                         </div>
                     </div>
-                }
 
                 <!-- Comments List -->
                 <div class="comments-list-box" id="commentsContainer">
-                    @if (!topLevelComments.Any())
-                    {
                         <div class="text-center py-4 text-muted" id="noCommentsNotice">
                             <i class="far fa-comment-dots fs-2 mb-2 d-block text-secondary"></i>
                             Chưa có bình luận nào cho bộ phim này. Hãy là người đầu tiên để lại ý kiến!
                         </div>
-                    }
-                    else
-                    {
-                        foreach (var c in topLevelComments)
-                        {
-                            var childReplies = realComments.Where(r => r.ParentId == c.Id).OrderBy(r => r.CreatedAt).ToList();
-
-                            <div class="comment-card parent-comment-card" data-comment-id="@c.Id" data-content="@c.Content" data-rating="@c.Rating" data-user-id="@c.UserId">
-                                <div class="comment-card-top">
-                                    <div class="comment-user">
-                                        <img src="@c.UserAvatar" class="comment-avatar" alt="Avatar" />
-                                        <div class="comment-user-info">
-                                            <div class="user-name">@c.UserName</div>
-                                            <div class="comment-time">@c.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="comment-stars">
-                                            @for (int i = 1; i <= 5; i++)
-                                            {
-                                                if (i <= c.Rating)
-                                                {
-                                                    <i class="fas fa-star" style="color: #f5c518 !important;"></i>
-                                                }
-                                                else
-                                                {
-                                                    <i class="far fa-star" style="color: #444444 !important;"></i>
-                                                }
-                                            }
-                                        </div>
-                                        @if (!string.IsNullOrEmpty(ViewBag.CurrentUserId as string) && c.UserId == (string)ViewBag.CurrentUserId)
-                                        {
-                                            <div class="comment-owner-actions">
-                                                <button class="btn-comment-action btn-edit-comment" title="Chỉnh sửa" onclick="openEditModal('@c.Id', this)">
-                                                    <i class="fas fa-pen"></i>
-                                                </button>
-                                                <button class="btn-comment-action btn-delete-comment" title="Xóa bình luận" onclick="deleteComment('@c.Id', this)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                                <p class="comment-text" id="comment-text-@c.Id">@c.Content</p>
-                                <div class="comment-actions d-flex align-items-center gap-2">
-                                    <button class="btn-like-comment" onclick="likeComment('@c.Id', this)">
-                                        <i class="far fa-thumbs-up me-1"></i> <span class="like-count">@c.LikesCount</span> Thích
-                                    </button>
-                                    <button class="btn-reply-comment" onclick="toggleReplyBox('@c.Id', '@c.Id', '@c.UserId', '@c.UserName', this)">
-                                        <i class="far fa-comment-dots me-1"></i> Trả lời
-                                    </button>
-                                </div>
-
-                                <!-- Inline Reply Form for Parent Comment -->
-                                <div class="inline-reply-box" id="reply-box-@c.Id" style="display: none;">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                        <span class="small text-secondary"><i class="fas fa-reply text-danger me-1"></i> Đang trả lời <strong class="text-white">@c.UserName</strong></span>
-                                        <button type="button" class="btn-close-reply" onclick="closeReplyBox('@c.Id')">&times;</button>
-                                    </div>
-                                    <textarea id="replyText-@c.Id" class="comment-textarea-custom mb-2" rows="2" placeholder="Nhập câu trả lời của bạn..."></textarea>
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <button class="btn btn-sm btn-outline-secondary text-white" onclick="closeReplyBox('@c.Id')">Hủy</button>
-                                        <button class="btn btn-sm btn-danger" onclick="postCommentReply('@Model.Id', '@c.Id', '@c.UserId', '@c.UserName', '@c.Id')">
-                                            <i class="fas fa-paper-plane me-1"></i> Gửi Trả Lời
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Child Replies Container (Nested with Indentation) -->
-                                <div class="comment-replies-container" id="replies-container-@c.Id" style="@(childReplies.Any() ? "" : "display:none;")">
-                                    @foreach (var r in childReplies)
-                                    {
-                                        <div class="comment-card child-comment-card" data-comment-id="@r.Id" data-content="@r.Content" data-rating="@r.Rating" data-user-id="@r.UserId">
-                                            <div class="comment-card-top">
-                                                <div class="comment-user">
-                                                    <img src="@r.UserAvatar" class="comment-avatar" alt="Avatar" />
-                                                    <div class="comment-user-info">
-                                                        <div class="user-name">
-                                                            @r.UserName
-                                                            @if (!string.IsNullOrEmpty(r.ReplyToUserName))
-                                                            {
-                                                                <span class="reply-arrow-symbol">&gt;</span>
-                                                                <span class="reply-target-name">@r.ReplyToUserName</span>
-                                                            }
-                                                        </div>
-                                                        <div class="comment-time">@r.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</div>
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex align-items-center gap-2">
-                                                    @if (!string.IsNullOrEmpty(ViewBag.CurrentUserId as string) && r.UserId == (string)ViewBag.CurrentUserId)
-                                                    {
-                                                        <div class="comment-owner-actions">
-                                                            <button class="btn-comment-action btn-edit-comment" title="Chỉnh sửa" onclick="openEditModal('@r.Id', this)">
-                                                                <i class="fas fa-pen"></i>
-                                                            </button>
-                                                            <button class="btn-comment-action btn-delete-comment" title="Xóa bình luận" onclick="deleteComment('@r.Id', this)">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            </div>
-                                            <p class="comment-text" id="comment-text-@r.Id">@r.Content</p>
-                                            <div class="comment-actions d-flex align-items-center gap-2">
-                                                <button class="btn-like-comment" onclick="likeComment('@r.Id', this)">
-                                                    <i class="far fa-thumbs-up me-1"></i> <span class="like-count">@r.LikesCount</span> Thích
-                                                </button>
-                                                <button class="btn-reply-comment" onclick="toggleReplyBox('@r.Id', '@c.Id', '@r.UserId', '@r.UserName', this)">
-                                                    <i class="far fa-comment-dots me-1"></i> Trả lời
-                                                </button>
-                                            </div>
-
-                                            <!-- Inline Reply Form for Child Comment -->
-                                            <div class="inline-reply-box" id="reply-box-@r.Id" style="display: none;">
-                                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                                    <span class="small text-secondary"><i class="fas fa-reply text-danger me-1"></i> Đang trả lời <strong class="text-white">@r.UserName</strong></span>
-                                                    <button type="button" class="btn-close-reply" onclick="closeReplyBox('@r.Id')">&times;</button>
-                                                </div>
-                                                <textarea id="replyText-@r.Id" class="comment-textarea-custom mb-2" rows="2" placeholder="Nhập câu trả lời của bạn..."></textarea>
-                                                <div class="d-flex justify-content-end gap-2">
-                                                    <button class="btn btn-sm btn-outline-secondary text-white" onclick="closeReplyBox('@r.Id')">Hủy</button>
-                                                    <button class="btn btn-sm btn-danger" onclick="postCommentReply('@Model.Id', '@c.Id', '@r.UserId', '@r.UserName', '@r.Id')">
-                                                        <i class="fas fa-paper-plane me-1"></i> Gửi Trả Lời
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
-                    }
                 </div>
             </div>
 
@@ -907,7 +583,7 @@
                 justify-content: center;
                 animation: fadeInOverlay 0.2s ease;
             }
-            @@keyframes fadeInOverlay {
+            @keyframes fadeInOverlay {
                 from { opacity: 0; }
                 to { opacity: 1; }
             }
@@ -921,7 +597,7 @@
                 box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(229,9,20,0.15);
                 animation: slideUpModal 0.25s ease;
             }
-            @@keyframes slideUpModal {
+            @keyframes slideUpModal {
                 from { opacity: 0; transform: translateY(20px) scale(0.97); }
                 to { opacity: 1; transform: translateY(0) scale(1); }
             }
@@ -1010,7 +686,7 @@
                 box-shadow: 0 8px 24px rgba(0,0,0,0.4);
                 animation: toastIn 0.3s ease;
             }
-            @@keyframes toastIn {
+            @keyframes toastIn {
                 from { opacity: 0; transform: translateY(16px); }
                 to { opacity: 1; transform: translateY(0); }
             }
@@ -1074,7 +750,7 @@
 
             <script>
             var selectedRating = 5;
-            var currentUserId = '@Html.Raw(ViewBag.CurrentUserId ?? "")';
+            var currentUserId = '';
 
             document.addEventListener('DOMContentLoaded', function() {
                 var stars = document.querySelectorAll('#userStarRating i');
@@ -1373,7 +1049,7 @@
 
             // Reply functionality
             function toggleReplyBox(commentId, parentId, targetUserId, targetUserName, btnEl) {
-                var isAuth = '@(User.Identity != null && User.Identity.IsAuthenticated ? "true" : "false")';
+                var isAuth = 'false';
                 if (isAuth !== 'true') {
                     alert('Vui lòng đăng nhập để trả lời bình luận.');
                     return;
@@ -1478,20 +1154,39 @@
         <div class="col-lg-4">
             <h3 class="section-title mb-3" style="font-size:1.3rem;">Phim Cùng Thể Loại</h3>
             <div class="d-flex flex-column gap-3">
-                @foreach (var rel in relatedMovies)
-                {
-                    <a href="/phim/@rel.Id" class="search-result-item p-2" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
-                        <img src="@rel.PosterUrl" class="search-result-img" style="width:65px; height:90px; border-radius:var(--radius-sm);" alt="@rel.Title" />
+                    <a href="/phim/4zncavzabhznd1be4z3srstqmr" class="search-result-item p-2" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
+                        <img src="/image/AvatarMovie/avengers.jpg" class="search-result-img" style="width:65px; height:90px; border-radius:var(--radius-sm);" alt="Avengers: Cu&#x1ED9;c chi&#x1EBF;n v&#xF4; c&#x1EF1;c" />
                         <div class="search-result-info">
-                            <div class="search-result-title" style="font-size:0.95rem;">@rel.Title</div>
-                            <div class="search-result-meta mb-1">@rel.OriginalTitle</div>
+                            <div class="search-result-title" style="font-size:0.95rem;">Avengers: Cu&#x1ED9;c chi&#x1EBF;n v&#xF4; c&#x1EF1;c</div>
+                            <div class="search-result-meta mb-1">Avengers: Cu&#x1ED9;c chi&#x1EBF;n v&#xF4; c&#x1EF1;c</div>
                             <div class="d-flex align-items-center gap-2" style="font-size:0.78rem;">
-                                <span class="text-warning"><i class="fas fa-star"></i> @rel.Rating</span>
-                                <span class="text-muted">• @rel.ReleaseYear</span>
+                                <span class="text-warning"><i class="fas fa-star"></i> 5</span>
+                                <span class="text-muted">• 2018</span>
                             </div>
                         </div>
                     </a>
-                }
+                    <a href="/phim/43vxaptgxft8qzj6yrem7j4c4v" class="search-result-item p-2" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
+                        <img src="/image/AvatarMovie/tayduky.jpg" class="search-result-img" style="width:65px; height:90px; border-radius:var(--radius-sm);" alt="T&#xE2;y du k&#xFD; 1986" />
+                        <div class="search-result-info">
+                            <div class="search-result-title" style="font-size:0.95rem;">T&#xE2;y du k&#xFD; 1986</div>
+                            <div class="search-result-meta mb-1">T&#xE2;y du k&#xFD; 1986</div>
+                            <div class="d-flex align-items-center gap-2" style="font-size:0.78rem;">
+                                <span class="text-warning"><i class="fas fa-star"></i> 5</span>
+                                <span class="text-muted">• 1986</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="/phim/4s6tww1p4r2px660yqtmm80hxz" class="search-result-item p-2" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--radius-md);">
+                        <img src="/image/AvatarMovie/acquy.jpg" class="search-result-img" style="width:65px; height:90px; border-radius:var(--radius-sm);" alt="&#xC1;c qu&#x1EF7; ma s&#x1A1;" />
+                        <div class="search-result-info">
+                            <div class="search-result-title" style="font-size:0.95rem;">&#xC1;c qu&#x1EF7; ma s&#x1A1;</div>
+                            <div class="search-result-meta mb-1">&#xC1;c qu&#x1EF7; ma s&#x1A1;</div>
+                            <div class="d-flex align-items-center gap-2" style="font-size:0.78rem;">
+                                <span class="text-warning"><i class="fas fa-star"></i> 3</span>
+                                <span class="text-muted">• 2018</span>
+                            </div>
+                        </div>
+                    </a>
             </div>
         </div>
     </div>
@@ -1528,7 +1223,7 @@
         overflow: hidden;
         animation: buyModalPopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    @@keyframes buyModalPopIn {
+    @keyframes buyModalPopIn {
         from { transform: scale(0.92) translateY(20px); opacity: 0; }
         to { transform: scale(1) translateY(0); opacity: 1; }
     }
@@ -1693,12 +1388,12 @@
         <div class="custom-modal-body">
             <!-- Movie Info & Price Preview -->
             <div class="movie-preview-card">
-                <img src="@Model.PosterUrl" alt="@Model.Title" class="movie-preview-poster" />
+                <img src="/image/AvatarMovie/avengers2.jpg" alt="Avengers: H&#x1ED3;i k&#x1EBF;t" class="movie-preview-poster" />
                 <div class="flex-grow-1 min-w-0">
-                    <h6 class="text-white fw-bold text-truncate mb-1" style="font-size: 0.95rem;" title="@Model.Title">@Model.Title</h6>
+                    <h6 class="text-white fw-bold text-truncate mb-1" style="font-size: 0.95rem;" title="Avengers: H&#x1ED3;i k&#x1EBF;t">Avengers: H&#x1ED3;i k&#x1EBF;t</h6>
                     <div class="text-muted small mb-1" style="font-size: 0.78rem;"><i class="fas fa-clock me-1 text-warning"></i> Sơ hữu xem vĩnh viễn</div>
                     <div class="d-flex align-items-center gap-1.5 text-warning fw-bold font-monospace" style="font-size: 1.3rem;">
-                        <i class="fas fa-tag me-1" style="font-size: 1rem;"></i> @Model.FormattedPrice
+                        <i class="fas fa-tag me-1" style="font-size: 1rem;"></i> Mi&#x1EC5;n ph&#xED;
                     </div>
                 </div>
             </div>
@@ -1745,7 +1440,7 @@
                 <button type="button" class="btn-custom btn-glass-custom px-4 py-2.5" onclick="closeBuyMovieModal()">
                     Hủy Bỏ
                 </button>
-                <button type="button" class="btn-custom btn-warning-custom px-4 py-2.5" id="btnSubmitBuyMovie" onclick="submitBuyMovie('@Model.Id')">
+                <button type="button" class="btn-custom btn-warning-custom px-4 py-2.5" id="btnSubmitBuyMovie" onclick="submitBuyMovie('4fefwhcgsj9p9sma7zgv062an1')">
                     <i class="fas fa-check-circle me-1.5"></i> Xác Nhận Thanh Toán
                 </button>
             </div>
@@ -1773,7 +1468,7 @@ function selectPaymentOption(method) {
 </script>
 
 <script>
-var _isUserAuthenticated = @(User.Identity != null && User.Identity.IsAuthenticated ? "true" : "false");
+var _isUserAuthenticated = false;
 
 // Auto-detect payment success from MoMo redirect
 (function() {
@@ -1929,8 +1624,8 @@ function submitNotifyForm(e) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            movieId: '@Model.Id',
-            movieTitle: '@Model.Title',
+            movieId: '4fefwhcgsj9p9sma7zgv062an1',
+            movieTitle: 'Avengers: H&#x1ED3;i k&#x1EBF;t',
             name: name,
             email: email
         })
@@ -1940,7 +1635,7 @@ function submitNotifyForm(e) {
         closeNotifyModal();
         if (data.success) {
             try {
-                var key = 'notify_movie_' + '@Model.Id';
+                var key = 'notify_movie_' + '4fefwhcgsj9p9sma7zgv062an1';
                 localStorage.setItem(key, JSON.stringify({ name: name, email: email, date: new Date().toISOString() }));
             } catch(err) {}
 
@@ -2049,7 +1744,7 @@ function submitNotifyForm(e) {
                 </div>
                 <div>
                     <h5 class="fw-bold text-white mb-0" style="font-size: 1.15rem;">Nhận Thông Báo Khởi Chiếu</h5>
-                    <div class="text-muted small" style="font-size: 0.78rem;" id="notifyModalMovieTitle">@Model.Title</div>
+                    <div class="text-muted small" style="font-size: 0.78rem;" id="notifyModalMovieTitle">Avengers: H&#x1ED3;i k&#x1EBF;t</div>
                 </div>
             </div>
             <button type="button" class="custom-modal-close" onclick="closeNotifyModal()" title="Đóng modal">
@@ -2066,12 +1761,12 @@ function submitNotifyForm(e) {
                 <div class="mb-3">
                     <label class="form-label text-white small fw-semibold mb-1">Họ và Tên</label>
                     <input type="text" id="notifyName" class="notify-input-field" placeholder="Nhập họ tên của bạn..." required
-                           value="@(User.Identity != null && User.Identity.IsAuthenticated ? User.Identity.Name : "")" />
+                           value="" />
                 </div>
                 <div class="mb-3">
                     <label class="form-label text-white small fw-semibold mb-1">Địa chỉ Email</label>
                     <input type="email" id="notifyEmail" class="notify-input-field" placeholder="example@domain.com" required
-                           value="@(User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "")" />
+                           value="" />
                 </div>
                 <div class="custom-modal-footer">
                     <button type="button" class="btn-custom btn-glass-custom px-3 py-2" onclick="closeNotifyModal()">Hủy</button>
@@ -2083,3 +1778,180 @@ function submitNotifyForm(e) {
         </div>
     </div>
 </div>
+
+    </main>
+
+    <!-- Trailer & Detail Video Modal -->
+    <div class="modal-backdrop-custom" id="videoTrailerModal">
+        <div class="modal-content-custom">
+            <button class="modal-close-btn" onclick="closeTrailerModal()"><i class="fas fa-times"></i></button>
+            <div class="video-responsive">
+                <iframe id="trailerIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <div class="modal-body-detail">
+                <h4 id="trailerMovieTitle" class="text-white mb-2" style="font-size:1.2rem; font-weight:700;">Trailer Phim</h4>
+                <p class="text-muted" style="font-size:0.85rem">Đang phát trailer trực tiếp từ MovieOnline Server 4K.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <a href="/" class="brand-logo mb-3" style="display: inline-block;">
+                    <img src="/image/Logo/logo.png" alt="MovieOnline Logo" style="height: 50px; width: auto; object-fit: contain;" />
+                </a>
+                <p class="text-muted" style="font-size:0.88rem; max-width:320px;">
+                    Xem phim trực tuyến chất lượng cao, cập nhật phim chiếu rạp mới nhất hoàn toàn miễn phí. Đa dạng thể loại Hành động, Ngôn tình, Kinh dị, Phim Hoạt Hình và Siêu Anh Hùng.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h5>Thể loại Nổi Bật</h5>
+                <ul class="footer-links">
+                    <li><a href="/phim?genre=hanh-dong">Hành Động</a></li>
+                    <li><a href="/phim?genre=ngon-tinh">Ngôn Tình</a></li>
+                    <li><a href="/phim?genre=kinh-di">Kinh Dị</a></li>
+                    <li><a href="/phim?genre=sieu-anh-hung">Siêu Anh Hùng</a></li>
+                    <li><a href="/phim-chieu-rap">Phim Chiếu Rạp</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Khám Phá</h5>
+                <ul class="footer-links">
+                    <li><a href="/phim-chieu-rap">Phim Rạp Mới Nhất</a></li>
+                    <li><a href="/phim?sort=top">Phim Đánh Giá Cao</a></li>
+                    <li><a href="/phim?sort=popular">Phim Xem Nhiều</a></li>
+                    <li><a href="/phim?series=true">Phim Bộ Cập Nhật</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5>Thông Tin</h5>
+                <ul class="footer-links">
+                    <li><a href="#">Giới thiệu</a></li>
+                    <li><a href="#">Bản quyền & DMCA</a></li>
+                    <li><a href="#">Điều khoản sử dụng</a></li>
+                    <li><a href="#">Liên hệ quảng cáo</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 MovieOnline - Xem phim trực tuyến. Powered by ASP.NET Orchard Core.</p>
+        </div>
+    </footer>
+
+    <style>
+    .user-menu-wrapper {
+        position: relative !important;
+        z-index: 10000 !important;
+    }
+    .btn-user-profile:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+    }
+    .user-dropdown-popup {
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
+        width: 230px !important;
+        background: #1c1c1e !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 14px !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.95) !important;
+        display: none;
+        z-index: 99999 !important;
+        overflow: hidden !important;
+        backdrop-filter: blur(16px) !important;
+    }
+    .user-dropdown-popup.show {
+        display: block !important;
+    }
+    .user-dropdown-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .user-header-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1.5px solid #e50914;
+    }
+    .user-dropdown-body {
+        padding: 6px 0;
+    }
+    .user-dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 16px;
+        color: #e0e0e0;
+        font-size: 0.88rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s ease;
+    }
+    .user-dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+    }
+    .user-dropdown-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.08);
+        margin: 6px 0;
+    }
+    .btn-logout-item {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: #ff4d55;
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background 0.2s ease;
+    }
+    .btn-logout-item:hover {
+        background: rgba(255, 77, 85, 0.12);
+        color: #ff6b72;
+    }
+    </style>
+
+    <script src="/js/site.js?v=3"></script>
+    <script>
+    function toggleUserDropdown(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var popup = document.getElementById('userDropdownPopup');
+        if (popup) {
+            if (popup.style.display === 'block' || popup.classList.contains('show')) {
+                popup.style.display = 'none';
+                popup.classList.remove('show');
+            } else {
+                popup.style.display = 'block';
+                popup.classList.add('show');
+            }
+        }
+    }
+    document.addEventListener('click', function(e) {
+        var popup = document.getElementById('userDropdownPopup');
+        var btn = document.getElementById('userMenuBtn');
+        if (popup && (popup.style.display === 'block' || popup.classList.contains('show'))) {
+            if (btn && !btn.contains(e.target) && !popup.contains(e.target)) {
+                popup.style.display = 'none';
+                popup.classList.remove('show');
+            }
+        }
+    });
+    </script>
+    
+</body>
+</html>

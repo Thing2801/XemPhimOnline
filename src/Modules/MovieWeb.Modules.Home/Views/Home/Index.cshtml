@@ -42,7 +42,7 @@
                         <a href="/phim/@movie.Id" class="btn-custom btn-primary-custom">
                             <i class="fas fa-play"></i> Xem ngay
                         </a>
-                        <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@movie.TrailerUrl', '@movie.Title')">
+                        <button class="btn-custom btn-glass-custom" onclick="playTrailerModal('@movie.TrailerUrl.Replace("'", "\\'")', '@movie.Title.Replace("'", "\\'")')">
                             <i class="fas fa-film"></i> Xem Trailer
                         </button>
                     </div>

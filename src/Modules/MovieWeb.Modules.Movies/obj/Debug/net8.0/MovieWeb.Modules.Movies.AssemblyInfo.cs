@@ -24,7 +24,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MovieWeb.Modules.Movies")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a26d4e173eb3faa89a2c1a5b2cbdb50e5fd692e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8092d9942a302e713e6478e4c402ae2ab70925db")]
 [assembly: System.Reflection.AssemblyProductAttribute("MovieWeb.Modules.Movies")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MovieWeb.Modules.Movies")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
