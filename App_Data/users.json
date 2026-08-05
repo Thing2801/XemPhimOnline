@@ -1,0 +1,116 @@
+[
+  {
+    "Id": "405e175b1afb4c2584fcb6549b507213",
+    "Username": "admin",
+    "Email": "phant@gmail.com",
+    "FullName": "Phan Ph\u01B0\u1EDBc Th\u1ECBnh",
+    "PasswordHash": "AQAAAAIAAYagAAAAEIYeQDBTl5EDE0m2EZirONXpBwN2M8bjuou99poCx049j7kuVJBWePdoM4Gi/shu5g==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
+    "Role": "User",
+    "IsGoogleAccount": false,
+    "CreatedAt": "2026-08-03T04:31:56.7485347Z",
+    "PurchasedMovieIds": [
+      "492att815km6nyq0wgpkvdjqnw",
+      "4pnsykt1p3e9g746ta467zfpmw",
+      "4gxee413bt8e11998frhj5ae5s"
+    ],
+    "IsGoogleUser": false
+  },
+  {
+    "Id": "a1f35fa399e54495aa731b6a37a699c4",
+    "Username": "google_user",
+    "Email": "user.google@gmail.com",
+    "FullName": "Google User",
+    "PasswordHash": "AQAAAAIAAYagAAAAECagwzVzd9DqbiAltdlL/TSqnD7I/pr2hfr9dGet9WG\u002BPPiqPqyNl4JZnJJLP70rzg==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=google_user",
+    "Role": "User",
+    "IsGoogleAccount": false,
+    "CreatedAt": "2026-08-03T08:01:16.5200438Z",
+    "PurchasedMovieIds": [],
+    "IsGoogleUser": false
+  },
+  {
+    "Id": "02fb7f7a7bd747998daec67f56db346c",
+    "Username": "google_user@gmail.com",
+    "Email": "google_user@gmail.com",
+    "FullName": "T\u00E0i Kho\u1EA3n Google",
+    "PasswordHash": "AQAAAAIAAYagAAAAELWSDPCQsYBZi0EH7EqVb6jrrmBygNAqFxv6SFo/nLQfPHVgWLMAU0Ns53E\u002BCDZnmA==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=google_user%40gmail.com",
+    "Role": "User",
+    "IsGoogleAccount": false,
+    "CreatedAt": "2026-08-03T08:41:00.4849196Z",
+    "PurchasedMovieIds": [],
+    "IsGoogleUser": false
+  },
+  {
+    "Id": "cb7c9f3bbf814afa9a01556f0420b9aa",
+    "Username": "thingshark28@gmail.com",
+    "Email": "thingshark28@gmail.com",
+    "FullName": "Ph\u01B0\u1EDBc Th\u1ECBnh",
+    "PasswordHash": "AQAAAAIAAYagAAAAEDzLI9P66gURnvU5cEYtTkYVmjFq7sSO3vsf6NfL2MdB0HObLJBcG3X4UDY/PaBSqw==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=thingshark28",
+    "Role": "User",
+    "IsGoogleAccount": true,
+    "CreatedAt": "2026-08-03T08:58:46.4750657Z",
+    "PurchasedMovieIds": [],
+    "IsGoogleUser": true
+  },
+  {
+    "Id": "b3c6e56cd05045ff8a6d302b5b3d5c7f",
+    "Username": "testuser",
+    "Email": "testuser@gmail.com",
+    "FullName": "Test User",
+    "PasswordHash": "AQAAAAIAAYagAAAAEG6tPArVtlQ/k2j8hFHRuRRRIZ6fcWt72oqjno5vq09pUmNHnEvCH31IugNuzvqjgQ==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=testuser",
+    "Role": "User",
+    "IsGoogleAccount": false,
+    "CreatedAt": "2026-08-03T10:24:52.516828Z",
+    "PurchasedMovieIds": [],
+    "IsGoogleUser": false
+  },
+  {
+    "Id": "523ca99ec0154af2b56f50257c5fe3bf",
+    "Username": "user1",
+    "Email": "user1@gmail.com",
+    "FullName": "user1",
+    "PasswordHash": "AQAAAAIAAYagAAAAEM8Dm/qMUAbdg9ItdMf503bIQ4LP2QA1P6eNcmr2g5tCo9MWhJ7dlva9xvdHIATl7A==",
+    "AvatarUrl": "/uploads/avatars/avatar_523ca99ec0154af2b56f50257c5fe3bf.jpg?v=639214115412167721",
+    "Role": "User",
+    "IsGoogleAccount": false,
+    "CreatedAt": "2026-08-04T00:43:52.7834228Z",
+    "PurchasedMovieIds": [
+      "4gxee413bt8e11998frhj5ae5s",
+      "492att815km6nyq0wgpkvdjqnw",
+      "4pnsykt1p3e9g746ta467zfpmw"
+    ],
+    "IsGoogleUser": false
+  },
+  {
+    "Id": "066ae0b87c93448e9ee0e21edb37076e",
+    "Username": "testuser12345",
+    "Email": "testuser12345@example.com",
+    "FullName": "Test User",
+    "PasswordHash": "AQAAAAIAAYagAAAAELUuFkUViPkuaQMdFtnzn6DQr1JDkvZt5D1fc1JMmd24JHYQ8U4ZWwmEglxHSVfXQA==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=testuser12345",
+    "Role": "User",
+    "IsGoogleAccount": false,
+    "CreatedAt": "2026-08-04T04:07:42.2598364Z",
+    "PurchasedMovieIds": [
+      "4gxee413bt8e11998frhj5ae5s"
+    ],
+    "IsGoogleUser": false
+  },
+  {
+    "Id": "3098a6b43148476ab24b417b662d5b76",
+    "Username": "sharkthink6@gmail.com",
+    "Email": "sharkthink6@gmail.com",
+    "FullName": "Shark Think",
+    "PasswordHash": "AQAAAAIAAYagAAAAENj9SfSb4s6J\u002B8DhKMiiHJw9D8Rgqh\u002BO15NQe\u002B\u002BU5Q\u002BRevnp8HXGfJgnE9l6gO8How==",
+    "AvatarUrl": "https://api.dicebear.com/7.x/avataaars/svg?seed=sharkthink6%40gmail.com",
+    "Role": "User",
+    "IsGoogleAccount": true,
+    "CreatedAt": "2026-08-04T08:04:31.3146806Z",
+    "PurchasedMovieIds": [],
+    "IsGoogleUser": true
+  }
+]

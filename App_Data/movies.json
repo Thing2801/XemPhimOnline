@@ -1,0 +1,407 @@
+[
+  {
+    "Id": "avengers-endgame",
+    "Title": "Avengers: H\u1ED3i K\u1EBFt",
+    "OriginalTitle": "Avengers: Endgame",
+    "Slug": "avengers-endgame",
+    "Description": "Sau s\u1EF1 ki\u1EC7n qu\u00E9t s\u1EA1ch n\u1EEDa v\u0169 tr\u1EE5 c\u1EE7a Thanos, c\u00E1c Avengers c\u00F2n s\u1ED1ng s\u00F3t ph\u1EA3i t\u1EADp h\u1EE3p m\u1ED9t l\u1EA7n n\u1EEFa \u0111\u1EC3 \u0111\u1EA3o ng\u01B0\u1EE3c th\u1EA3m h\u1ECDa v\u00E0 ph\u1EE5c h\u1ED3i l\u1EA1i tr\u1EADt t\u1EF1 cho th\u1EF1c t\u1EA1i.",
+    "Tagline": "Tr\u1EADn chi\u1EBFn cu\u1ED1i c\u00F9ng \u0111\u1EC3 l\u1EADp l\u1EA1i tr\u1EADt t\u1EF1 v\u0169 tr\u1EE5",
+    "PosterUrl": "https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/TcMBFSGVi1c",
+    "ReleaseYear": 2024,
+    "Duration": "181 ph\u00FAt",
+    "Rating": 9.4,
+    "AgeRating": "13\u002B",
+    "Quality": "4K HDR",
+    "LanguageMode": "Thuy\u1EBFt Minh \u002B Vietsub",
+    "Country": "\u00C2u M\u1EF9",
+    "Director": "Anthony Russo, Joe Russo",
+    "Cast": [
+      "Robert Downey Jr.",
+      "Chris Evans",
+      "Mark Ruffalo",
+      "Chris Hemsworth",
+      "Scarlett Johansson"
+    ],
+    "GenreIds": [
+      "hanh-dong",
+      "sieu-anh-hung",
+      "khoa-hoc"
+    ],
+    "GenreNames": [
+      "H\u00E0nh \u0111\u1ED9ng",
+      "Si\u00EAu anh h\u00F9ng",
+      "Khoa h\u1ECDc"
+    ],
+    "IsFeatured": true,
+    "FeaturedOrder": 1,
+    "IsSeries": false,
+    "EpisodeInfo": "Full 4K",
+    "ViewsCount": 1450000,
+    "CreatedAt": "2026-07-21T07:00:30.1192326Z"
+  },
+  {
+    "Id": "tay-du-ky-dai-nao-thien-cung",
+    "Title": "T\u00E2y Du K\u00FD: \u0110\u1EA1i N\u00E1o Thi\u00EAn Cung",
+    "OriginalTitle": "The Monkey King: Legend Reborn",
+    "Slug": "tay-du-ky-dai-nao-thien-cung",
+    "Description": "H\u00E0nh tr\u00ECnh kh\u1EDFi ngu\u1ED3n c\u1EE7a T\u00F4n Ng\u1ED9 Kh\u00F4ng t\u1EEB l\u00FAc sinh ra t\u1EEB \u0111\u00E1 th\u1EA7n \u0111\u1EBFn khi \u0111\u1EA1i n\u00E1o Thi\u00EAn Cung, th\u00E1ch th\u1EE9c th\u1EA7n ti\u00EAn v\u00E0 tr\u1EDF th\u00E0nh huy\u1EC1n tho\u1EA1i b\u1EA5t t\u1EED.",
+    "Tagline": "T\u1EC1 Thi\u00EAn \u0110\u1EA1i Th\u00E1nh \u0111\u1EA1i n\u00E1o ba gi\u1EDBi",
+    "PosterUrl": "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/d9MyW72ELq0",
+    "ReleaseYear": 2025,
+    "Duration": "128 ph\u00FAt",
+    "Rating": 9.1,
+    "AgeRating": "P",
+    "Quality": "4K Ultra HD",
+    "LanguageMode": "L\u1ED3ng Ti\u1EBFng Chu\u1EA9n",
+    "Country": "Trung Qu\u1ED1c",
+    "Director": "Tr\u1ECBnh B\u1EA3o Th\u1EE5y",
+    "Cast": [
+      "Ch\u00E2n T\u1EED \u0110an",
+      "Ch\u00E2u Nhu\u1EADn Ph\u00E1t",
+      "Qu\u00E1ch Ph\u00FA Th\u00E0nh",
+      "Tr\u1EA7n Ki\u1EC1u \u00C2n"
+    ],
+    "GenreIds": [
+      "huyen-thoai",
+      "co-trang",
+      "hanh-dong"
+    ],
+    "GenreNames": [
+      "Huy\u1EC1n tho\u1EA1i / Truy\u1EC1n thuy\u1EBFt",
+      "C\u1ED5 Trang",
+      "H\u00E0nh \u0111\u1ED9ng"
+    ],
+    "IsFeatured": true,
+    "FeaturedOrder": 2,
+    "IsSeries": false,
+    "EpisodeInfo": "B\u1EA3n \u0110\u1EB9p 4K",
+    "ViewsCount": 980000,
+    "CreatedAt": "2026-07-23T07:00:30.1192584Z"
+  },
+  {
+    "Id": "vuon-sao-bang-thanh-xuan",
+    "Title": "Y\u00EAu Em T\u1EEB C\u00E1i Nh\u00ECn \u0110\u1EA7u Ti\u00EAn",
+    "OriginalTitle": "Love O2O - Special Edition",
+    "Slug": "yeu-em-tu-cai-nhin-dau-tien",
+    "Description": "C\u00E2u chuy\u1EC7n t\u00ECnh y\u00EAu l\u00E3ng m\u1EA1n gi\u1EEFa \u0111\u1EA1i th\u1EA7n m\u00E1y t\u00EDnh Ti\u00EAu N\u1EA1i v\u00E0 hoa kh\u00F4i khoa CNTT B\u1ED1i Vi Vi, k\u1EBFt duy\u00EAn qua th\u1EBF gi\u1EDBi game nh\u1EADp vai v\u00F5 l\u00E2m.",
+    "Tagline": "M\u1ED1i t\u00ECnh ng\u1ECDt ng\u00E0o t\u1EEB game ra ngo\u00E0i \u0111\u1EDDi th\u1EF1c",
+    "PosterUrl": "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "ReleaseYear": 2025,
+    "Duration": "30 T\u1EADp",
+    "Rating": 9.2,
+    "AgeRating": "P",
+    "Quality": "Full HD",
+    "LanguageMode": "Thuy\u1EBFt Minh",
+    "Country": "Trung Qu\u1ED1c",
+    "Director": "L\u00E2m Ng\u1ECDc Ph\u00E2n",
+    "Cast": [
+      "D\u01B0\u01A1ng D\u01B0\u01A1ng",
+      "Tr\u1ECBnh S\u1EA3ng",
+      "Tr\u01B0\u01A1ng B\u00E2n B\u00E2n",
+      "Mao Hi\u1EC3u \u0110\u1ED3ng"
+    ],
+    "GenreIds": [
+      "ngon-tinh",
+      "tinh-cam"
+    ],
+    "GenreNames": [
+      "Ng\u00F4n t\u00ECnh",
+      "T\u00ECnh c\u1EA3m"
+    ],
+    "IsFeatured": true,
+    "FeaturedOrder": 3,
+    "IsSeries": true,
+    "EpisodeInfo": "Tr\u1ECDn b\u1ED9 30/30 T\u1EADp",
+    "ViewsCount": 1200000,
+    "CreatedAt": "2026-07-16T07:00:30.1192622Z"
+  },
+  {
+    "Id": "interstellar-du-hanh-khong-thoi-gian",
+    "Title": "Interstellar: Du H\u00E0nh Li\u00EAn Sao",
+    "OriginalTitle": "Interstellar",
+    "Slug": "interstellar-du-hanh-lien-sao",
+    "Description": "Khi tr\u00E1i \u0111\u1EA5t b\u01B0\u1EDBc v\u00E0o th\u1EDDi k\u1EF3 di\u1EC7t vong, m\u1ED9t nh\u00F3m nh\u00E0 phi h\u00E0nh v\u0169 tr\u1EE5 d\u1EA5n th\u00E2n v\u00E0o chuy\u1EBFn du h\u00E0nh qua h\u1ED1 giun thi\u00EAn h\u00E0 \u0111\u1EC3 t\u00ECm ki\u1EBFm h\u00E0nh tinh m\u1EDBi s\u1ED1ng \u0111\u01B0\u1EE3c cho con ng\u01B0\u1EDDi.",
+    "Tagline": "T\u01B0\u01A1ng lai c\u1EE7a nh\u00E2n lo\u1EA1i n\u1EB1m \u1EDF ngo\u00E0i v\u0169 tr\u1EE5 bao la",
+    "PosterUrl": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/zSWdZVtXT7E",
+    "ReleaseYear": 2024,
+    "Duration": "169 ph\u00FAt",
+    "Rating": 9.6,
+    "AgeRating": "13\u002B",
+    "Quality": "IMAX 4K",
+    "LanguageMode": "Vietsub Thuy\u1EBFt Minh",
+    "Country": "\u00C2u M\u1EF9",
+    "Director": "Christopher Nolan",
+    "Cast": [
+      "Matthew McConaughey",
+      "Anne Hathaway",
+      "Jessica Chastain",
+      "Michael Caine"
+    ],
+    "GenreIds": [
+      "khoa-hoc",
+      "hanh-dong",
+      "trinh-tham"
+    ],
+    "GenreNames": [
+      "Khoa h\u1ECDc",
+      "H\u00E0nh \u0111\u1ED9ng",
+      "Trinh th\u00E1m"
+    ],
+    "IsFeatured": true,
+    "FeaturedOrder": 4,
+    "IsSeries": false,
+    "EpisodeInfo": "Full IMAX",
+    "ViewsCount": 1680000,
+    "CreatedAt": "2026-07-11T07:00:30.1192647Z"
+  },
+  {
+    "Id": "your-name-ten-bo-la-gi",
+    "Title": "Your Name: T\u00EAn C\u1EADu L\u00E0 G\u00EC?",
+    "OriginalTitle": "Kimi no Na wa.",
+    "Slug": "your-name-ten-cau-la-gi",
+    "Description": "Taki \u1EDF Tokyo v\u00E0 Mitsuha \u1EDF m\u1ED9t v\u00F9ng qu\u00EA h\u1EBBo l\u00E1nh b\u1EA5t ng\u1EDD b\u1ECB ho\u00E1n \u0111\u1ED5i th\u00E2n x\u00E1c qua nh\u1EEFng gi\u1EA5c m\u01A1. C\u1EA3 hai c\u00F9ng nhau t\u00ECm ki\u1EBFm s\u1EF1 th\u1EADt \u0111\u1EB1ng sau hi\u1EC7n t\u01B0\u1EE3ng k\u1EF3 l\u1EA1 v\u00E0 th\u1EA3m h\u1ECDa s\u1EAFp gi\u00E1ng xu\u1ED1ng.",
+    "Tagline": "K\u00FD \u1EE9c m\u01A1 h\u1ED3 n\u1ED1i li\u1EC1n hai s\u1ED1 ph\u1EADn",
+    "PosterUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/xU47nhruN-Q",
+    "ReleaseYear": 2025,
+    "Duration": "106 ph\u00FAt",
+    "Rating": 9.5,
+    "AgeRating": "P",
+    "Quality": "Full HD Ultra",
+    "LanguageMode": "L\u1ED3ng Ti\u1EBFng \u002B Vietsub",
+    "Country": "Nh\u1EADt B\u1EA3n",
+    "Director": "Makoto Shinkai",
+    "Cast": [
+      "Ryunosuke Kamiki",
+      "Mone Kamishibai",
+      "Ryo Narita"
+    ],
+    "GenreIds": [
+      "hoat-hinh",
+      "tinh-cam",
+      "huyen-thoai"
+    ],
+    "GenreNames": [
+      "Phim ho\u1EA1t h\u00ECnh",
+      "T\u00ECnh c\u1EA3m",
+      "Huy\u1EC1n tho\u1EA1i / Truy\u1EC1n thuy\u1EBFt"
+    ],
+    "IsFeatured": true,
+    "FeaturedOrder": 5,
+    "IsSeries": false,
+    "EpisodeInfo": "B\u1EA3n \u0110\u1EB9p Vietsub",
+    "ViewsCount": 1320000,
+    "CreatedAt": "2026-07-26T07:00:30.1192654Z"
+  },
+  {
+    "Id": "conan-tham-tu-lung-danh",
+    "Title": "Th\u00E1m T\u1EED L\u1EEBng Danh Conan: T\u00E0u Ng\u1EA7m S\u1EAFt N\u1ED1t \u0110en",
+    "OriginalTitle": "Detective Conan: Black Iron Submarine",
+    "Slug": "tham-tu-lung-danh-conan-tau-ngam-sat",
+    "Description": "Conan v\u00E0 t\u1ED5 ch\u1EE9c \u00C1o \u0110en \u0111\u1EE5ng \u0111\u1ED9 n\u1EA3y l\u1EEDa t\u1EA1i c\u01A1 s\u1EDF k\u1EBFt n\u1ED1i camera gi\u00E1m s\u00E1t to\u00E0n c\u1EA7u tr\u00EAn bi\u1EC3n Pacific Buoy. Haibara b\u1ECB \u0111e d\u1ECDa t\u00EDnh m\u1EA1ng khi th\u00E2n ph\u1EADn th\u1EADt b\u1ECB h\u00E9 l\u1ED9.",
+    "Tagline": "\u0110\u1EA5u tr\u00ED c\u0103ng th\u1EB3ng t\u1EA1i tr\u1EA1m gi\u00E1m s\u00E1t h\u1EA3i qu\u00E2n",
+    "PosterUrl": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "ReleaseYear": 2025,
+    "Duration": "110 ph\u00FAt",
+    "Rating": 8.9,
+    "AgeRating": "P",
+    "Quality": "Full HD",
+    "LanguageMode": "L\u1ED3ng Ti\u1EBFng",
+    "Country": "Nh\u1EADt B\u1EA3n",
+    "Director": "Yuzuru Tachikawa",
+    "Cast": [
+      "Minami Takayama",
+      "Megumi Hayashibara",
+      "Rikiya Koyama"
+    ],
+    "GenreIds": [
+      "trinh-tham",
+      "hoat-hinh",
+      "hanh-dong"
+    ],
+    "GenreNames": [
+      "Trinh th\u00E1m",
+      "Phim ho\u1EA1t h\u00ECnh",
+      "H\u00E0nh \u0111\u1ED9ng"
+    ],
+    "IsFeatured": false,
+    "FeaturedOrder": 0,
+    "IsSeries": false,
+    "EpisodeInfo": "Full HD L\u1ED3ng Ti\u1EBFng",
+    "ViewsCount": 850000,
+    "CreatedAt": "2026-07-28T07:00:30.1192661Z"
+  },
+  {
+    "Id": "the-conjuring-ma-ca-rong",
+    "Title": "\u00C1m \u1EA2nh Kinh Ho\u00E0ng: Nghi L\u1EC5 \u00C1c Qu\u1EF7",
+    "OriginalTitle": "The Conjuring: Devil\u0027s Rite",
+    "Slug": "am-anh-kinh-hoang-nghi-le-ac-quy",
+    "Description": "Hai v\u1EE3 ch\u1ED3ng nh\u00E0 \u0111i\u1EC1u tra hi\u1EC7n t\u01B0\u1EE3ng si\u00EAu nhi\u00EAn Ed v\u00E0 Lorraine Warren \u0111\u1ED1i m\u1EB7t v\u1EDBi m\u1ED9t th\u1EF1c th\u1EC3 qu\u1EF7 d\u1EEF c\u1ED5 x\u01B0a \u0111ang \u0111e d\u1ECDa m\u1ED9t gia \u0111\u00ECnh ngh\u00E8o v\u00F9ng n\u00F4ng th\u00F4n.",
+    "Tagline": "D\u1EF1a tr\u00EAn h\u1ED3 s\u01A1 \u0111i\u1EC1u tra c\u00F3 th\u1EADt nguy hi\u1EC3m nh\u1EA5t",
+    "PosterUrl": "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "ReleaseYear": 2024,
+    "Duration": "112 ph\u00FAt",
+    "Rating": 8.6,
+    "AgeRating": "18\u002B",
+    "Quality": "4K HD",
+    "LanguageMode": "Vietsub",
+    "Country": "\u00C2u M\u1EF9",
+    "Director": "Michael Chaves",
+    "Cast": [
+      "Patrick Wilson",
+      "Vera Farmiga",
+      "Ruairi O\u0027Connor"
+    ],
+    "GenreIds": [
+      "kinh-di",
+      "trinh-tham"
+    ],
+    "GenreNames": [
+      "Kinh d\u1ECB",
+      "Trinh th\u00E1m"
+    ],
+    "IsFeatured": false,
+    "FeaturedOrder": 0,
+    "IsSeries": false,
+    "EpisodeInfo": "B\u1EA3n Vietsub 18\u002B",
+    "ViewsCount": 740000,
+    "CreatedAt": "2026-07-19T07:00:30.1192667Z"
+  },
+  {
+    "Id": "truong-nguyet-tan-minh",
+    "Title": "Tr\u01B0\u1EDDng Nguy\u1EC7t T\u1EA5n Minh",
+    "OriginalTitle": "Till The End Of The Moon",
+    "Slug": "truong-nguyet-tan-minh",
+    "Description": "\u0110\u1EC3 c\u1EE9u th\u1EBF gi\u1EDBi kh\u1ECFi s\u1EF1 t\u00E0n ph\u00E1 c\u1EE7a Ma Th\u1EA7n \u0110\u1EA1m \u0110\u00E0i T\u1EABn, L\u00EA T\u00F4 T\u00F4 du h\u00E0nh v\u1EC1 500 n\u0103m tr\u01B0\u1EDBc, bi\u1EBFn th\u00E0nh di\u1EC7p t\u1ECBnh \u0111\u1EC3 ng\u0103n ch\u1EB7n h\u1EAFn th\u1EE9c t\u1EC9nh ma c\u1ED1t.",
+    "Tagline": "Chuy\u1EC7n t\u00ECnh 3 ki\u1EBFp ng\u01B0\u1EE3c t\u00E2m gi\u1EEFa Ma Th\u1EA7n v\u00E0 Th\u1EA7n N\u1EEF",
+    "PosterUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "ReleaseYear": 2025,
+    "Duration": "40 T\u1EADp",
+    "Rating": 9.3,
+    "AgeRating": "13\u002B",
+    "Quality": "Full HD",
+    "LanguageMode": "Thuy\u1EBFt Minh",
+    "Country": "Trung Qu\u1ED1c",
+    "Director": "C\u00FAc Gi\u00E1c Liang",
+    "Cast": [
+      "La V\u00E2n Hi",
+      "B\u1EA1ch L\u1ED9c",
+      "\u0110\u1EB7ng Vi",
+      "Tr\u1EA7n \u0110\u00F4 Linh"
+    ],
+    "GenreIds": [
+      "co-trang",
+      "huyen-thoai",
+      "tinh-cam",
+      "ngon-tinh"
+    ],
+    "GenreNames": [
+      "C\u1ED5 Trang",
+      "Huy\u1EC1n tho\u1EA1i / Truy\u1EC1n thuy\u1EBFt",
+      "T\u00ECnh c\u1EA3m",
+      "Ng\u00F4n t\u00ECnh"
+    ],
+    "IsFeatured": false,
+    "FeaturedOrder": 0,
+    "IsSeries": true,
+    "EpisodeInfo": "Tr\u1ECDn B\u1ED9 40/40 T\u1EADp",
+    "ViewsCount": 1150000,
+    "CreatedAt": "2026-07-29T07:00:30.1192674Z"
+  },
+  {
+    "Id": "mai-tran-thanh",
+    "Title": "Mai: C\u00E2u Chuy\u1EC7n T\u00ECnh Y\u00EAu \u0026 Ph\u1EADn Ng\u01B0\u1EDDi",
+    "OriginalTitle": "Mai",
+    "Slug": "mai-cau-chuyen-tinh-yeu",
+    "Description": "Mai - m\u1ED9t ng\u01B0\u1EDDi ph\u1EE5 n\u1EEF l\u00E0m ngh\u1EC1 m\u00E1t-xa ch\u1ECBu nhi\u1EC1u \u0111\u1ECBnh ki\u1EBFn x\u00E3 h\u1ED9i, g\u1EB7p g\u1EE1 D\u01B0\u01A1ng - m\u1ED9t ch\u00E0ng trai \u0111\u00E0o hoa tr\u1EBB tu\u1ED5i. C\u00E2u chuy\u1EC7n t\u00ECnh y\u00EAu ch\u00E2n th\u00E0nh nh\u01B0ng \u0111\u1EA7y tr\u1EAFc tr\u1EDF.",
+    "Tagline": "Ranh gi\u1EDBi mong manh gi\u1EEFa t\u00ECnh y\u00EAu v\u00E0 \u0111\u1ECBnh ki\u1EBFn",
+    "PosterUrl": "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "ReleaseYear": 2024,
+    "Duration": "131 ph\u00FAt",
+    "Rating": 8.8,
+    "AgeRating": "18\u002B",
+    "Quality": "Full HD",
+    "LanguageMode": "Ti\u1EBFng Vi\u1EC7t B\u1EA3n G\u1ED1c",
+    "Country": "Vi\u1EC7t Nam",
+    "Director": "Tr\u1EA5n Th\u00E0nh",
+    "Cast": [
+      "Ph\u01B0\u01A1ng Anh \u0110\u00E0o",
+      "Tu\u1EA5n Tr\u1EA7n",
+      "Tr\u1EA5n Th\u00E0nh",
+      "NSND Ng\u1ECDc Gi\u00E0u"
+    ],
+    "GenreIds": [
+      "tinh-cam",
+      "ngon-tinh"
+    ],
+    "GenreNames": [
+      "T\u00ECnh c\u1EA3m",
+      "Ng\u00F4n t\u00ECnh"
+    ],
+    "IsFeatured": false,
+    "FeaturedOrder": 0,
+    "IsSeries": false,
+    "EpisodeInfo": "Full HD Chi\u1EBFu R\u1EA1p",
+    "ViewsCount": 2100000,
+    "CreatedAt": "2026-07-30T07:00:30.119268Z"
+  },
+  {
+    "Id": "spiderman-no-way-home",
+    "Title": "Ng\u01B0\u1EDDi Nh\u1EC7n: Kh\u00F4ng C\u00F2n Nh\u00E0",
+    "OriginalTitle": "Spider-Man: No Way Home",
+    "Slug": "nguoi-nhen-khong-con-nha",
+    "Description": "Danh t\u00EDnh b\u1ECB ti\u1EBFt l\u1ED9, Peter Parker nh\u1EDD Doctor Strange gi\u00FAp th\u1EBF gi\u1EDBi qu\u00EAn \u0111i c\u00E2u ch\u00FA nguy\u1EC1n. Tuy nhi\u00EAn th\u1EA3m h\u1ECDa \u0111a v\u0169 tr\u1EE5 x\u1EA3y ra k\u00E9o theo c\u00E1c \u00E1c nh\u00E2n t\u1EEB nh\u1EEFng th\u1EBF gi\u1EDBi kh\u00E1c.",
+    "Tagline": "\u0110a v\u0169 tr\u1EE5 m\u1EDF ra - Ba Ng\u01B0\u1EDDi Nh\u1EC7n h\u1ED9i t\u1EE5",
+    "PosterUrl": "https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format\u0026fit=crop\u0026w=600\u0026q=80",
+    "BannerUrl": "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format\u0026fit=crop\u0026w=1600\u0026q=80",
+    "TrailerUrl": "https://www.youtube.com/embed/rt-2cxAiPJk",
+    "ReleaseYear": 2024,
+    "Duration": "148 ph\u00FAt",
+    "Rating": 9.3,
+    "AgeRating": "13\u002B",
+    "Quality": "4K HDR",
+    "LanguageMode": "Thuy\u1EBFt Minh",
+    "Country": "\u00C2u M\u1EF9",
+    "Director": "Jon Watts",
+    "Cast": [
+      "Tom Holland",
+      "Zendaya",
+      "Benedict Cumberbatch",
+      "Andrew Garfield",
+      "Tobey Maguire"
+    ],
+    "GenreIds": [
+      "sieu-anh-hung",
+      "hanh-dong",
+      "khoa-hoc"
+    ],
+    "GenreNames": [
+      "Si\u00EAu anh h\u00F9ng",
+      "H\u00E0nh \u0111\u1ED9ng",
+      "Khoa h\u1ECDc"
+    ],
+    "IsFeatured": false,
+    "FeaturedOrder": 0,
+    "IsSeries": false,
+    "EpisodeInfo": "Full 4K HDR",
+    "ViewsCount": 1890000,
+    "CreatedAt": "2026-07-13T07:00:30.1192687Z"
+  }
+]

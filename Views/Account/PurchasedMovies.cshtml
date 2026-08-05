@@ -1,0 +1,48 @@
+@model List<MovieWeb.Core.Models.Movie>
+@{
+    ViewData["Title"] = "Phim Đã Mua - XemPhimOnline";
+    ViewData["ActivePage"] = "PurchasedMovies";
+}
+
+<div class="main-wrapper" style="padding-top: 2rem; padding-bottom: 4rem;">
+    <!-- Section Title & Badge -->
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-3" style="border-bottom: 1px solid var(--border-color);">
+        <div>
+            <h1 class="section-title mb-1" style="font-size: 2.2rem; font-weight: 800; color: #ffffff;">
+                <i class="fas fa-shopping-bag text-success me-2"></i> Danh Sách Phim Đã Mua
+            </h1>
+            <p class="text-muted small mb-0">Tất cả các bộ phim rạp bạn đã thanh toán mở khóa và sở hữu vĩnh viễn.</p>
+        </div>
+        <div>
+            <span class="badge-pill badge-warning" style="font-size: 0.95rem; padding: 8px 16px; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <i class="fas fa-check-circle me-1.5"></i> @Model.Count phim đã sở hữu
+            </span>
+        </div>
+    </div>
+
+    <!-- Purchased Movies Display Grid -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="movie-grid">
+            @foreach (var movie in Model)
+            {
+                @await Html.PartialAsync("_MovieCard", movie)
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5" style="background: var(--bg-card); border-radius: var(--radius-md); border: 1px dashed rgba(255, 255, 255, 0.2); margin: 2rem 0;">
+            <div class="mb-3">
+                <i class="fas fa-shopping-bag text-success" style="font-size: 4rem; opacity: 0.4;"></i>
+            </div>
+            <h3 class="text-white mb-2 fw-bold">Danh sách phim đã mua đang trống</h3>
+            <p class="text-muted mb-4" style="max-width: 480px; margin-left: auto; margin-right: auto;">
+                Bạn chưa mở khóa bộ phim rạp nào. Hãy khám phá danh sách phim chiếu rạp hấp dẫn nhất để thưởng thức ngay hôm nay!
+            </p>
+            <a href="/phim-chieu-rap" class="btn-custom btn-primary-custom px-4 py-2.5">
+                <i class="fas fa-ticket-alt me-2"></i> Khám Phá Phim Chiếu Rạp Ngay
+            </a>
+        </div>
+    }
+</div>

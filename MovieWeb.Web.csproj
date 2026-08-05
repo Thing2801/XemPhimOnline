@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OrchardCore.Application.Cms.Targets" Version="2.1.0" />
+    <PackageReference Include="OrchardCore.Logging.NLog" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MovieWeb.Core\MovieWeb.Core.csproj" />
+    <ProjectReference Include="..\Modules\MovieWeb.Modules.Home\MovieWeb.Modules.Home.csproj" />
+    <ProjectReference Include="..\Modules\MovieWeb.Modules.Movies\MovieWeb.Modules.Movies.csproj" />
+    <ProjectReference Include="..\Modules\MovieWeb.Modules.Genres\MovieWeb.Modules.Genres.csproj" />
+    <ProjectReference Include="..\Modules\MovieWeb.Modules.Cinema\MovieWeb.Modules.Cinema.csproj" />
+    <ProjectReference Include="..\Modules\MovieWeb.Modules.Series\MovieWeb.Modules.Series.csproj" />
+  </ItemGroup>
+
+</Project>

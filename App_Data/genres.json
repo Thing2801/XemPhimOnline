@@ -1,0 +1,92 @@
+[
+  {
+    "Id": "hanh-dong",
+    "Name": "H\u00E0nh \u0111\u1ED9ng",
+    "Slug": "hanh-dong",
+    "Description": "Phim h\u00E0nh \u0111\u1ED9ng k\u1ECBch t\u00EDnh, ngh\u1EB9t th\u1EDF",
+    "IconClass": "fas fa-fire",
+    "BadgeColor": "badge-red",
+    "MovieCount": 0
+  },
+  {
+    "Id": "sieu-anh-hung",
+    "Name": "Si\u00EAu anh h\u00F9ng",
+    "Slug": "sieu-anh-hung",
+    "Description": "V\u0169 tr\u1EE5 si\u00EAu anh h\u00F9ng gi\u1EA3i c\u1EE9u th\u1EBF gi\u1EDBi",
+    "IconClass": "fas fa-mask",
+    "BadgeColor": "badge-amber",
+    "MovieCount": 0
+  },
+  {
+    "Id": "tinh-cam",
+    "Name": "T\u00ECnh c\u1EA3m",
+    "Slug": "tinh-cam",
+    "Description": "Nh\u1EEFng c\u00E2u chuy\u1EC7n t\u00ECnh y\u00EAu s\u00E2u l\u1EAFng, l\u00E3ng m\u1EA1n",
+    "IconClass": "fas fa-heart",
+    "BadgeColor": "badge-pink",
+    "MovieCount": 0
+  },
+  {
+    "Id": "ngon-tinh",
+    "Name": "Ng\u00F4n t\u00ECnh",
+    "Slug": "ngon-tinh",
+    "Description": "Phim truy\u1EC1n h\u00ECnh l\u00E3ng m\u1EA1n, thanh xu\u00E2n v\u01B0\u1EDDn tr\u01B0\u1EDDng",
+    "IconClass": "fas fa-feather-alt",
+    "BadgeColor": "badge-purple",
+    "MovieCount": 0
+  },
+  {
+    "Id": "kinh-di",
+    "Name": "Kinh d\u1ECB",
+    "Slug": "kinh-di",
+    "Description": "Phim r\u00F9ng r\u1EE3n, gi\u1EADt g\u00E2n, \u00E1m \u1EA3nh",
+    "IconClass": "fas fa-ghost",
+    "BadgeColor": "badge-dark",
+    "MovieCount": 0
+  },
+  {
+    "Id": "trinh-tham",
+    "Name": "Trinh th\u00E1m",
+    "Slug": "trinh-tham",
+    "Description": "Ph\u00E1 \u00E1n b\u00ED \u1EA9n, \u0111\u1EA5u tr\u00ED gay go",
+    "IconClass": "fas fa-search-location",
+    "BadgeColor": "badge-blue",
+    "MovieCount": 0
+  },
+  {
+    "Id": "huyen-thoai",
+    "Name": "Huy\u1EC1n tho\u1EA1i / Truy\u1EC1n thuy\u1EBFt",
+    "Slug": "huyen-thoai",
+    "Description": "Th\u1EA7n tho\u1EA1i, th\u1EBF gi\u1EDBi th\u1EA7n ti\u00EAn, truy\u1EC1n thuy\u1EBFt c\u1ED5 \u0111\u1EA1i",
+    "IconClass": "fas fa-dragon",
+    "BadgeColor": "badge-gold",
+    "MovieCount": 0
+  },
+  {
+    "Id": "hoat-hinh",
+    "Name": "Phim ho\u1EA1t h\u00ECnh",
+    "Slug": "hoat-hinh",
+    "Description": "Ho\u1EA1t h\u00ECnh Anime, 3D s\u1ED1ng \u0111\u1ED9ng, phi\u00EAu l\u01B0u gi\u1EA3i tr\u00ED",
+    "IconClass": "fas fa-magic",
+    "BadgeColor": "badge-emerald",
+    "MovieCount": 0
+  },
+  {
+    "Id": "khoa-hoc",
+    "Name": "Khoa h\u1ECDc / Vi\u1EC5n t\u01B0\u1EDFng",
+    "Slug": "khoa-hoc",
+    "Description": "Kh\u00E1m ph\u00E1 v\u0169 tr\u1EE5, c\u00F4ng ngh\u1EC7 t\u01B0\u01A1ng lai, du h\u00E0nh th\u1EDDi gian",
+    "IconClass": "fas fa-user-astronaut",
+    "BadgeColor": "badge-cyan",
+    "MovieCount": 0
+  },
+  {
+    "Id": "co-trang",
+    "Name": "C\u1ED5 Trang",
+    "Slug": "co-trang",
+    "Description": "Phim l\u1ECBch s\u1EED, ki\u1EBFm hi\u1EC7p, tri\u1EC1u \u0111\u00ECnh x\u01B0a",
+    "IconClass": "fas fa-fan",
+    "BadgeColor": "badge-orange",
+    "MovieCount": 0
+  }
+]
